@@ -3,7 +3,7 @@
 import React from 'react';
 import { X, Clock, User, Tag, ExternalLink } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 export default function PostDetailPopover({ post, onClose }) {
   return (
@@ -45,12 +45,12 @@ export default function PostDetailPopover({ post, onClose }) {
           </div>
           <div className="flex gap-2 pt-1">
             <Link
-              href="/post-creation-composer"
+              to="/post-creation-composer"
               className="btn-secondary text-xs flex-1 justify-center"
             >
               Edit Post
             </Link>
-            <Link href="/approval-workflow" className="btn-primary text-xs flex-1 justify-center">
+            <Link to="/approval-workflow" className="btn-primary text-xs flex-1 justify-center">
               <ExternalLink size={12} />
               View in Queue
             </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
@@ -18,7 +19,9 @@ export default function AppLayout({ children }) {
           paddingTop: 'var(--topbar-height)',
         }}
       >
-        <div className="px-6 lg:px-8 xl:px-10 py-6 max-w-screen-2xl mx-auto">{children}</div>
+        <div className="px-6 lg:px-8 xl:px-10 py-6 max-w-screen-2xl mx-auto">
+          {children || <Outlet />}
+        </div>
       </main>
     </div>
   );

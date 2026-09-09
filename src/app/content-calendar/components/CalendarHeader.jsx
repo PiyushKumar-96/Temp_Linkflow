@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { ChevronLeft, ChevronRight, CalendarDays, Plus } from 'lucide-react';
-import Link from 'next/link';
 
 const members = [
   { id: 'all', label: 'All Members', initials: 'ALL' },

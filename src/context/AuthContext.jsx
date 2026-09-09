@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
@@ -18,7 +18,11 @@ export const ACCOUNTS = [
 ];
 
 export function AuthProvider({ children }) {
-  const router = useRouter();
+  const navigate = useNavigate();
+  const router = {
+    push: (path) => navigate(path),
+    replace: (path) => navigate(path, { replace: true }),
+  };
 
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [user] = useState(DEFAULT_USER);

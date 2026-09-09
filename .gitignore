@@ -5,12 +5,11 @@ package-lock.json
 # Local env files
 .env*.local
 
-# Next.js build output
+# Build output
+dist/
+build/
 .next/
 out/
-
-# Production build
-build/
 
 # Logs
 npm-debug.log*

@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/AppIcon';
 
 export default function NotFound() {
@@ -19,7 +19,7 @@ export default function NotFound() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/"
+            to="/"
             className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors duration-200"
           >
             <Icon name="HomeIcon" size={16} />

@@ -16,7 +16,6 @@ import {
   Link as LinkIcon,
   MessageSquareQuote,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
 import { toast } from 'sonner';

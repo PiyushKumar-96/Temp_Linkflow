@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from 'react-router-dom';
 import AppLogo from '@/components/ui/AppLogo';
 import {
   PenSquare,
@@ -67,7 +66,7 @@ const bottomItems = [
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { user, isOwner } = useAuth();
 
   const isActive = (href) => {
@@ -122,7 +121,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             return (
               <Link
                 key={item.id}
-                href={item.href}
+                to={item.href}
                 className={`nav-item relative group ${active ? 'active' : ''}`}
                 title={collapsed ? item.label : undefined}
               >
@@ -161,7 +160,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             return (
               <Link
                 key={item.id}
-                href={item.href}
+                to={item.href}
                 className={`nav-item relative group ${active ? 'active' : ''}`}
                 title={collapsed ? item.label : undefined}
               >
@@ -185,7 +184,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           return (
             <Link
               key={item.id}
-              href={item.href}
+              to={item.href}
               className="nav-item relative group"
               title={collapsed ? item.label : undefined}
             >
@@ -202,7 +201,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
         {/* User */}
         <Link
-          href="/login"
+          to="/login"
           className={`flex items-center gap-2 mt-2 px-2 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group relative ${
             collapsed ? 'justify-center' : ''
           }`}

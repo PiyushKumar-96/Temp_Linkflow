@@ -1,13 +1,13 @@
 # LinkedFlow — LinkedIn Management Frontend
 
-A modern Next.js 15 application built with React 19, JavaScript (JSX), and Tailwind CSS for creating, scheduling, approving, and tracking LinkedIn posts from a collaborative team workspace.
+A modern, high-performance Single Page Application (SPA) built with **Vite**, **React 19**, **React Router v7**, **JavaScript (JSX)**, and **Tailwind CSS** for creating, scheduling, approving, and tracking LinkedIn posts from a collaborative team workspace.
 
 ## 🚀 Features
 
-- **Next.js 15 (App Router)** - Fast server & client routing with modern page architecture
-- **React 19** - Latest React version with modern hook patterns
-- **JavaScript & JSX** - Clean, standard JSX components
-- **Tailwind CSS & Autoprefixer** - Utility-first CSS framework with tailored tokens and component layers
+- **Vite & React 19** - Lightning-fast Hot Module Replacement (HMR) and optimized rollup bundling
+- **React Router** - Fast client-side routing with clean nested layout architecture
+- **JavaScript & JSX** - Standard JSX components with `@/*` path alias resolution
+- **Tailwind CSS & Autoprefixer** - Utility-first styling with tailored tokens and component layers
 - **Authentication & Role Simulation (`/login`)** - Dedicated login portal with 1-click test roles:
   - **Account Owner**: Full approval, publishing, and settings management
   - **Marketing User**: Content creation, draft authoring, and queue submission
@@ -54,7 +54,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Open [http://localhost:4028](http://localhost:4028) in your browser to view the app.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
 
 ---
 
@@ -62,9 +62,9 @@ Open [http://localhost:4028](http://localhost:4028) in your browser to view the 
 
 ```text
 linkedflow/
-├── public/                 # Static assets (images, logos, icons)
+├── public/                 # Static assets (images, logos, icons, favicon)
 ├── src/
-│   ├── app/                # App Router pages and features
+│   ├── app/                # Feature screens & pages
 │   │   ├── ai-generator/           # AI Post generation module
 │   │   ├── approval-workflow/      # Post approval queue & review workspace
 │   │   ├── components/             # Dashboard widgets & charts
@@ -74,23 +74,25 @@ linkedflow/
 │   │   ├── post-creation-composer/ # LinkedIn composer with CTA & carousel selector
 │   │   ├── post-templates/         # Post template library & editor
 │   │   ├── settings/               # Workspace settings & scheduling rules
-│   │   ├── layout.jsx              # Root application layout & font loader
 │   │   ├── not-found.jsx           # 404 page
 │   │   └── page.jsx                # Analytics dashboard home page
 │   ├── components/         # Shared layouts and UI components
-│   │   ├── AppLayout.jsx   # Shell with Sidebar and Topbar
+│   │   ├── AppLayout.jsx   # Shell with Sidebar, Topbar, and React Router Outlet
 │   │   ├── Sidebar.jsx     # Navigation sidebar with dynamic role badge
 │   │   ├── Topbar.jsx      # Header with account switcher, role toggle & notifications
 │   │   └── ui/             # Reusable UI primitives (ImageCarouselSelector, AppIcon, etc.)
 │   ├── context/            # React Contexts (AuthContext for roles & active accounts)
-│   └── styles/             # Global CSS and Tailwind directives
-│       ├── index.css
-│       └── tailwind.css
+│   ├── styles/             # Global CSS and Tailwind directives
+│   │   ├── index.css
+│   │   └── tailwind.css
+│   ├── App.jsx             # React Router client routes configuration
+│   └── main.jsx            # React root application entry point
+├── index.html              # Vite SPA entry HTML document
 ├── jsconfig.json           # Path alias configuration (@/* -> ./src/*)
-├── next.config.mjs         # Next.js build configuration
 ├── package.json            # Project dependencies and scripts
 ├── postcss.config.js       # PostCSS configuration for Tailwind
-└── tailwind.config.js      # Tailwind theme configuration
+├── tailwind.config.js      # Tailwind theme configuration
+└── vite.config.mjs         # Vite configuration with React plugin and alias
 ```
 
 ---
@@ -99,10 +101,9 @@ linkedflow/
 
 | Command            | Description                                                        |
 | :----------------- | :----------------------------------------------------------------- |
-| `npm run dev`      | Starts development server on port `4028` (`http://localhost:4028`) |
-| `npm run build`    | Compiles and builds the production bundle                          |
-| `npm run start`    | Alias for `next dev -p 4028`                                       |
-| `npm run serve`    | Runs the compiled production build via `next start`                |
+| `npm run dev`      | Starts Vite dev server on port `3000` (`http://localhost:3000`)    |
+| `npm run build`    | Compiles and builds the production bundle in `dist/`               |
+| `npm run preview`  | Locally previews the production build on port `3000`               |
 | `npm run lint`     | Runs ESLint to check for code quality and syntax issues            |
 | `npm run lint:fix` | Runs ESLint and automatically fixes fixable problems               |
 | `npm run format`   | Formats all JavaScript, JSX, CSS, and Markdown files with Prettier |
@@ -127,3 +128,5 @@ To create an optimized production build:
 ```bash
 npm run build
 ```
+
+The compiled output will be generated inside the `dist/` directory.
