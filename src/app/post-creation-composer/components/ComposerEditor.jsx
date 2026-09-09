@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Sparkles, Image, X } from 'lucide-react';
+import { Sparkles, Image, X, MessageSquareQuote } from 'lucide-react';
+import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
 
 const MAX_CHARS = 3000;
 
@@ -27,6 +28,8 @@ const categories = [
 export default function ComposerEditor({
   content,
   onChange,
+  cta = '',
+  onCtaChange,
   selectedTone,
   onToneChange,
   hashtags,
@@ -35,6 +38,10 @@ export default function ComposerEditor({
   onCategoryChange,
   imageUrl,
   onImageChange,
+  candidateImages = [],
+  selectedImageIndex = 0,
+  onSelectImageIndex,
+  onRemoveCandidates,
   isGenerating,
   onAIGenerate,
 }) {
@@ -94,13 +101,15 @@ export default function ComposerEditor({
         </div>
       </div>
 
-      {/* Text area */}
+      {/* Main Content Area */}
       <div className="relative">
         {isGenerating && (
           <div className="absolute inset-0 bg-card/80 flex items-center justify-center z-10 rounded-none">
             <div className="flex items-center gap-2 text-accent">
               <Sparkles size={18} className="animate-pulse" />
-              <span className="text-sm font-600">Generating with AI...</span>
+              <span className="text-sm font-600">
+                Generating post & 3 visual variations with AI...
+              </span>
             </div>
           </div>
         )}
@@ -111,15 +120,30 @@ export default function ComposerEditor({
               ? onChange(e.target.value.slice(0, MAX_CHARS))
               : undefined
           }
-          placeholder="Start writing your LinkedIn post, or use AI to generate one below..."
-          className="w-full px-4 py-4 text-sm text-foreground bg-transparent outline-none resize-none leading-relaxed placeholder:text-muted-foreground"
-          style={{ minHeight: 280 }}
+          placeholder="Start writing your LinkedIn post, or click 'Generate with AI'..."
+          className="w-full px-4 py-3 text-sm text-foreground bg-transparent outline-none resize-none leading-relaxed placeholder:text-muted-foreground"
+          style={{ minHeight: 220 }}
+        />
+      </div>
+
+      {/* Call to Action (CTA) Input */}
+      <div className="px-4 py-2 border-t border-border/60 bg-muted/10">
+        <label className="text-[11px] font-600 text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-1">
+          <MessageSquareQuote size={13} className="text-primary" />
+          <span>Call to Action (CTA)</span>
+        </label>
+        <input
+          type="text"
+          value={cta}
+          onChange={(e) => onCtaChange && onCtaChange(e.target.value)}
+          placeholder="e.g. What's your biggest challenge with LinkedIn growth? Drop a comment below 👇"
+          className="input-base text-xs py-1.5 px-3 w-full bg-background"
         />
       </div>
 
       {/* Hashtags */}
       {hashtags.length > 0 && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+        <div className="px-4 py-2 border-t border-border/40 flex flex-wrap gap-1.5">
           {hashtags.map((tag) => (
             <span
               key={`hashtag-${tag}`}
@@ -137,11 +161,24 @@ export default function ComposerEditor({
         </div>
       )}
 
-      {/* Image preview */}
-      {imageUrl && (
+      {/* AI Image Carousel Selector (2-3 Images) */}
+      {candidateImages && candidateImages.length > 0 && (
+        <div className="p-4 border-t border-border bg-muted/20">
+          <ImageCarouselSelector
+            images={candidateImages}
+            selectedIndex={selectedImageIndex}
+            onSelectIndex={onSelectImageIndex}
+            onRemove={onRemoveCandidates}
+            title="AI Generated Image Variations"
+          />
+        </div>
+      )}
+
+      {/* Single manual uploaded image preview (if no candidate carousel) */}
+      {imageUrl && (!candidateImages || candidateImages.length === 0) && (
         <div className="px-4 pb-3 relative">
           <div className="relative rounded-lg overflow-hidden border border-border">
-            <img src={imageUrl} alt="Post image preview" className="w-full object-cover max-h-48" />
+            <img src={imageUrl} alt="Post preview" className="w-full object-cover max-h-48" />
             <button
               onClick={() => onImageChange('')}
               className="absolute top-2 right-2 p-1 bg-foreground/60 rounded-full text-white hover:bg-foreground/80 transition-colors"
@@ -160,7 +197,7 @@ export default function ComposerEditor({
             className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-500 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <Image size={13} />
-            Add Image
+            Upload Image
           </button>
           <input
             ref={fileRef}
@@ -169,22 +206,28 @@ export default function ComposerEditor({
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) onImageChange(URL.createObjectURL(file));
+              if (file) {
+                const url = URL.createObjectURL(file);
+                onImageChange(url);
+                if (onRemoveCandidates) onRemoveCandidates();
+              }
             }}
           />
 
           <button
             onClick={onAIGenerate}
             disabled={isGenerating}
-            className="btn-accent text-xs py-1.5 px-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-accent text-xs py-1.5 px-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
           >
             <Sparkles size={13} />
-            {isGenerating ? 'Generating...' : 'Generate with AI'}
+            {isGenerating ? 'Generating...' : 'Generate with AI (Text + 3 Images)'}
           </button>
         </div>
 
         <span
-          className={`text-xs font-600 tabular-nums ${isAtLimit ? 'text-danger' : isNearLimit ? 'text-warning' : 'text-muted-foreground'}`}
+          className={`text-xs font-600 tabular-nums ${
+            isAtLimit ? 'text-danger' : isNearLimit ? 'text-warning' : 'text-muted-foreground'
+          }`}
         >
           {remaining.toLocaleString()} / {MAX_CHARS.toLocaleString()}
         </span>

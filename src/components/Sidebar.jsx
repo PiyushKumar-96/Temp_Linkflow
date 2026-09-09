@@ -18,6 +18,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+import { useAuth } from '@/context/AuthContext';
+
 const navItems = [
   { id: 'nav-analytics', label: 'Analytics', href: '/', icon: BarChart3, group: 'main' },
   {
@@ -66,6 +68,7 @@ const bottomItems = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const pathname = usePathname();
+  const { user, isOwner } = useAuth();
 
   const isActive = (href) => {
     if (href === '/') return pathname === '/';
@@ -198,24 +201,32 @@ export default function Sidebar({ collapsed, onToggle }) {
         })}
 
         {/* User */}
-        <div
-          className={`flex items-center gap-2 mt-2 px-2 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group relative ${collapsed ? 'justify-center' : ''}`}
+        <Link
+          href="/login"
+          className={`flex items-center gap-2 mt-2 px-2 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group relative ${
+            collapsed ? 'justify-center' : ''
+          }`}
+          title="Click to view Auth & Switch Role"
         >
           <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
-            <span className="text-white text-xs font-700">SR</span>
+            <span className="text-white text-xs font-700">{user?.initials || 'SR'}</span>
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-600 text-foreground truncate">Sarah Reeves</p>
-              <p className="text-xs text-muted-foreground truncate">Content Manager</p>
+              <p className="text-sm font-600 text-foreground truncate">
+                {user?.name || 'Sarah Reeves'}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate font-500">
+                {isOwner ? 'Account Owner' : 'Marketing User'}
+              </p>
             </div>
           )}
           {collapsed && (
             <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-              Sarah Reeves
+              {user?.name} ({isOwner ? 'Owner' : 'Marketing'})
             </div>
           )}
-        </div>
+        </Link>
 
         {collapsed && (
           <button

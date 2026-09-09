@@ -3,7 +3,7 @@
 import React from 'react';
 import { ThumbsUp, MessageSquare, Repeat2, Send, MoreHorizontal, Globe } from 'lucide-react';
 
-export default function ComposerPreview({ content, hashtags, imageUrl, isGenerating }) {
+export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGenerating }) {
   const formattedContent = content.split('\n').map((line, i) => (
     <React.Fragment key={`line-${i}`}>
       {line || <br />}
@@ -59,6 +59,12 @@ export default function ComposerPreview({ content, hashtags, imageUrl, isGenerat
             </div>
           ) : (
             <p className="text-sm text-gray-400 italic">Your post content will appear here...</p>
+          )}
+
+          {cta && (
+            <p className="mt-2.5 text-xs font-600 text-gray-900 border-l-2 border-primary pl-2 italic">
+              {cta}
+            </p>
           )}
 
           {hashtags.length > 0 && content && (

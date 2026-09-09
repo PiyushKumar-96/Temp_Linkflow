@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/context/AuthContext';
 import '../styles/tailwind.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -28,18 +29,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={plusJakartaSans.variable}>
       <body className={plusJakartaSans.className}>
-        {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.875rem',
-              borderRadius: 'var(--radius)',
-              border: '1px solid var(--border)',
-            },
-          }}
-        />
+        <AuthProvider>
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.875rem',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--border)',
+              },
+            }}
+          />
+        </AuthProvider>
       </body>
     </html>
   );

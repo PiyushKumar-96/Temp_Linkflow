@@ -14,6 +14,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
 
 const MOCK_TOPICS = [
   'Thought leadership in B2B SaaS',
@@ -29,6 +30,7 @@ const MOCK_TOPICS = [
 const MOCK_IMAGES = [
   'https://img.rocket.new/generatedImages/rocket_gen_img_1b4fc0b68-1773435165826.png',
   'https://img.rocket.new/generatedImages/rocket_gen_img_11c4a0e7e-1767621207129.png',
+  'https://img.rocket.new/generatedImages/rocket_gen_img_13c515ccd-1773374405046.png',
 ];
 
 const MOCK_CONTENTS = [
@@ -44,6 +46,8 @@ function generateMockPost(topic, index, scheduleDate, scheduleTime) {
     title: topic,
     content,
     hashtags: ['#LinkedInMarketing', '#B2BSaaS', '#ContentStrategy', '#GrowthMarketing'],
+    candidateImages: MOCK_IMAGES,
+    selectedImageIndex: index % MOCK_IMAGES.length,
     imageUrl: MOCK_IMAGES[index % MOCK_IMAGES.length],
     imageAlt: `AI generated image for post about ${topic}`,
     scheduledDate: scheduleDate,
@@ -457,11 +461,26 @@ export default function AIGeneratorShell() {
                           ))}
                         </div>
                         {generateImages && (
-                          <img
-                            src={post.imageUrl}
-                            alt={post.imageAlt}
-                            className="w-full max-h-48 rounded-lg object-cover"
-                          />
+                          <div className="mt-1">
+                            <ImageCarouselSelector
+                              images={post.candidateImages || MOCK_IMAGES}
+                              selectedIndex={post.selectedImageIndex ?? 0}
+                              onSelectIndex={(newIdx) => {
+                                setGeneratedPosts((prev) =>
+                                  prev.map((p) =>
+                                    p.id === post.id
+                                      ? {
+                                          ...p,
+                                          selectedImageIndex: newIdx,
+                                          imageUrl: (post.candidateImages || MOCK_IMAGES)[newIdx],
+                                        }
+                                      : p
+                                  )
+                                );
+                              }}
+                              title="Select Visual Variation (3 AI Options)"
+                            />
+                          </div>
                         )}
                         <div className="flex items-center gap-2">
                           <input
