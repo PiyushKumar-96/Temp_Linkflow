@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
-  Image as ImageIcon,
   Calendar,
   CheckCircle2,
   Clock,
@@ -12,26 +11,23 @@ import {
   ChevronUp,
   X,
   Plus,
+  ArrowRight,
+  CheckSquare,
+  Edit3,
 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { POST_STATUS } from '@/lib/post-status';
+import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
 
-const MOCK_TOPICS = [
-  'Thought leadership in B2B SaaS',
-  'Remote work culture insights',
-  'Product launch announcement',
-  'Customer success story',
-  'Industry trend analysis',
-  'Team milestone celebration',
-  'Educational how-to guide',
-  'Engagement question post',
-];
+import { TOPICS } from '@/temp-backend/data/topics';
+import { STOCK_IMAGES_LIST } from '@/temp-backend/data/media';
 
-const MOCK_IMAGES = [
-  'https://img.rocket.new/generatedImages/rocket_gen_img_1b4fc0b68-1773435165826.png',
-  'https://img.rocket.new/generatedImages/rocket_gen_img_11c4a0e7e-1767621207129.png',
-  'https://img.rocket.new/generatedImages/rocket_gen_img_13c515ccd-1773374405046.png',
-];
+const MOCK_TOPICS = TOPICS.map((t) => t.title);
+
+const MOCK_IMAGES = STOCK_IMAGES_LIST.map((img) => img.url);
 
 const MOCK_CONTENTS = [
   "After 3 years of building in public, here's what nobody tells you about scaling a SaaS product from 0 to 10,000 customers.\n\nThe biggest lesson? Trust compounds faster than revenue.\n\nWhen we started sharing our failures openly, something unexpected happened — our community grew 3x faster than our paid ads ever did.\n\nHere are the 5 principles that changed everything for us:",
@@ -42,18 +38,71 @@ const MOCK_CONTENTS = [
 function generateMockPost(topic, index, scheduleDate, scheduleTime) {
   const content = MOCK_CONTENTS[index % MOCK_CONTENTS.length];
   return {
-    id: `ai-post-${Date.now()}-${index}`,
+    id: `ai-gen-${Date.now()}-${index}`,
     title: topic,
     content,
+    author: 'Sarah Reeves',
+    authorInitials: 'SR',
+    authorRole: 'Author',
+    category: 'Thought Leadership',
     hashtags: ['#LinkedInMarketing', '#B2BSaaS', '#ContentStrategy', '#GrowthMarketing'],
     candidateImages: MOCK_IMAGES,
     selectedImageIndex: index % MOCK_IMAGES.length,
     imageUrl: MOCK_IMAGES[index % MOCK_IMAGES.length],
-    imageAlt: `AI generated image for post about ${topic}`,
     scheduledDate: scheduleDate,
     scheduledTime: scheduleTime,
-    status: 'ready',
-    topic,
+    submittedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+    dueDate: scheduleDate,
+    status: POST_STATUS.GENERATING, // Starts generating
+    stepStage: 'drafting', // 'drafting' | 'reviewing' | 'completed'
+    revisions: 1,
+    revisionsList: [
+      {
+        id: `rev-init-${index}`,
+        versionNumber: 1,
+        createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        author: 'AI Workflow',
+        authorType: 'ai',
+        summary: `AI batch generation for topic: "${topic}"`,
+      },
+    ],
+    qualityAudit: {
+      score: 92,
+      grade: 'A',
+      verdict: 'High Virality Potential',
+      hookScore: 94,
+      clarityScore: 92,
+      voiceScore: 90,
+      readabilityWpm: 225,
+      issues: [
+        {
+          type: 'Formatting',
+          severity: 'low',
+          message: 'Optimized spacing for LinkedIn mobile viewport',
+          suggestion: 'Ensure hook line 1 has high curiosity gap',
+        },
+      ],
+    },
+    citations: [
+      {
+        id: `cite-${index}`,
+        sourceName: 'Industry Benchmark Q3',
+        domain: 'research-benchmarks.com',
+        url: 'https://hbr.org/topic/productivity',
+        claim: 'Organic consistency generates 3.2x higher pipeline conversion than paid announcements.',
+        verifiedDate: '2026',
+        confidence: 94,
+      },
+    ],
+    activityLog: [
+      {
+        id: `act-gen-${index}`,
+        actor: 'AI Generator',
+        action: 'Synthesized draft from theme prompt',
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      },
+    ],
+    comments: [],
   };
 }
 
@@ -64,19 +113,48 @@ function addDays(dateStr, days) {
 }
 
 export default function AIGeneratorShell() {
+  const navigate = useNavigate();
+
   const [topic, setTopic] = useState('');
-  const [postCount, setPostCount] = useState(5);
+  const [postCount, setPostCount] = useState(3);
   const [generateImages, setGenerateImages] = useState(true);
   const [useScheduleRules, setUseScheduleRules] = useState(true);
-  const [startDate, setStartDate] = useState('2026-09-10');
+  const [startDate, setStartDate] = useState('2026-09-15');
   const [defaultTime, setDefaultTime] = useState('09:00');
-  const [tone, setTone] = useState('professional');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [expandedPost, setExpandedPost] = useState(null);
-  const [scheduledCount, setScheduledCount] = useState(0);
   const [customTopics, setCustomTopics] = useState([]);
   const [newTopic, setNewTopic] = useState('');
+
+  // Per-item simulated polling progression: generating -> auto_review -> awaiting_review
+  useEffect(() => {
+    if (generatedPosts.length === 0) return;
+
+    const interval = setInterval(() => {
+      setGeneratedPosts((prev) =>
+        prev.map((p) => {
+          if (p.status === POST_STATUS.GENERATING) {
+            return {
+              ...p,
+              status: POST_STATUS.AUTO_REVIEW,
+              stepStage: 'reviewing',
+            };
+          }
+          if (p.status === POST_STATUS.AUTO_REVIEW) {
+            return {
+              ...p,
+              status: POST_STATUS.AWAITING_REVIEW,
+              stepStage: 'completed',
+            };
+          }
+          return p;
+        })
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [generatedPosts.length]);
 
   const handleGenerate = async () => {
     if (!topic && customTopics.length === 0) {
@@ -85,10 +163,8 @@ export default function AIGeneratorShell() {
     }
     setIsGenerating(true);
     setGeneratedPosts([]);
-    setScheduledCount(0);
 
-    // Simulate AI generation with mock delay
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1000));
 
     const posts = [];
     for (let i = 0; i < postCount; i++) {
@@ -102,19 +178,33 @@ export default function AIGeneratorShell() {
 
     setGeneratedPosts(posts);
     setIsGenerating(false);
-    toast.success(`${postCount} posts generated successfully!`);
+    toast.success(`Started generation pipeline for ${postCount} posts!`);
   };
 
-  const handleScheduleAll = () => {
-    setGeneratedPosts((prev) => prev.map((p) => ({ ...p, status: 'scheduled' })));
-    setScheduledCount(generatedPosts.length);
-    toast.success(`${generatedPosts.length} posts scheduled to Content Library & Calendar!`);
+  const handleSendAllToApprovalQueue = () => {
+    try {
+      const stored = localStorage.getItem('linkedflow_approval_posts');
+      const existing = stored ? JSON.parse(stored) : INITIAL_APPROVAL_POSTS;
+      const merged = [...generatedPosts, ...existing];
+      localStorage.setItem('linkedflow_approval_posts', JSON.stringify(merged));
+      toast.success(`${generatedPosts.length} posts sent to Approval Queue!`);
+      navigate('/approval-workflow');
+    } catch {
+      toast.error('Failed to sync to approval queue');
+    }
   };
 
-  const handleScheduleOne = (id) => {
-    setGeneratedPosts((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'scheduled' } : p)));
-    setScheduledCount((prev) => prev + 1);
-    toast.success('Post scheduled to Content Library & Calendar');
+  const handleSendOneToApprovalQueue = (id) => {
+    try {
+      const target = generatedPosts.find((p) => p.id === id);
+      if (!target) return;
+      const stored = localStorage.getItem('linkedflow_approval_posts');
+      const existing = stored ? JSON.parse(stored) : INITIAL_APPROVAL_POSTS;
+      localStorage.setItem('linkedflow_approval_posts', JSON.stringify([target, ...existing]));
+      toast.success('Post dispatched to Approval Queue!');
+    } catch {
+      toast.error('Failed to sync post');
+    }
   };
 
   const handleRemovePost = (id) => {
@@ -131,36 +221,50 @@ export default function AIGeneratorShell() {
     setCustomTopics((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const readyCount = generatedPosts.filter((p) => p.status === 'ready').length;
+  const completedCount = generatedPosts.filter((p) => p.status === POST_STATUS.AWAITING_REVIEW).length;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Sparkles size={20} className="text-primary" />
-        <h1 className="text-2xl font-700 text-foreground">AI Post Generator</h1>
-        <span className="text-sm text-muted-foreground">
-          · Generate, schedule, and publish LinkedIn posts with AI
-        </span>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles size={22} className="text-primary" />
+          <div>
+            <h1 className="text-2xl font-700 text-foreground">AI Post Generator</h1>
+            <span className="text-xs text-muted-foreground">
+              Synthesize high-performing LinkedIn posts and visual candidate sets directly into the review pipeline
+            </span>
+          </div>
+        </div>
+
+        {generatedPosts.length > 0 && (
+          <Link
+            to="/approval-workflow"
+            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+          >
+            <CheckSquare size={13} className="text-primary" />
+            <span>Open Approval Queue</span>
+          </Link>
+        )}
       </div>
 
-      <div className="grid grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Config panel */}
-        <div className="col-span-2 flex flex-col gap-4">
+        <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="card p-5 flex flex-col gap-4">
-            <h2 className="text-sm font-700 text-foreground uppercase tracking-wide">
+            <h2 className="text-xs font-700 text-foreground uppercase tracking-wider">
               Generation Settings
             </h2>
 
             {/* Topic */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-600 text-foreground">Topic / Theme</label>
+              <label className="text-xs font-600 text-foreground">Theme / Core Topic</label>
               <input
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g. B2B SaaS growth strategies"
-                className="input-base text-sm"
+                className="input-base text-xs"
               />
 
               <div className="flex flex-wrap gap-1 mt-1">
@@ -168,7 +272,7 @@ export default function AIGeneratorShell() {
                   <button
                     key={t}
                     onClick={() => setTopic(t)}
-                    className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     {t.split(' ').slice(0, 3).join(' ')}
                   </button>
@@ -178,19 +282,19 @@ export default function AIGeneratorShell() {
 
             {/* Custom topics */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-600 text-foreground">Custom Topics per Post</label>
+              <label className="text-xs font-600 text-foreground">Custom Topics per Post</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newTopic}
                   onChange={(e) => setNewTopic(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addCustomTopic()}
-                  placeholder="Add specific topic..."
-                  className="input-base text-sm flex-1"
+                  placeholder="Add specific prompt directive..."
+                  className="input-base text-xs flex-1"
                 />
 
-                <button onClick={addCustomTopic} className="btn-secondary p-2">
-                  <Plus size={14} />
+                <button onClick={addCustomTopic} className="btn-secondary text-xs px-2.5">
+                  <Plus size={13} />
                 </button>
               </div>
               {customTopics.length > 0 && (
@@ -198,14 +302,14 @@ export default function AIGeneratorShell() {
                   {customTopics.map((t, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between px-2.5 py-1.5 bg-muted rounded-lg"
+                      className="flex items-center justify-between px-2.5 py-1 bg-muted/60 border border-border/60 rounded text-xs"
                     >
-                      <span className="text-xs text-foreground truncate">{t}</span>
+                      <span className="truncate">{t}</span>
                       <button
                         onClick={() => removeCustomTopic(i)}
-                        className="text-muted-foreground hover:text-danger ml-2"
+                        className="text-muted-foreground hover:text-danger"
                       >
-                        <X size={11} />
+                        <X size={12} />
                       </button>
                     </div>
                   ))}
@@ -215,112 +319,67 @@ export default function AIGeneratorShell() {
 
             {/* Post count */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-600 text-foreground">Number of Posts</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={1}
-                  max={30}
-                  value={postCount}
-                  onChange={(e) => setPostCount(Number(e.target.value))}
-                  className="flex-1 accent-primary"
-                />
-
-                <span className="text-lg font-700 text-primary w-8 text-center tabular-nums">
-                  {postCount}
-                </span>
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>1</span>
-                <span>15</span>
-                <span>30</span>
-              </div>
+              <label className="text-xs font-600 text-foreground">
+                Batch Output Count ({postCount} posts)
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={5}
+                value={postCount}
+                onChange={(e) => setPostCount(Number(e.target.value))}
+                className="w-full accent-primary cursor-pointer"
+              />
             </div>
 
-            {/* Tone */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-600 text-foreground">Writing Tone</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {['professional', 'conversational', 'inspirational', 'educational'].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTone(t)}
-                    className={`py-1.5 px-2 rounded-lg text-xs font-600 capitalize transition-all border ${tone === t ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-transparent hover:border-border'}`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+            {/* Toggle visual generation */}
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-xs font-600 text-foreground">
+                Generate 3 Visual Variations
+              </span>
+              <input
+                type="checkbox"
+                checked={generateImages}
+                onChange={(e) => setGenerateImages(e.target.checked)}
+                className="rounded border-border text-primary h-4 w-4"
+              />
             </div>
 
-            {/* Images toggle */}
-            <div className="flex items-center justify-between py-2 border-t border-border">
-              <div className="flex items-center gap-2">
-                <ImageIcon size={14} className="text-muted-foreground" />
-                <span className="text-sm font-600 text-foreground">Generate Images</span>
-              </div>
-              <div
-                onClick={() => setGenerateImages(!generateImages)}
-                className={`w-9 h-5 rounded-full transition-colors cursor-pointer relative ${generateImages ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <div
-                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${generateImages ? 'translate-x-4' : 'translate-x-0.5'}`}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Schedule settings */}
-          <div className="card p-5 flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar size={14} className="text-primary" />
-              <h2 className="text-sm font-700 text-foreground uppercase tracking-wide">
-                Schedule Settings
-              </h2>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-600 text-foreground">Use Ruleset from Settings</span>
-              <div
-                onClick={() => setUseScheduleRules(!useScheduleRules)}
-                className={`w-9 h-5 rounded-full transition-colors cursor-pointer relative ${useScheduleRules ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-              >
-                <div
-                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${useScheduleRules ? 'translate-x-4' : 'translate-x-0.5'}`}
-                />
-              </div>
+            {/* Schedule options */}
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-xs font-600 text-foreground">Use Publishing Schedule Slots</span>
+              <input
+                type="checkbox"
+                checked={useScheduleRules}
+                onChange={(e) => setUseScheduleRules(e.target.checked)}
+                className="rounded border-border text-primary h-4 w-4"
+              />
             </div>
 
             {!useScheduleRules && (
-              <>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-600 text-foreground">Start Date</label>
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <div>
+                  <label className="text-[11px] font-600 text-muted-foreground block mb-1">
+                    Start Date
+                  </label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="input-base text-sm"
+                    className="input-base text-xs"
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-600 text-foreground">Default Post Time</label>
+                <div>
+                  <label className="text-[11px] font-600 text-muted-foreground block mb-1">
+                    Default Time
+                  </label>
                   <input
                     type="time"
                     value={defaultTime}
                     onChange={(e) => setDefaultTime(e.target.value)}
-                    className="input-base text-sm"
+                    className="input-base text-xs"
                   />
                 </div>
-              </>
-            )}
-
-            {useScheduleRules && (
-              <div className="flex items-start gap-2 px-3 py-2.5 bg-primary/5 border border-primary/20 rounded-lg">
-                <Clock size={13} className="text-primary mt-0.5 shrink-0" />
-                <p className="text-xs text-muted-foreground">
-                  Posts will be scheduled using your Mon–Sun ruleset defined in Settings. Each post
-                  gets the next available slot.
-                </p>
               </div>
             )}
           </div>
@@ -328,33 +387,33 @@ export default function AIGeneratorShell() {
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-sm font-700"
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-xs font-700 shadow-sm"
           >
             {isGenerating ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
-                Generating {postCount} posts...
+                <Loader2 size={15} className="animate-spin" />
+                <span>Generating {postCount} Posts...</span>
               </>
             ) : (
               <>
-                <Sparkles size={16} />
-                Generate {postCount} Posts
+                <Sparkles size={15} />
+                <span>Generate {postCount} Posts Directly</span>
               </>
             )}
           </button>
         </div>
 
         {/* Generated posts panel */}
-        <div className="col-span-3 flex flex-col gap-4">
+        <div className="lg:col-span-3 flex flex-col gap-4">
           {generatedPosts.length === 0 && !isGenerating && (
-            <div className="card flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Sparkles size={28} className="text-primary" />
+            <div className="card flex flex-col items-center justify-center py-20 gap-4 border-dashed">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Sparkles size={24} className="text-primary" />
               </div>
               <div className="text-center">
-                <p className="text-base font-700 text-foreground">Ready to generate</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Configure your settings and click Generate
+                <p className="text-sm font-700 text-foreground">Ready to generate</p>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                  Items will progress live through the AI drafting and quality audit stages before entering the review queue.
                 </p>
               </div>
             </div>
@@ -365,7 +424,7 @@ export default function AIGeneratorShell() {
               <Loader2 size={32} className="text-primary animate-spin" />
               <p className="text-sm font-600 text-foreground">AI is crafting your posts...</p>
               <p className="text-xs text-muted-foreground">
-                Generating content, hashtags{generateImages ? ', and images' : ''}
+                Generating copy, hashtags{generateImages ? ', and 3 visual candidate variations' : ''}
               </p>
             </div>
           )}
@@ -373,65 +432,80 @@ export default function AIGeneratorShell() {
           {generatedPosts.length > 0 && (
             <>
               {/* Bulk actions */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-600 text-foreground">
-                  {generatedPosts.length} posts generated · {scheduledCount} scheduled
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-xs font-600 text-foreground">
+                  {generatedPosts.length} posts generated · {completedCount} ready for review
                 </p>
-                {readyCount > 0 && (
-                  <button
-                    onClick={handleScheduleAll}
-                    className="btn-primary text-sm flex items-center gap-1.5"
-                  >
-                    <Calendar size={14} />
-                    Schedule All ({readyCount})
-                  </button>
-                )}
+                <button
+                  onClick={handleSendAllToApprovalQueue}
+                  className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
+                >
+                  <CheckSquare size={13} />
+                  <span>Send All to Approval Queue ({generatedPosts.length})</span>
+                </button>
               </div>
 
               <div className="flex flex-col gap-3">
                 {generatedPosts.map((post, idx) => (
                   <div
                     key={post.id}
-                    className={`card overflow-hidden transition-all ${post.status === 'scheduled' ? 'border-success/30 bg-success/5' : ''}`}
+                    className="card overflow-hidden transition-all border border-border"
                   >
                     <div className="flex items-start gap-3 p-4">
                       {generateImages && (
                         <img
                           src={post.imageUrl}
-                          alt={post.imageAlt}
-                          className="w-16 h-16 rounded-lg object-cover shrink-0"
+                          alt={post.title}
+                          className="w-16 h-16 rounded-lg object-cover shrink-0 border border-border"
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-700 text-muted-foreground">
-                            Post {idx + 1}
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="text-xs font-700 text-foreground">
+                            Post #{idx + 1}: {post.title}
                           </span>
-                          <span className="text-xs text-muted-foreground">·</span>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock size={10} />
-                            {post.scheduledDate} at {post.scheduledTime}
-                          </span>
-                          {post.status === 'scheduled' && (
-                            <span className="ml-auto flex items-center gap-1 text-xs font-600 text-success">
-                              <CheckCircle2 size={12} />
-                              Scheduled
+                          <StatusBadge status={post.status} size="sm" />
+
+                          {post.status === POST_STATUS.GENERATING && (
+                            <span className="text-[10px] text-indigo-600 font-mono flex items-center gap-1">
+                              <Loader2 size={10} className="animate-spin" /> Drafting hook & narrative
+                            </span>
+                          )}
+                          {post.status === POST_STATUS.AUTO_REVIEW && (
+                            <span className="text-[10px] text-purple-600 font-mono flex items-center gap-1">
+                              <Loader2 size={10} className="animate-spin" /> Automated quality audit
+                            </span>
+                          )}
+                          {post.status === POST_STATUS.AWAITING_REVIEW && (
+                            <span className="text-[10px] text-emerald-600 font-600 flex items-center gap-1">
+                              <CheckCircle2 size={10} /> Ready for Review
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-foreground line-clamp-2">{post.content}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
+
+                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {post.content}
+                        </p>
+
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <Clock size={10} />
+                            Slot: {post.scheduledDate} at {post.scheduledTime}
+                          </span>
+                          <span className="text-muted-foreground">·</span>
                           {post.hashtags.slice(0, 3).map((h) => (
-                            <span key={h} className="text-xs text-primary/70 font-500">
+                            <span key={h} className="text-[11px] text-primary font-500">
                               {h}
                             </span>
                           ))}
                         </div>
                       </div>
+
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                           className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                          title="Expand details"
                         >
                           {expandedPost === post.id ? (
                             <ChevronUp size={14} />
@@ -442,6 +516,7 @@ export default function AIGeneratorShell() {
                         <button
                           onClick={() => handleRemovePost(post.id)}
                           className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-danger transition-colors"
+                          title="Remove item"
                         >
                           <X size={14} />
                         </button>
@@ -449,17 +524,11 @@ export default function AIGeneratorShell() {
                     </div>
 
                     {expandedPost === post.id && (
-                      <div className="px-4 pb-4 border-t border-border pt-3 flex flex-col gap-3">
-                        <p className="text-sm text-foreground whitespace-pre-line">
+                      <div className="px-4 pb-4 border-t border-border pt-3 flex flex-col gap-3 bg-muted/10">
+                        <p className="text-xs text-foreground whitespace-pre-line leading-relaxed bg-card p-3 rounded-lg border border-border">
                           {post.content}
                         </p>
-                        <div className="flex flex-wrap gap-1">
-                          {post.hashtags.map((h) => (
-                            <span key={h} className="text-xs text-primary font-500">
-                              {h}
-                            </span>
-                          ))}
-                        </div>
+
                         {generateImages && (
                           <div className="mt-1">
                             <ImageCarouselSelector
@@ -482,42 +551,23 @@ export default function AIGeneratorShell() {
                             />
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="date"
-                            value={post.scheduledDate}
-                            onChange={(e) =>
-                              setGeneratedPosts((prev) =>
-                                prev.map((p) =>
-                                  p.id === post.id ? { ...p, scheduledDate: e.target.value } : p
-                                )
-                              )
-                            }
-                            className="input-base text-xs py-1.5 flex-1"
-                          />
 
-                          <input
-                            type="time"
-                            value={post.scheduledTime}
-                            onChange={(e) =>
-                              setGeneratedPosts((prev) =>
-                                prev.map((p) =>
-                                  p.id === post.id ? { ...p, scheduledTime: e.target.value } : p
-                                )
-                              )
-                            }
-                            className="input-base text-xs py-1.5 w-28"
-                          />
+                        <div className="flex items-center justify-between pt-2 border-t border-border flex-wrap gap-2">
+                          <Link
+                            to={`/post-creation-composer?id=${post.id}&mode=edit`}
+                            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1"
+                          >
+                            <Edit3 size={12} />
+                            <span>Edit in Composer</span>
+                          </Link>
 
-                          {post.status !== 'scheduled' && (
-                            <button
-                              onClick={() => handleScheduleOne(post.id)}
-                              className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1"
-                            >
-                              <Calendar size={12} />
-                              Schedule
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleSendOneToApprovalQueue(post.id)}
+                            className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1"
+                          >
+                            <CheckSquare size={12} />
+                            <span>Send to Approval Queue</span>
+                          </button>
                         </div>
                       </div>
                     )}

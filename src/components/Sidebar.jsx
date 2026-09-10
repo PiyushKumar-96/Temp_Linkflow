@@ -15,25 +15,29 @@ import {
   Users,
   BarChart3,
   Sparkles,
+  Target,
+  LayoutDashboard,
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
-  { id: 'nav-analytics', label: 'Analytics', href: '/', icon: BarChart3, group: 'main' },
-  {
-    id: 'nav-composer',
-    label: 'Post Composer',
-    href: '/post-creation-composer',
-    icon: PenSquare,
-    group: 'main',
-  },
-  { id: 'nav-ai', label: 'AI Generator', href: '/ai-generator', icon: Sparkles, group: 'main' },
+  { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, group: 'main' },
+  { id: 'nav-analytics', label: 'Analytics', href: '/analytics', icon: BarChart3, group: 'main' },
+  { id: 'nav-topics', label: 'Topics', href: '/topics', icon: Target, group: 'main' },
   {
     id: 'nav-calendar',
     label: 'Content Calendar',
     href: '/content-calendar',
     icon: CalendarDays,
+    group: 'main',
+  },
+  { id: 'nav-ai', label: 'AI Generator', href: '/ai-generator', icon: Sparkles, group: 'main' },
+  {
+    id: 'nav-composer',
+    label: 'Post Composer',
+    href: '/post-creation-composer',
+    icon: PenSquare,
     group: 'main',
   },
   {
@@ -61,7 +65,7 @@ const navItems = [
 ];
 
 const bottomItems = [
-  { id: 'nav-team', label: 'Team', href: '#', icon: Users },
+  { id: 'nav-team', label: 'Team', href: '/team', icon: Users },
   { id: 'nav-settings', label: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -70,6 +74,8 @@ export default function Sidebar({ collapsed, onToggle }) {
   const { user, isOwner } = useAuth();
 
   const isActive = (href) => {
+    if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
+    if (href === '/analytics') return pathname === '/analytics';
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };

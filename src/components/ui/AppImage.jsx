@@ -11,6 +11,11 @@ const AppImage = memo(function AppImage({
   fallbackSrc = '/assets/images/no_image.png',
   loading = 'lazy',
   style = {},
+  priority: _priority,
+  unoptimized: _unoptimized,
+  quality: _quality,
+  placeholder: _placeholder,
+  blurDataURL: _blurDataURL,
   ...props
 }) {
   const [imageSrc, setImageSrc] = useState(src);

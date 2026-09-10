@@ -1,10 +1,25 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Sparkles, Image, X, MessageSquareQuote } from 'lucide-react';
-import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
+import {
+  Sparkles,
+  Image,
+  X,
+  MessageSquareQuote,
+  FileText,
+  Ban,
+  Layers,
+  LayoutGrid,
+} from 'lucide-react';
+import {
+  CarouselVisual,
+  InfographicVisual,
+  MarketingImageVisual,
+  TextOnlyVisual,
+} from '@/components/visuals';
+import APP_CONFIG from '@/lib/config';
 
-const MAX_CHARS = 3000;
+const MAX_CHARS = APP_CONFIG.maxPostCharacters || 3000;
 
 const tones = [
   { value: 'professional', label: 'Professional', emoji: '💼' },
@@ -38,6 +53,12 @@ export default function ComposerEditor({
   onCategoryChange,
   imageUrl,
   onImageChange,
+  visualFormat = 'image',
+  onVisualFormatChange,
+  carouselSlides,
+  onChangeCarouselSlides,
+  infographicData,
+  onChangeInfographicData,
   candidateImages = [],
   selectedImageIndex = 0,
   onSelectImageIndex,
@@ -45,13 +66,23 @@ export default function ComposerEditor({
   isGenerating,
   onAIGenerate,
 }) {
-  const remaining = MAX_CHARS - content.length;
+  const safeContent = content || '';
+  const safeHashtags = Array.isArray(hashtags) ? hashtags : [];
+  const remaining = MAX_CHARS - safeContent.length;
   const isNearLimit = remaining < 300;
   const isAtLimit = remaining <= 0;
   const fileRef = useRef(null);
 
   const removeHashtag = (tag) => {
-    onHashtagsChange(hashtags.filter((h) => h !== tag));
+    onHashtagsChange(safeHashtags.filter((h) => h !== tag));
+  };
+
+  const handleFormatSelect = (fmt) => {
+    if (onVisualFormatChange) onVisualFormatChange(fmt);
+    if (fmt === 'none') {
+      if (onImageChange) onImageChange('');
+      if (onRemoveCandidates) onRemoveCandidates();
+    }
   };
 
   return (
@@ -63,7 +94,7 @@ export default function ComposerEditor({
           <label className="text-xs font-600 text-muted-foreground uppercase tracking-wide">
             Tone
           </label>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
             {tones.map((t) => (
               <button
                 key={`tone-${t.value}`}
@@ -114,9 +145,9 @@ export default function ComposerEditor({
           </div>
         )}
         <textarea
-          value={content}
+          value={safeContent}
           onChange={(e) =>
-            !isAtLimit || e.target.value.length < content.length
+            !isAtLimit || e.target.value.length < safeContent.length
               ? onChange(e.target.value.slice(0, MAX_CHARS))
               : undefined
           }
@@ -142,9 +173,9 @@ export default function ComposerEditor({
       </div>
 
       {/* Hashtags */}
-      {hashtags.length > 0 && (
+      {safeHashtags.length > 0 && (
         <div className="px-4 py-2 border-t border-border/40 flex flex-wrap gap-1.5">
-          {hashtags.map((tag) => (
+          {safeHashtags.map((tag) => (
             <span
               key={`hashtag-${tag}`}
               className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs font-500 rounded-full"
@@ -161,43 +192,110 @@ export default function ComposerEditor({
         </div>
       )}
 
-      {/* AI Image Carousel Selector (2-3 Images) */}
-      {candidateImages && candidateImages.length > 0 && (
-        <div className="p-4 border-t border-border bg-muted/20">
-          <ImageCarouselSelector
-            images={candidateImages}
-            selectedIndex={selectedImageIndex}
-            onSelectIndex={onSelectImageIndex}
-            onRemove={onRemoveCandidates}
-            title="AI Generated Image Variations"
-          />
-        </div>
-      )}
-
-      {/* Single manual uploaded image preview (if no candidate carousel) */}
-      {imageUrl && (!candidateImages || candidateImages.length === 0) && (
-        <div className="px-4 pb-3 relative">
-          <div className="relative rounded-lg overflow-hidden border border-border">
-            <img src={imageUrl} alt="Post preview" className="w-full object-cover max-h-48" />
+      {/* Visual Format Mode Selector (4 Formats) */}
+      <div className="px-4 py-2.5 border-t border-border/60 bg-muted/20 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="text-[11px] font-600 text-muted-foreground uppercase tracking-wide">
+            Visual Format:
+          </span>
+          <div className="flex items-center gap-1 bg-muted p-0.5 rounded-lg flex-wrap">
             <button
-              onClick={() => onImageChange('')}
-              className="absolute top-2 right-2 p-1 bg-foreground/60 rounded-full text-white hover:bg-foreground/80 transition-colors"
+              type="button"
+              onClick={() => handleFormatSelect('image')}
+              className={`px-2.5 py-1 text-xs font-500 rounded-md transition-all flex items-center gap-1.5 ${
+                visualFormat === 'image'
+                  ? 'bg-card text-foreground card-shadow font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <X size={12} />
+              <Image size={12} />
+              <span>Image</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFormatSelect('carousel')}
+              className={`px-2.5 py-1 text-xs font-500 rounded-md transition-all flex items-center gap-1.5 ${
+                visualFormat === 'carousel'
+                  ? 'bg-card text-foreground card-shadow font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Layers size={12} />
+              <span>Carousel</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFormatSelect('infographic')}
+              className={`px-2.5 py-1 text-xs font-500 rounded-md transition-all flex items-center gap-1.5 ${
+                visualFormat === 'infographic'
+                  ? 'bg-card text-foreground card-shadow font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <LayoutGrid size={12} />
+              <span>Infographic</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFormatSelect('none')}
+              className={`px-2.5 py-1 text-xs font-500 rounded-md transition-all flex items-center gap-1.5 ${
+                visualFormat === 'none'
+                  ? 'bg-card text-foreground card-shadow font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Ban size={12} />
+              <span>Text-Only</span>
             </button>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Render Active Visual Format */}
+      <div className="p-4 border-t border-border bg-muted/10">
+        {visualFormat === 'carousel' && (
+          <CarouselVisual
+            slides={carouselSlides}
+            onChangeSlides={onChangeCarouselSlides}
+            isEditable={true}
+          />
+        )}
+
+        {visualFormat === 'infographic' && (
+          <InfographicVisual
+            data={infographicData}
+            onChangeData={onChangeInfographicData}
+            isEditable={true}
+          />
+        )}
+
+        {visualFormat === 'image' && (
+          <MarketingImageVisual
+            imageUrl={imageUrl}
+            onSelectImage={onImageChange}
+            candidateImages={candidateImages}
+            onUpdateCandidates={(cands) => {
+              if (onSelectImageIndex) onSelectImageIndex(0);
+            }}
+            isEditable={true}
+          />
+        )}
+
+        {visualFormat === 'none' && <TextOnlyVisual content={content} />}
+      </div>
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-border flex items-center justify-between bg-muted/30">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => fileRef.current?.click()}
+            onClick={() => {
+              if (onVisualFormatChange) onVisualFormatChange('image');
+              fileRef.current?.click();
+            }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-500 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <Image size={13} />
-            Upload Image
+            <span>Upload Image</span>
           </button>
           <input
             ref={fileRef}
@@ -209,28 +307,35 @@ export default function ComposerEditor({
               if (file) {
                 const url = URL.createObjectURL(file);
                 onImageChange(url);
+                if (onVisualFormatChange) onVisualFormatChange('image');
                 if (onRemoveCandidates) onRemoveCandidates();
               }
             }}
           />
 
           <button
-            onClick={onAIGenerate}
+            onClick={() => {
+              if (onVisualFormatChange) onVisualFormatChange('image');
+              onAIGenerate();
+            }}
             disabled={isGenerating}
             className="btn-accent text-xs py-1.5 px-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
           >
             <Sparkles size={13} />
-            {isGenerating ? 'Generating...' : 'Generate with AI (Text + 3 Images)'}
+            <span>{isGenerating ? 'Generating...' : 'Generate with AI (Text + 3 Images)'}</span>
           </button>
         </div>
 
-        <span
-          className={`text-xs font-600 tabular-nums ${
-            isAtLimit ? 'text-danger' : isNearLimit ? 'text-warning' : 'text-muted-foreground'
-          }`}
-        >
-          {remaining.toLocaleString()} / {MAX_CHARS.toLocaleString()}
-        </span>
+        {/* Real-time LinkedIn Character Counter */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-xs font-600 tabular-nums ${
+              isAtLimit ? 'text-danger' : isNearLimit ? 'text-warning' : 'text-muted-foreground'
+            }`}
+          >
+            {remaining.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters left
+          </span>
+        </div>
       </div>
     </div>
   );

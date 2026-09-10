@@ -1,1 +1,136 @@
 @import './tailwind.css';
+
+/**
+ * LinkedFlow Design Tokens
+ * Neutral palette, semantic status tokens, and component metrics.
+ * Pixel-identical extraction of in-use palette.
+ */
+:root {
+  /* Surface & neutral palette */
+  --bg-app: #f3f6fb;
+  --surface-card: #ffffff;
+  --surface-muted: #f1f5f9;
+  --surface-input: #f8fafc;
+  --border-subtle: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+
+  /* Brand accents */
+  --brand-primary: #0a66c2;
+  --brand-primary-hover: #084d93;
+  --brand-secondary: #e8f0fe;
+  --brand-accent: #7c3aed;
+
+  /* Semantic status tokens (1-to-1 mapping with post-status.js) */
+  --status-planned-bg: #f8fafc;
+  --status-planned-fg: #475569;
+  --status-planned-border: #cbd5e1;
+
+  --status-generating-bg: #eef2ff;
+  --status-generating-fg: #4338ca;
+  --status-generating-border: #c7d2fe;
+
+  --status-auto-review-bg: #faf5ff;
+  --status-auto-review-fg: #7e22ce;
+  --status-auto-review-border: #e9d5ff;
+
+  --status-needs-revision-bg: #fffbeb;
+  --status-needs-revision-fg: #b45309;
+  --status-needs-revision-border: #fde68a;
+
+  --status-awaiting-review-bg: #eff6ff;
+  --status-awaiting-review-fg: #1d4ed8;
+  --status-awaiting-review-border: #bfdbfe;
+
+  --status-approved-bg: #ecfdf5;
+  --status-approved-fg: #047857;
+  --status-approved-border: #a7f3d0;
+
+  --status-scheduled-bg: #f0f9ff;
+  --status-scheduled-fg: #0369a1;
+  --status-scheduled-border: #bae6fd;
+
+  --status-published-bg: #f0fdf4;
+  --status-published-fg: #15803d;
+  --status-published-border: #bbf7d0;
+
+  --status-failed-bg: #fff1f2;
+  --status-failed-fg: #be123c;
+  --status-failed-border: #fecdd3;
+
+  --status-rejected-bg: #fef2f2;
+  --status-rejected-fg: #b91c1c;
+  --status-rejected-border: #fecaca;
+
+  --status-manual-bg: #fff7ed;
+  --status-manual-fg: #c2410c;
+  --status-manual-border: #fed7aa;
+}
+
+/* Post lifecycle status utility classes */
+.status-planned {
+  background-color: var(--status-planned-bg);
+  color: var(--status-planned-fg);
+  border: 1px solid var(--status-planned-border);
+}
+
+.status-generating {
+  background-color: var(--status-generating-bg);
+  color: var(--status-generating-fg);
+  border: 1px solid var(--status-generating-border);
+}
+
+.status-auto-review {
+  background-color: var(--status-auto-review-bg);
+  color: var(--status-auto-review-fg);
+  border: 1px solid var(--status-auto-review-border);
+}
+
+.status-needs-revision {
+  background-color: var(--status-needs-revision-bg);
+  color: var(--status-needs-revision-fg);
+  border: 1px solid var(--status-needs-revision-border);
+}
+
+.status-awaiting-review {
+  background-color: var(--status-awaiting-review-bg);
+  color: var(--status-awaiting-review-fg);
+  border: 1px solid var(--status-awaiting-review-border);
+}
+
+.status-approved {
+  background-color: var(--status-approved-bg);
+  color: var(--status-approved-fg);
+  border: 1px solid var(--status-approved-border);
+}
+
+.status-scheduled {
+  background-color: var(--status-scheduled-bg);
+  color: var(--status-scheduled-fg);
+  border: 1px solid var(--status-scheduled-border);
+}
+
+.status-published {
+  background-color: var(--status-published-bg);
+  color: var(--status-published-fg);
+  border: 1px solid var(--status-published-border);
+}
+
+.status-failed {
+  background-color: var(--status-failed-bg);
+  color: var(--status-failed-fg);
+  border: 1px solid var(--status-failed-border);
+}
+
+.status-rejected {
+  background-color: var(--status-rejected-bg);
+  color: var(--status-rejected-fg);
+  border: 1px solid var(--status-rejected-border);
+}
+
+.status-manual {
+  background-color: var(--status-manual-bg);
+  color: var(--status-manual-fg);
+  border: 1px solid var(--status-manual-border);
+}

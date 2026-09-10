@@ -13,7 +13,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "temp-backend": ["./src/temp-backend/index.js"],
+      "temp-backend/*": ["./src/temp-backend/*"]
     }
   },
   "include": [

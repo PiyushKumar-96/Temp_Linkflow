@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Hash, RefreshCw, Wand2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { APP_CONFIG } from '@/lib/config';
 
 const hashtagSuggestions = [
   '#LinkedInTips',
@@ -114,7 +115,7 @@ export default function ComposerAIPanel({
         </div>
         <div>
           <h3 className="text-sm font-600 text-foreground">AI Assistant</h3>
-          <p className="text-xs text-muted-foreground">Powered by GPT-4o</p>
+          <p className="text-xs text-muted-foreground">{APP_CONFIG.aiProviderLabel}</p>
         </div>
       </div>
 

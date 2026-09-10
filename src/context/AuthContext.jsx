@@ -90,6 +90,7 @@ export function AuthProvider({ children }) {
         isAuthenticated,
         user,
         role,
+        accountId: activeAccount?.id || 'company',
         isOwner: role === 'owner',
         isMarketing: role === 'marketing',
         activeAccount,
@@ -111,4 +112,28 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return ctx;
+}
+
+/**
+ * RequireRole Component
+ * Conditionally renders children if current user has the required role.
+ *
+ * @param {Object} props
+ * @param {'owner' | 'marketing' | Array<'owner' | 'marketing'>} props.role - Required role(s)
+ * @param {React.ReactNode} [props.fallback=null] - Optional element to render if permission denied
+ * @param {React.ReactNode} props.children
+ */
+export function RequireRole({ role, fallback = null, children }) {
+  const { role: currentRole, isOwner } = useAuth();
+
+  if (Array.isArray(role)) {
+    if (role.includes(currentRole)) return children;
+    return fallback;
+  }
+
+  if (role === 'owner') {
+    return isOwner ? children : fallback;
+  }
+
+  return currentRole === role ? children : fallback;
 }

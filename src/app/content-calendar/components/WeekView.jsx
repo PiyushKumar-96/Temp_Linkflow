@@ -2,14 +2,9 @@
 
 import React from 'react';
 import PostDetailPopover from './PostDetailPopover';
-
-const statusColors = {
-  draft: 'bg-slate-100 text-slate-600 border-slate-200',
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-  approved: 'bg-blue-50 text-blue-700 border-blue-200',
-  scheduled: 'bg-violet-50 text-violet-700 border-violet-200',
-  published: 'bg-green-50 text-green-700 border-green-200',
-};
+import { normalizeStatus, STATUS_META } from '@/lib/post-status';
+import { useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/lib/api-client';
 
 const HOURS = [
   '6am',
@@ -110,7 +105,8 @@ export default function WeekView({ currentDate, posts, selectedPost, onSelectPos
                       <button
                         key={post.id}
                         onClick={() => onSelectPost(selectedPost?.id === post.id ? null : post)}
-                        className={`w-full text-left px-1.5 py-1 rounded text-xs border font-500 truncate transition-all hover:opacity-80 mb-0.5 ${statusColors[post.status]}`}
+                        onMouseEnter={() => handlePrefetch(post.id)}
+                        className={`w-full text-left px-1.5 py-1 rounded text-xs border font-500 truncate transition-all hover:opacity-80 mb-0.5 ${(STATUS_META[normalizeStatus(post.status)] || STATUS_META.planned).badgeClass}`}
                         title={post.title}
                       >
                         {post.title.slice(0, 20)}...

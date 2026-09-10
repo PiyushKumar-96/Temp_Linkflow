@@ -1,13 +1,26 @@
 'use client';
 
 import React from 'react';
-import { ThumbsUp, MessageSquare, Repeat2, Send, MoreHorizontal, Globe } from 'lucide-react';
+import { ThumbsUp, MessageSquare, Repeat2, Send, MoreHorizontal, Globe, Layers, LayoutGrid, FileText } from 'lucide-react';
+import { CarouselVisual, InfographicVisual } from '@/components/visuals';
 
-export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGenerating }) {
-  const formattedContent = content.split('\n').map((line, i) => (
+export default function ComposerPreview({
+  content = '',
+  cta = '',
+  hashtags = [],
+  imageUrl,
+  visualFormat = 'image',
+  carouselSlides,
+  infographicData,
+  isGenerating,
+}) {
+  const safeContent = content || '';
+  const safeHashtags = Array.isArray(hashtags) ? hashtags : [];
+
+  const formattedContent = safeContent.split('\n').map((line, i) => (
     <React.Fragment key={`line-${i}`}>
       {line || <br />}
-      {i < content.split('\n').length - 1 && <br />}
+      {i < safeContent.split('\n').length - 1 && <br />}
     </React.Fragment>
   ));
 
@@ -15,8 +28,8 @@ export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGe
     <div className="card p-4 flex flex-col gap-3 sticky top-20">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-600 text-foreground">LinkedIn Preview</h3>
-        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-          Live preview
+        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full capitalize">
+          {visualFormat === 'none' ? 'Text-Only' : visualFormat}
         </span>
       </div>
 
@@ -67,9 +80,9 @@ export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGe
             </p>
           )}
 
-          {hashtags.length > 0 && content && (
+          {safeHashtags.length > 0 && safeContent && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {hashtags.map((tag) => (
+              {safeHashtags.map((tag) => (
                 <span key={`prev-${tag}`} className="text-xs text-blue-600 font-500">
                   {tag}
                 </span>
@@ -78,8 +91,20 @@ export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGe
           )}
         </div>
 
-        {/* Image */}
-        {imageUrl && (
+        {/* Visual Attachment Preview by Format */}
+        {visualFormat === 'carousel' && (
+          <div className="border-t border-gray-100 p-2 bg-slate-50">
+            <CarouselVisual slides={carouselSlides} isEditable={false} />
+          </div>
+        )}
+
+        {visualFormat === 'infographic' && (
+          <div className="border-t border-gray-100 p-2 bg-slate-50">
+            <InfographicVisual data={infographicData} isEditable={false} />
+          </div>
+        )}
+
+        {visualFormat === 'image' && imageUrl && (
           <div className="border-t border-gray-100">
             <img
               src={imageUrl}
@@ -119,16 +144,16 @@ export default function ComposerPreview({ content, cta, hashtags, imageUrl, isGe
         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-300 ${
-              content.length > 2700
+              safeContent.length > 2700
                 ? 'bg-danger'
-                : content.length > 2400
+                : safeContent.length > 2400
                   ? 'bg-warning'
                   : 'bg-primary'
             }`}
-            style={{ width: `${Math.min((content.length / 3000) * 100, 100)}%` }}
+            style={{ width: `${Math.min((safeContent.length / 3000) * 100, 100)}%` }}
           />
         </div>
-        <span className="text-xs text-muted-foreground tabular-nums">{content.length}/3000</span>
+        <span className="text-xs text-muted-foreground tabular-nums">{safeContent.length}/3000</span>
       </div>
     </div>
   );

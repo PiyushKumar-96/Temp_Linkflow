@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { FileText, Type, Image, Hash, TrendingUp, Copy, Pencil, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { FileText, Type, Image, Hash, TrendingUp, Copy, Pencil, Check, Layers, LayoutGrid } from 'lucide-react';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/ui/StatusBadge';
 
@@ -9,6 +10,8 @@ const typeIcons = {
   post: FileText,
   caption: Type,
   image: Image,
+  carousel: Layers,
+  infographic: LayoutGrid,
   hashtag_set: Hash,
 };
 
@@ -16,10 +19,13 @@ const typeColors = {
   post: 'bg-primary/10 text-primary',
   caption: 'bg-accent/10 text-accent',
   image: 'bg-emerald-50 text-emerald-600',
+  carousel: 'bg-indigo-50 text-indigo-600',
+  infographic: 'bg-purple-50 text-purple-600',
   hashtag_set: 'bg-amber-50 text-amber-600',
 };
 
 export default function LibraryList({ items, selectedIds, onToggleSelect }) {
+  const navigate = useNavigate();
   if (items.length === 0) {
     return (
       <div className="card flex items-center justify-center py-16">
@@ -124,14 +130,21 @@ export default function LibraryList({ items, selectedIds, onToggleSelect }) {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
-                      onClick={() => toast.success('Copied')}
+                      onClick={() => {
+                        if (navigator?.clipboard) {
+                          navigator.clipboard.writeText(item.preview);
+                        }
+                        toast.success('Asset content copied to clipboard');
+                      }}
                       className="p-1 rounded hover:bg-muted text-muted-foreground transition-colors"
+                      title="Copy content"
                     >
                       <Copy size={13} />
                     </button>
                     <button
-                      onClick={() => toast.info('Opening editor')}
+                      onClick={() => navigate(`/post-creation-composer?id=${item.id}&mode=edit`)}
                       className="p-1 rounded hover:bg-muted text-muted-foreground transition-colors"
+                      title="Open in Composer"
                     >
                       <Pencil size={13} />
                     </button>

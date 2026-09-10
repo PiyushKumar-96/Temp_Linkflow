@@ -4,8 +4,10 @@ import React from 'react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { Clock, AlertTriangle } from 'lucide-react';
 
-export default function ApprovalQueue({ posts, selectedId, onSelect }) {
-  if (posts.length === 0) {
+export default function ApprovalQueue({ posts = [], selectedId, onSelect }) {
+  const postList = Array.isArray(posts) ? posts : [];
+
+  if (postList.length === 0) {
     return (
       <div className="card flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
@@ -19,12 +21,17 @@ export default function ApprovalQueue({ posts, selectedId, onSelect }) {
   return (
     <div className="card overflow-hidden flex flex-col h-full">
       <div className="px-4 py-3 border-b border-border">
-        <h3 className="text-sm font-600 text-foreground">{posts.length} posts</h3>
+        <h3 className="text-sm font-600 text-foreground">{postList.length} posts</h3>
       </div>
       <div className="flex-1 overflow-y-auto scrollbar-thin">
-        {posts.map((post) => {
+        {postList.map((post) => {
           const isSelected = post.id === selectedId;
           const isOverdue = post.status === 'pending' && post.dueDate < '2026-09-08';
+          const commentsCount = Array.isArray(post.comments)
+            ? post.comments.length
+            : typeof post.comments === 'number'
+              ? post.comments
+              : 0;
 
           return (
             <button
@@ -54,9 +61,9 @@ export default function ApprovalQueue({ posts, selectedId, onSelect }) {
                       <Clock size={10} />
                       Due {post.dueDate}
                     </span>
-                    {post.comments.length > 0 && (
+                    {commentsCount > 0 && (
                       <span>
-                        {post.comments.length} comment{post.comments.length > 1 ? 's' : ''}
+                        {commentsCount} comment{commentsCount > 1 ? 's' : ''}
                       </span>
                     )}
                   </div>

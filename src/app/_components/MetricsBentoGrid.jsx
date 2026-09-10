@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -11,74 +11,67 @@ import {
   Clock,
   AlertTriangle,
 } from 'lucide-react';
+import { getAnalyticsSummary } from '@/temp-backend';
 
-const metrics = [
-  {
-    id: 'metric-impressions',
-    label: 'Total Impressions',
-    value: '284,712',
-    change: 18.4,
-    changeLabel: 'vs last period',
-    icon: Eye,
-    trend: 'up',
-    span: 'wide',
-    subMetric: '↑ 43,892 new this week',
-  },
-  {
-    id: 'metric-engagement',
-    label: 'Avg Engagement Rate',
-    value: '4.7%',
-    change: -0.8,
-    changeLabel: 'vs last period',
-    icon: TrendingDown,
-    trend: 'down',
-    alert: true,
-    subMetric: 'Below 5% target',
-  },
-  {
-    id: 'metric-reactions',
-    label: 'Total Reactions',
-    value: '8,341',
-    change: 12.1,
-    changeLabel: 'vs last period',
-    icon: Heart,
-    trend: 'up',
-  },
-  {
-    id: 'metric-comments',
-    label: 'Comments',
-    value: '1,204',
-    change: 6.3,
-    changeLabel: 'vs last period',
-    icon: MessageCircle,
-    trend: 'up',
-  },
-  {
-    id: 'metric-profile-visits',
-    label: 'Profile Visits Driven',
-    value: '3,891',
-    change: 24.7,
-    changeLabel: 'vs last period',
-    icon: UserCheck,
-    trend: 'up',
-  },
-  {
-    id: 'metric-queue',
-    label: 'Scheduled Queue',
-    value: '12 posts',
-    change: 0,
-    changeLabel: 'next 14 days',
-    icon: Clock,
-    trend: 'neutral',
-    subMetric: '3 pending approval',
-  },
-];
+const ICON_MAP = {
+  Eye,
+  TrendingUp,
+  TrendingDown,
+  Heart,
+  MessageCircle,
+  UserCheck,
+  Clock,
+  AlertTriangle,
+};
 
-export default function MetricsBentoGrid() {
+export default function MetricsBentoGrid({ activeRange = 'range-30d', refreshKey = 0 }) {
+  const [metrics, setMetrics] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadMetrics() {
+      setLoading(true);
+      try {
+        const data = await getAnalyticsSummary(activeRange);
+        if (!cancelled) {
+          setMetrics(data);
+        }
+      } catch {
+        // Fallback
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+    loadMetrics();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeRange, refreshKey]);
+
+  if (loading && metrics.length === 0) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className={`card p-5 flex flex-col gap-3 animate-pulse bg-muted/40 ${i === 1 ? 'md:col-span-2' : ''}`}
+          >
+            <div className="h-4 bg-muted rounded w-1/3" />
+            <div className="h-8 bg-muted rounded w-1/2 mt-2" />
+            <div className="h-3 bg-muted rounded w-2/3 mt-2" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-      {metrics.map((metric, idx) => {
-        const Icon = metric.icon;
+      {metrics.map((metric) => {
+        const Icon = ICON_MAP[metric.iconName] || Eye;
         const isWide = metric.span === 'wide';
         const isAlert = metric.alert;
 
@@ -90,7 +83,7 @@ export default function MetricsBentoGrid() {
             } ${isAlert ? 'border-warning/40 bg-warning/5' : ''}`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-600 text-muted-foreground uppercase tracking-wide">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 {metric.label}
               </span>
               <div
@@ -111,13 +104,13 @@ export default function MetricsBentoGrid() {
 
             <div>
               <p
-                className={`font-700 tabular-nums text-foreground ${isWide ? 'text-4xl' : 'text-2xl'}`}
+                className={`font-bold tabular-nums text-foreground ${isWide ? 'text-4xl' : 'text-2xl'}`}
               >
                 {metric.value}
               </p>
               {metric.subMetric && (
                 <p
-                  className={`text-xs mt-0.5 font-500 ${isAlert ? 'text-warning' : 'text-muted-foreground'}`}
+                  className={`text-xs mt-0.5 font-medium ${isAlert ? 'text-warning' : 'text-muted-foreground'}`}
                 >
                   {metric.subMetric}
                 </p>
@@ -132,7 +125,7 @@ export default function MetricsBentoGrid() {
                   <TrendingDown size={13} className="text-danger" />
                 )}
                 <span
-                  className={`text-xs font-600 ${metric.trend === 'up' ? 'text-success' : 'text-danger'}`}
+                  className={`text-xs font-semibold ${metric.trend === 'up' ? 'text-success' : 'text-danger'}`}
                 >
                   {metric.change > 0 ? '+' : ''}
                   {metric.change}%

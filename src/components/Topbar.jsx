@@ -14,10 +14,21 @@ import {
   Check,
   Clock,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 const MOCK_NOTIFICATIONS = [
+  {
+    id: 'notif-alert-1',
+    title: 'DISPATCH FAILED: 5 AI Automation Workflows halted (Buffer 429)',
+    time: '8m ago',
+    type: 'failure',
+    unread: true,
+    href: '/approval-workflow?post=appr-005',
+    isAlert: true,
+    requestId: 'req_9f41b2f0a1c',
+  },
   {
     id: 'notif-1',
     title: 'Review Required: Customer Onboarding Case Study',
@@ -125,7 +136,7 @@ export default function Topbar({ sidebarCollapsed }) {
         </button>
 
         {/* Create Post Button */}
-        <Link href="/post-creation-composer">
+        <Link to="/post-creation-composer">
           <button className="btn-primary text-xs py-1.5 px-3">
             <Plus size={14} />
             <span className="hidden sm:inline">New Post</span>
@@ -139,16 +150,29 @@ export default function Topbar({ sidebarCollapsed }) {
             className="relative p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
             aria-label="Notifications"
           >
-            <Bell size={18} />
+            <Bell size={18} className={notifications.some((n) => n.unread && n.isAlert) ? 'text-destructive' : ''} />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full ring-2 ring-card" />
+              <span
+                className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 ring-card ${
+                  notifications.some((n) => n.unread && n.isAlert)
+                    ? 'bg-destructive animate-pulse'
+                    : 'bg-primary'
+                }`}
+              />
             )}
           </button>
 
           {notifMenuOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden slide-up">
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                <span className="font-600 text-sm text-foreground">Notifications & Alerts</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-600 text-sm text-foreground">Notifications & Alerts</span>
+                  {notifications.some((n) => n.isAlert && n.unread) && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-destructive text-white rounded-full">
+                      Alert Active
+                    </span>
+                  )}
+                </div>
                 {unreadCount > 0 && (
                   <button
                     onClick={() =>
@@ -164,21 +188,36 @@ export default function Topbar({ sidebarCollapsed }) {
                 {notifications.map((n) => (
                   <Link
                     key={n.id}
-                    href={n.href}
+                    to={n.href}
                     onClick={() => setNotifMenuOpen(false)}
                     className={`block px-4 py-3 hover:bg-muted/60 transition-colors ${
-                      n.unread ? 'bg-primary/5' : ''
+                      n.isAlert && n.unread
+                        ? 'bg-destructive/10 border-l-2 border-destructive'
+                        : n.unread
+                        ? 'bg-primary/5'
+                        : ''
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs font-500 text-foreground leading-snug">{n.title}</p>
+                      <p
+                        className={`text-xs font-500 leading-snug ${
+                          n.isAlert ? 'text-destructive font-semibold' : 'text-foreground'
+                        }`}
+                      >
+                        {n.title}
+                      </p>
                       {n.unread && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1" />
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1 ${
+                            n.isAlert ? 'bg-destructive' : 'bg-primary'
+                          }`}
+                        />
                       )}
                     </div>
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
                       <Clock size={10} />
                       {n.time}
+                      {n.requestId && <span className="font-mono text-[9px] ml-1">({n.requestId})</span>}
                     </span>
                   </Link>
                 ))}

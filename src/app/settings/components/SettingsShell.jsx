@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Clock,
   Plus,
@@ -13,9 +13,12 @@ import {
   Bell,
   CheckCircle2,
   Globe,
+  Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import SeriesTab from './SeriesTab';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -47,6 +50,33 @@ const defaultRules = DAYS.map((day, i) => ({
   useOffset: i > 0 && i < 5,
 }));
 
+const DEFAULT_SERIES = [
+  {
+    id: 'series-1',
+    name: 'Async Work Transition',
+    cadence: 'weekly',
+    guidelines: 'Focus on communication culture, focus hours, and tools like Notion/Loom.',
+  },
+  {
+    id: 'series-2',
+    name: 'B2B Growth Playbook',
+    cadence: 'weekly',
+    guidelines: 'Data-backed inbound strategies, repurposing systems, and pipeline attribution.',
+  },
+  {
+    id: 'series-3',
+    name: 'Product Transparency',
+    cadence: 'biweekly',
+    guidelines: 'Roadmap reveals, metrics transparency, engineering lessons.',
+  },
+  {
+    id: 'series-4',
+    name: 'Weekly Metrics Digest',
+    cadence: 'weekly',
+    guidelines: 'Key benchmarks for B2B founders and leaders.',
+  },
+];
+
 function addMinutesToTime(time, minutes) {
   const [h, m] = time.split(':').map(Number);
   const total = h * 60 + m + minutes;
@@ -58,64 +88,152 @@ function addMinutesToTime(time, minutes) {
 export default function SettingsShell() {
   const { activeAccount, switchAccount, accounts } = useAuth();
 
-  const [activeTab, setActiveTab] = useState('scheduling'); // 'scheduling' | 'accounts' | 'brandVoice' | 'notifications'
+  const [activeTab, setActiveTab] = useState('scheduling');
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Tab 1: Scheduling
   const [rules, setRules] = useState(defaultRules);
   const [timezone, setTimezone] = useState('America/New_York');
 
-  // Brand Voice State
-  const [tone, setTone] = useState('Authoritative, data-backed, and conversational');
-  const [bannedKeywords, setBannedKeywords] = useState(
-    'synergy, game-changer, revolutionary, guru'
-  );
-  const [targetAudience, setTargetAudience] = useState(
-    'B2B SaaS Founders, VP Product, and Growth Marketers'
-  );
-  const [hookRules, setHookRules] = useState(
-    'Start with high-contrast data, a myth debunk, or a personal milestone'
-  );
+  // Tab 2: Series
+  const [series, setSeries] = useState(DEFAULT_SERIES);
 
-  // Notification Preferences State
+  // Tab 3: Brand Voice
+  const [tone, setTone] = useState('Authoritative, data-backed, and conversational');
+  const [bannedKeywords, setBannedKeywords] = useState('synergy, game-changer, revolutionary, guru');
+  const [targetAudience, setTargetAudience] = useState('B2B SaaS Founders, VP Product, and Growth Marketers');
+  const [hookRules, setHookRules] = useState('Start with high-contrast data, a myth debunk, or a personal milestone');
+
+  // Tab 4: Notification Preferences
   const [notifyOnReview, setNotifyOnReview] = useState(true);
   const [notifyOnPublish, setNotifyOnPublish] = useState(true);
   const [notifyOnFailure, setNotifyOnFailure] = useState(true);
   const [slackWebhook, setSlackWebhook] = useState('https://hooks.slack.com/services/T00/B00/XXXX');
 
+  // Load persisted settings on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('linkedflow_settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.rules && Array.isArray(parsed.rules)) {
+          const normalized = parsed.rules.map((r, i) => ({
+            ...r,
+            slots: Array.isArray(r.slots) && r.slots.length > 0 ? r.slots : (defaultRules[i]?.slots || [defaultSlot('10:00')]),
+          }));
+          setRules(normalized);
+        }
+        if (parsed.timezone) setTimezone(parsed.timezone);
+        if (parsed.series && Array.isArray(parsed.series)) setSeries(parsed.series);
+        if (parsed.brandVoice) {
+          if (parsed.brandVoice.tone) setTone(parsed.brandVoice.tone);
+          if (parsed.brandVoice.bannedKeywords) setBannedKeywords(parsed.brandVoice.bannedKeywords);
+          if (parsed.brandVoice.targetAudience) setTargetAudience(parsed.brandVoice.targetAudience);
+          if (parsed.brandVoice.hookRules) setHookRules(parsed.brandVoice.hookRules);
+        }
+        if (parsed.notifications) {
+          setNotifyOnReview(parsed.notifications.notifyOnReview ?? true);
+          setNotifyOnPublish(parsed.notifications.notifyOnPublish ?? true);
+          setNotifyOnFailure(parsed.notifications.notifyOnFailure ?? true);
+          setSlackWebhook(parsed.notifications.slackWebhook || '');
+        }
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  // Unsaved changes warning on browser navigate away / close
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes that will be lost.';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const markDirty = () => setIsDirty(true);
+
   const updateRule = (idx, patch) => {
     setRules((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+    markDirty();
   };
 
   const addSlot = (idx) => {
-    const rule = rules[idx];
-    const lastSlot = rule.slots[rule.slots.length - 1];
+    const rule = rules[idx] || {};
+    const slots = Array.isArray(rule.slots) ? rule.slots : [];
+    const lastSlot = slots[slots.length - 1];
     const newTime = lastSlot ? addMinutesToTime(lastSlot.time, 60) : '10:00';
-    updateRule(idx, { slots: [...rule.slots, defaultSlot(newTime)] });
+    updateRule(idx, { slots: [...slots, defaultSlot(newTime)] });
   };
 
   const removeSlot = (ruleIdx, slotId) => {
     setRules((prev) =>
       prev.map((r, i) =>
-        i === ruleIdx ? { ...r, slots: r.slots.filter((s) => s.id !== slotId) } : r
+        i === ruleIdx ? { ...r, slots: (r.slots || []).filter((s) => s.id !== slotId) } : r
       )
     );
+    markDirty();
   };
 
   const updateSlot = (ruleIdx, slotId, time) => {
     setRules((prev) =>
       prev.map((r, i) =>
         i === ruleIdx
-          ? { ...r, slots: r.slots.map((s) => (s.id === slotId ? { ...s, time } : s)) }
+          ? { ...r, slots: (r.slots || []).map((s) => (s.id === slotId ? { ...s, time } : s)) }
           : r
       )
     );
+    markDirty();
+  };
+
+  const handleUpdateSeries = (nextSeries) => {
+    setSeries(nextSeries);
+    markDirty();
   };
 
   const handleSave = () => {
-    toast.success('Settings saved successfully');
+    const payload = {
+      rules,
+      timezone,
+      series,
+      brandVoice: {
+        tone,
+        bannedKeywords,
+        targetAudience,
+        hookRules,
+      },
+      notifications: {
+        notifyOnReview,
+        notifyOnPublish,
+        notifyOnFailure,
+        slackWebhook,
+      },
+    };
+
+    try {
+      localStorage.setItem('linkedflow_settings', JSON.stringify(payload));
+      setIsDirty(false);
+      toast.success('Settings saved and persisted successfully');
+    } catch {
+      toast.error('Failed to save settings to storage');
+    }
   };
 
   const handleReset = () => {
     setRules(defaultRules);
-    toast.info('Rules reset to defaults');
+    setSeries(DEFAULT_SERIES);
+    setTimezone('America/New_York');
+    setTone('Authoritative, data-backed, and conversational');
+    setBannedKeywords('synergy, game-changer, revolutionary, guru');
+    setTargetAudience('B2B SaaS Founders, VP Product, and Growth Marketers');
+    setHookRules('Start with high-contrast data, a myth debunk, or a personal milestone');
+    markDirty();
+    toast.info('Settings reset to defaults');
   };
 
   return (
@@ -125,17 +243,25 @@ export default function SettingsShell() {
         <div>
           <h1 className="text-2xl font-700 text-foreground">Settings & Guidelines</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Configure LinkedIn accounts, schedule windows, brand voice rules, and notifications
+            Configure LinkedIn accounts, schedule windows, marketing series, brand voice rules, and notifications
           </p>
         </div>
+
         <div className="flex items-center gap-2">
+          {isDirty && (
+            <span className="text-xs text-warning flex items-center gap-1 font-600 bg-warning/10 px-2.5 py-1 rounded-full border border-warning/20 animate-pulse">
+              <AlertTriangle size={12} />
+              Unsaved Changes
+            </span>
+          )}
+
           <button onClick={handleReset} className="btn-secondary text-xs">
             <RotateCcw size={13} />
             Reset
           </button>
-          <button onClick={handleSave} className="btn-primary text-xs">
+          <button onClick={handleSave} className="btn-primary text-xs flex items-center gap-1.5">
             <Save size={13} />
-            Save Changes
+            <span>Save Changes</span>
           </button>
         </div>
       </div>
@@ -144,6 +270,7 @@ export default function SettingsShell() {
       <div className="flex border-b border-border gap-2 overflow-x-auto">
         {[
           { id: 'scheduling', label: 'Publishing Schedule', icon: Clock },
+          { id: 'series', label: 'Marketing Series', icon: Layers },
           { id: 'accounts', label: 'LinkedIn Accounts', icon: Building2 },
           { id: 'brandVoice', label: 'Brand Voice & AI Guidelines', icon: Sparkles },
           { id: 'notifications', label: 'Notification Preferences', icon: Bell },
@@ -177,7 +304,10 @@ export default function SettingsShell() {
               </span>
               <select
                 value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
+                onChange={(e) => {
+                  setTimezone(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs py-1 px-2.5 h-8 font-500"
               >
                 <option value="America/New_York">Eastern Time (US & Canada) (ET)</option>
@@ -213,7 +343,7 @@ export default function SettingsShell() {
 
                   {rule.enabled ? (
                     <div className="flex items-center gap-2 flex-wrap flex-1">
-                      {rule.slots.map((slot) => (
+                      {(rule.slots || []).map((slot) => (
                         <div
                           key={slot.id}
                           className="flex items-center gap-1 bg-muted px-2 py-1 rounded-lg border border-border"
@@ -224,7 +354,7 @@ export default function SettingsShell() {
                             onChange={(e) => updateSlot(idx, slot.id, e.target.value)}
                             className="bg-transparent text-xs font-600 text-foreground outline-none"
                           />
-                          {rule.slots.length > 1 && (
+                          {(rule.slots || []).length > 1 && (
                             <button
                               onClick={() => removeSlot(idx, slot.id)}
                               className="text-muted-foreground hover:text-danger p-0.5"
@@ -254,7 +384,15 @@ export default function SettingsShell() {
         </div>
       )}
 
-      {/* TAB 2: LINKEDIN ACCOUNTS */}
+      {/* TAB 2: SERIES (NEW TAB) */}
+      {activeTab === 'series' && (
+        <SeriesTab
+          series={series}
+          onUpdateSeries={handleUpdateSeries}
+        />
+      )}
+
+      {/* TAB 3: LINKEDIN ACCOUNTS */}
       {activeTab === 'accounts' && (
         <div className="card p-6 flex flex-col gap-5">
           <div>
@@ -265,8 +403,8 @@ export default function SettingsShell() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {accounts.map((acc) => {
-              const isCurrent = acc.id === activeAccount.id;
+            {(accounts || []).map((acc) => {
+              const isCurrent = acc?.id === activeAccount?.id;
               return (
                 <div
                   key={acc.id}
@@ -348,7 +486,7 @@ export default function SettingsShell() {
         </div>
       )}
 
-      {/* TAB 3: BRAND VOICE & AI GUIDELINES */}
+      {/* TAB 4: BRAND VOICE & AI GUIDELINES */}
       {activeTab === 'brandVoice' && (
         <div className="card p-6 flex flex-col gap-5">
           <div>
@@ -356,8 +494,7 @@ export default function SettingsShell() {
               Brand Voice & AI Generation Rules
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              These guidelines are injected into every AI drafting and review prompt to ensure
-              consistent quality
+              These guidelines are injected into every AI drafting and review prompt to ensure consistent quality
             </p>
           </div>
 
@@ -367,7 +504,10 @@ export default function SettingsShell() {
               <input
                 type="text"
                 value={tone}
-                onChange={(e) => setTone(e.target.value)}
+                onChange={(e) => {
+                  setTone(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs"
               />
               <span className="text-[10px] text-muted-foreground">
@@ -382,7 +522,10 @@ export default function SettingsShell() {
               <input
                 type="text"
                 value={bannedKeywords}
-                onChange={(e) => setBannedKeywords(e.target.value)}
+                onChange={(e) => {
+                  setBannedKeywords(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs"
               />
               <span className="text-[10px] text-muted-foreground">
@@ -397,7 +540,10 @@ export default function SettingsShell() {
               <input
                 type="text"
                 value={targetAudience}
-                onChange={(e) => setTargetAudience(e.target.value)}
+                onChange={(e) => {
+                  setTargetAudience(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs"
               />
             </div>
@@ -408,7 +554,10 @@ export default function SettingsShell() {
               </label>
               <textarea
                 value={hookRules}
-                onChange={(e) => setHookRules(e.target.value)}
+                onChange={(e) => {
+                  setHookRules(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs h-20"
               />
               <span className="text-[10px] text-muted-foreground">
@@ -419,7 +568,7 @@ export default function SettingsShell() {
         </div>
       )}
 
-      {/* TAB 4: NOTIFICATION PREFERENCES */}
+      {/* TAB 5: NOTIFICATION PREFERENCES */}
       {activeTab === 'notifications' && (
         <div className="card p-6 flex flex-col gap-5">
           <div>
@@ -440,7 +589,10 @@ export default function SettingsShell() {
               <input
                 type="checkbox"
                 checked={notifyOnReview}
-                onChange={(e) => setNotifyOnReview(e.target.checked)}
+                onChange={(e) => {
+                  setNotifyOnReview(e.target.checked);
+                  markDirty();
+                }}
                 className="rounded border-border text-primary h-4 w-4"
               />
             </div>
@@ -455,7 +607,10 @@ export default function SettingsShell() {
               <input
                 type="checkbox"
                 checked={notifyOnPublish}
-                onChange={(e) => setNotifyOnPublish(e.target.checked)}
+                onChange={(e) => {
+                  setNotifyOnPublish(e.target.checked);
+                  markDirty();
+                }}
                 className="rounded border-border text-primary h-4 w-4"
               />
             </div>
@@ -470,7 +625,10 @@ export default function SettingsShell() {
               <input
                 type="checkbox"
                 checked={notifyOnFailure}
-                onChange={(e) => setNotifyOnFailure(e.target.checked)}
+                onChange={(e) => {
+                  setNotifyOnFailure(e.target.checked);
+                  markDirty();
+                }}
                 className="rounded border-border text-primary h-4 w-4"
               />
             </div>
@@ -482,7 +640,10 @@ export default function SettingsShell() {
               <input
                 type="text"
                 value={slackWebhook}
-                onChange={(e) => setSlackWebhook(e.target.value)}
+                onChange={(e) => {
+                  setSlackWebhook(e.target.value);
+                  markDirty();
+                }}
                 className="input-base text-xs font-mono"
               />
             </div>

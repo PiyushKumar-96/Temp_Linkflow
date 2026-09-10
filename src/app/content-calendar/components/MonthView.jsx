@@ -1,19 +1,24 @@
-'use client';
-
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import PostDetailPopover from './PostDetailPopover';
-
-const statusColors = {
-  draft: 'bg-slate-100 text-slate-600 border-slate-200',
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-  approved: 'bg-blue-50 text-blue-700 border-blue-200',
-  scheduled: 'bg-violet-50 text-violet-700 border-violet-200',
-  published: 'bg-green-50 text-green-700 border-green-200',
-};
+import { normalizeStatus, STATUS_META, STATUS_FILTER_ORDER } from '@/lib/post-status';
+import { useQueryClient } from '@tanstack/react-query';
+import apiClient from '@/lib/api-client';
+import { Plus } from 'lucide-react';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function MonthView({ currentDate, posts, selectedPost, onSelectPost }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handlePrefetch = (postId) => {
+    queryClient.prefetchQuery({
+      queryKey: ['post', 'detail', postId],
+      queryFn: async () => apiClient.get(`/posts/${postId}`),
+      staleTime: 60 * 1000,
+    });
+  };
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
@@ -60,18 +65,29 @@ export default function MonthView({ currentDate, posts, selectedPost, onSelectPo
           return (
             <div
               key={`cell-${idx}`}
-              className={`min-h-[100px] p-2 border-b border-r border-border last:border-r-0 transition-colors ${
+              className={`min-h-[100px] p-2 border-b border-r border-border last:border-r-0 transition-colors relative group/cell ${
                 day ? 'hover:bg-muted/30' : 'bg-muted/20'
               } ${idx % 7 === 6 ? 'border-r-0' : ''}`}
             >
               {day && (
                 <>
-                  <div
-                    className={`w-6 h-6 flex items-center justify-center rounded-full mb-1.5 text-xs font-600 ${
-                      isToday ? 'bg-primary text-white' : 'text-foreground'
-                    }`}
-                  >
-                    {day}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-600 ${
+                        isToday ? 'bg-primary text-white' : 'text-foreground'
+                      }`}
+                    >
+                      {day}
+                    </div>
+
+                    <button
+                      onClick={() => navigate(`/topics?view=year&date=${dateStr}`)}
+                      className="opacity-0 group-hover/cell:opacity-100 text-[10px] text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-opacity px-1 py-0.5 rounded hover:bg-muted"
+                      title="Plan a topic for this day"
+                    >
+                      <Plus size={10} />
+                      Plan
+                    </button>
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -79,7 +95,8 @@ export default function MonthView({ currentDate, posts, selectedPost, onSelectPo
                       <button
                         key={post.id}
                         onClick={() => onSelectPost(selectedPost?.id === post.id ? null : post)}
-                        className={`text-left w-full px-1.5 py-1 rounded text-xs border truncate font-500 transition-all duration-150 hover:opacity-80 ${statusColors[post.status]}`}
+                        onMouseEnter={() => handlePrefetch(post.id)}
+                        className={`text-left w-full px-1.5 py-1 rounded text-xs border truncate font-500 transition-all duration-150 hover:opacity-80 ${(STATUS_META[normalizeStatus(post.status)] || STATUS_META.planned).badgeClass}`}
                         title={post.title}
                       >
                         {post.time && <span className="opacity-70 mr-1">{post.time}</span>}
@@ -91,6 +108,15 @@ export default function MonthView({ currentDate, posts, selectedPost, onSelectPo
                         +{dayPosts.length - 3} more
                       </span>
                     )}
+                    {dayPosts.length === 0 && (
+                      <button
+                        onClick={() => navigate(`/topics?view=year&date=${dateStr}`)}
+                        className="w-full text-left py-1 px-1.5 rounded border border-dashed border-border/60 text-[10px] text-muted-foreground opacity-0 group-hover/cell:opacity-100 hover:border-primary/40 hover:text-primary transition-all flex items-center gap-1 mt-1"
+                      >
+                        <Plus size={10} />
+                        Plan topic
+                      </button>
+                    )}
                   </div>
                 </>
               )}
@@ -101,12 +127,16 @@ export default function MonthView({ currentDate, posts, selectedPost, onSelectPo
 
       {/* Legend */}
       <div className="px-4 py-2.5 border-t border-border flex items-center gap-4 flex-wrap">
-        {Object.entries(statusColors).map(([status, cls]) => (
-          <div key={`legend-${status}`} className="flex items-center gap-1.5">
-            <span className={`w-2.5 h-2.5 rounded-sm border ${cls}`} />
-            <span className="text-xs text-muted-foreground capitalize">{status}</span>
-          </div>
-        ))}
+        {STATUS_FILTER_ORDER.map((statusKey) => {
+          const meta = STATUS_META[statusKey];
+          if (!meta) return null;
+          return (
+            <div key={`legend-${statusKey}`} className="flex items-center gap-1.5">
+              <span className={`w-2.5 h-2.5 rounded-sm border ${meta.badgeClass}`} />
+              <span className="text-xs text-muted-foreground">{meta.label}</span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Post detail popover */}
