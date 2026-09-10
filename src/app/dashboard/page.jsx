@@ -4,13 +4,22 @@ import React, { useState, useEffect } from 'react';
 import { useApprovalPosts } from '@/app/approval-workflow/_api/queries';
 import { useTopicsQuery } from '@/app/topics/_api/queries';
 import { useQueryClient } from '@tanstack/react-query';
-import DashboardHeader from './_components/DashboardHeader';
-import DashboardFailuresSection from './_components/DashboardFailuresSection';
-import DashboardPendingReview from './_components/DashboardPendingReview';
-import DashboardUpcomingPosts from './_components/DashboardUpcomingPosts';
-import DashboardRecentlyPublished from './_components/DashboardRecentlyPublished';
 import { getUpcomingPosts, getRecentlyPublishedPosts, updatePost } from '@/temp-backend';
 import { toast } from 'sonner';
+
+import DashboardCockpitHeader from './_components/DashboardCockpitHeader';
+import DashboardHeroCard from './_components/DashboardHeroCard';
+import DashboardPipelineHealth from './_components/DashboardPipelineHealth';
+import DashboardTodayFocus from './_components/DashboardTodayFocus';
+import DashboardWorkflowStepper from './_components/DashboardWorkflowStepper';
+import DashboardAttentionRequired from './_components/DashboardAttentionRequired';
+import DashboardPendingReviewCard from './_components/DashboardPendingReviewCard';
+import DashboardContentPerformance from './_components/DashboardContentPerformance';
+import DashboardUpcomingPostsCard from './_components/DashboardUpcomingPostsCard';
+import DashboardContentPillars from './_components/DashboardContentPillars';
+import DashboardQuickActions from './_components/DashboardQuickActions';
+import DashboardWorkflowModal from './_components/DashboardWorkflowModal';
+import DashboardAgendaModal from './_components/DashboardAgendaModal';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -19,6 +28,8 @@ export default function DashboardPage() {
 
   const [upcomingPosts, setUpcomingPosts] = useState([]);
   const [publishedPosts, setPublishedPosts] = useState([]);
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +76,7 @@ export default function DashboardPage() {
       activityLog: [
         {
           id: `act-retry-${Date.now()}`,
-          actor: 'Operations User',
+          actor: 'Piyush Karn',
           action: 'Initiated retry dispatch [req_retry_01]',
           timestamp: 'Just now',
           details: 'Retrying Buffer publishing worker connection.',
@@ -77,12 +88,12 @@ export default function DashboardPage() {
   };
 
   const handleManualPublish = async (post) => {
-    const mdContent = `# ${post.title}\n\n${post.content}\n\n${(post.hashtags || []).join(' ')}\n\n---\nTarget Account: ${post.category}\nFormat: ${post.visualFormat || 'Image'}\nDownload Date: ${new Date().toISOString()}`;
+    const mdContent = `# ${post.title}\n\n${post.content || ''}\n\n${(post.hashtags || []).join(' ')}\n\n---\nTarget Account: ${post.category || 'Company Page'}\nFormat: ${post.visualFormat || 'Image'}\nDownload Date: ${new Date().toISOString()}`;
     const blob = new Blob([mdContent], { type: 'text/markdown;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `${post.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`);
+    link.setAttribute('download', `${(post.title || 'post').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -91,36 +102,57 @@ export default function DashboardPage() {
     toast.success('Downloaded publication package & marked as Manual Publish');
   };
 
-  const handleQuickApprove = async (postId) => {
-    await updatePostStatus(postId, 'approved');
-    toast.success('Post approved and queued for scheduling');
-  };
-
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
-      <DashboardHeader
-        pendingReviewCount={pendingPosts.length}
-        upcomingCount={upcomingPosts.length}
-        failureCount={failedPosts.length}
-        topicsCount={topics.length}
-      />
+    <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-14 px-2 sm:px-4">
+      {/* Top Cockpit Header */}
+      <DashboardCockpitHeader />
 
-      {/* The loudest section on the page */}
-      <DashboardFailuresSection
-        failedPosts={failedPosts}
-        onRetryPost={handleRetryPost}
-        onManualPublish={handleManualPublish}
-      />
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <DashboardPendingReview
-          pendingPosts={pendingPosts}
-          onQuickApprove={handleQuickApprove}
-        />
-        <DashboardUpcomingPosts upcomingPosts={upcomingPosts} />
+      {/* Row 1: Hero Banner, Pipeline Health, Today's Focus */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-5 md:col-span-2">
+          <DashboardHeroCard onOpenAgenda={() => setIsAgendaModalOpen(true)} />
+        </div>
+        <div className="lg:col-span-4 md:col-span-1">
+          <DashboardPipelineHealth />
+        </div>
+        <div className="lg:col-span-3 md:col-span-1">
+          <DashboardTodayFocus />
+        </div>
       </div>
 
-      <DashboardRecentlyPublished publishedPosts={publishedPosts} />
+      {/* Row 2: Standard Workflow Stepper */}
+      <DashboardWorkflowStepper
+        onOpenWorkflowModal={() => setIsWorkflowModalOpen(true)}
+      />
+
+      {/* Row 3: Attention Required, Pending Human Review, Content Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <DashboardAttentionRequired
+          failedPosts={failedPosts}
+          onRetryPost={handleRetryPost}
+          onManualPublish={handleManualPublish}
+        />
+        <DashboardPendingReviewCard pendingPosts={pendingPosts} />
+        <DashboardContentPerformance />
+      </div>
+
+      {/* Row 4: Upcoming Posts, Content Pillars & Mix, Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <DashboardUpcomingPostsCard upcomingPosts={upcomingPosts} />
+        <DashboardContentPillars />
+        <DashboardQuickActions />
+      </div>
+
+      {/* Interactive Modals */}
+      <DashboardWorkflowModal
+        isOpen={isWorkflowModalOpen}
+        onClose={() => setIsWorkflowModalOpen(false)}
+      />
+
+      <DashboardAgendaModal
+        isOpen={isAgendaModalOpen}
+        onClose={() => setIsAgendaModalOpen(false)}
+      />
     </div>
   );
 }
