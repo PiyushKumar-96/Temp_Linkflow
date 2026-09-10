@@ -16,7 +16,7 @@ import {
   CloudSun,
   Moon,
 } from 'lucide-react';
-import { Avatar, Pill, buttonStyles, formatDayLabel, getGreeting } from './DashboardPrimitives';
+import { Pill, formatDayLabel, getGreeting } from './DashboardPrimitives';
 
 const GREETING_ICONS = { morning: Sun, afternoon: CloudSun, evening: Moon };
 
@@ -53,8 +53,16 @@ export default function DashboardCockpitHeader() {
     };
   }, []);
 
-  const controlBase =
-    'h-10 rounded-xl border border-border/70 bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors';
+  const tabletBase =
+    'h-11 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur-md transition-all duration-200';
+
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase() || 'SR';
 
   return (
     <header className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
@@ -72,39 +80,78 @@ export default function DashboardCockpitHeader() {
         </p>
       </div>
 
-      {/* Controls: Date, Profile, and Compose Post all in one line */}
-      <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-        {/* Date */}
-        <div className={`${controlBase} hidden items-center gap-2.5 px-3 md:flex`}>
-          <Calendar size={15} className="text-muted-foreground" />
-          <div className="flex flex-col leading-none">
-            <span className="text-xs font-semibold text-foreground">{formatDayLabel(now)}</span>
-            <span className="mt-1 text-[10px] text-muted-foreground">Have a productive day!</span>
+      {/* Controls: Date, Profile, and Compose Post styled as premium tablets */}
+      <div className="flex flex-wrap items-center gap-3 shrink-0">
+        {/* Date Tablet */}
+        <div
+          className={`${tabletBase} hidden items-center gap-3 px-3.5 md:flex select-none hover:border-blue-200 dark:hover:border-blue-900/60 hover:shadow-md`}
+        >
+          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400 ring-1 ring-blue-500/20 shadow-xs">
+            <Calendar size={13} strokeWidth={2.3} />
+          </span>
+          <div className="flex flex-col text-left">
+            <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
+              {formatDayLabel(now)}
+            </span>
+            <div className="mt-0.5 flex items-center gap-1.5 leading-none">
+              <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]" />
+              <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                Have a productive day!
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Profile */}
+        {/* Profile Tablet */}
         <div className="relative" ref={userMenuRef}>
           <button
             type="button"
             onClick={() => setShowUserMenu((prev) => !prev)}
             aria-haspopup="true"
             aria-expanded={showUserMenu}
-            className={`${controlBase} flex items-center gap-2.5 pl-1.5 pr-2.5 hover:bg-muted/40 cursor-pointer`}
+            className={`${tabletBase} flex items-center gap-2.5 pl-1.5 pr-3 hover:border-violet-200 dark:hover:border-violet-900/60 hover:shadow-md cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40`}
           >
-            <Avatar src={user?.avatarUrl} name={displayName} size="size-7" className="ring-0" />
-            <span className="hidden flex-col text-left leading-none sm:flex">
-              <span className="text-xs font-semibold text-foreground">{displayName}</span>
-              <span className="mt-1 text-[10px] text-muted-foreground">{displayRole}</span>
+            {/* Avatar with luxury gradient ring */}
+            <div className="relative shrink-0">
+              <div className="size-8 rounded-full bg-gradient-to-tr from-violet-600 via-purple-500 to-indigo-500 p-[1.5px] shadow-xs transition-transform duration-200 group-hover:scale-105">
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={displayName}
+                    className="size-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="size-full rounded-full bg-white dark:bg-slate-900 grid place-items-center">
+                    <span className="text-[11px] font-bold text-violet-700 dark:text-violet-300">
+                      {initials}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+            </div>
+
+            <div className="hidden flex-col text-left sm:flex">
+              <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                {displayName}
+              </span>
+              <span className="mt-0.5 flex items-center gap-1 text-[10px] font-medium leading-none text-violet-600/90 dark:text-violet-400">
+                <Shield size={9} strokeWidth={2.4} className="text-violet-500 shrink-0" />
+                {displayRole}
+              </span>
+            </div>
+
+            <span className="ml-1 grid size-5 place-items-center rounded-full bg-slate-100/90 dark:bg-slate-800 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 group-hover:bg-slate-200/70 transition-all">
+              <ChevronDown
+                size={12}
+                strokeWidth={2.5}
+                className={`transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`}
+              />
             </span>
-            <ChevronDown
-              size={14}
-              className={`text-muted-foreground transition-transform ${showUserMenu ? 'rotate-180' : ''}`}
-            />
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-border/70 bg-card p-1.5 text-[13px] shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none">
+            <div className="absolute right-0 z-50 mt-2.5 w-64 overflow-hidden rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl p-1.5 text-[13px] shadow-[0_12px_36px_-10px_rgba(15,23,42,0.22)] animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none ring-1 ring-black/5">
               <div className="px-3 pb-3 pt-2">
                 <p className="truncate font-semibold text-foreground">{displayName}</p>
                 <p className="truncate text-xs text-muted-foreground">{user?.email || 'Signed in'}</p>
@@ -141,15 +188,22 @@ export default function DashboardCockpitHeader() {
           )}
         </div>
 
-        {/* Primary CTA */}
+        {/* Primary CTA Tablet */}
         <button
           type="button"
           onClick={() => navigate('/post-creation-composer')}
-          className={`${buttonStyles.dark} h-10 px-4`}
+          className="group relative h-11 rounded-full bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 hover:from-slate-900 hover:via-indigo-950 hover:to-purple-950 text-white pl-2.5 pr-4 flex items-center gap-2.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.35),0_2px_6px_rgba(99,102,241,0.2)] hover:shadow-[0_6px_22px_-2px_rgba(99,102,241,0.45),0_2px_8px_rgba(15,23,42,0.3)] ring-1 ring-white/20 hover:ring-white/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          <Plus size={15} />
-          <span>Compose post</span>
-          <Sparkles size={14} className="text-amber-300" />
+          <span className="grid size-7 place-items-center rounded-full bg-white/15 text-white shadow-xs group-hover:bg-white/25 group-hover:scale-110 transition-all duration-200">
+            <Plus size={14} strokeWidth={2.8} />
+          </span>
+          <span className="text-[13px] font-bold tracking-tight text-white/95 group-hover:text-white">
+            Compose post
+          </span>
+          <Sparkles
+            size={14}
+            className="text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.65)] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+          />
         </button>
       </div>
     </header>

@@ -2,7 +2,7 @@
 
 import React, { useId } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity } from 'lucide-react';
+import { IconPipelineHealth } from './DashboardCustomIcons';
 import { Panel, PanelHeader, Pill, TONES } from './DashboardPrimitives';
 
 const ROWS = [
@@ -31,7 +31,7 @@ export default function DashboardPipelineHealth({
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={Activity}
+        icon={IconPipelineHealth}
         tone="emerald"
         title="Pipeline health"
         action={

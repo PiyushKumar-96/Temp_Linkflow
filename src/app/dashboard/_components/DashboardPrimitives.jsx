@@ -79,16 +79,46 @@ export function Panel({ as: Tag = 'section', className = '', children, ...rest }
   );
 }
 
+const TONE_BADGES = {
+  emerald: {
+    container: 'bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-emerald-500/5 text-emerald-600 dark:text-emerald-400 ring-1 ring-inset ring-emerald-500/25 shadow-[0_2px_8px_-2px_rgba(16,185,129,0.25)]',
+  },
+  blue: {
+    container: 'bg-gradient-to-br from-blue-500/15 via-sky-500/10 to-blue-500/5 text-blue-600 dark:text-blue-400 ring-1 ring-inset ring-blue-500/25 shadow-[0_2px_8px_-2px_rgba(59,130,246,0.25)]',
+  },
+  violet: {
+    container: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-violet-500/5 text-violet-600 dark:text-violet-400 ring-1 ring-inset ring-violet-500/25 shadow-[0_2px_8px_-2px_rgba(139,92,246,0.25)]',
+  },
+  amber: {
+    container: 'bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-600 dark:text-amber-400 ring-1 ring-inset ring-amber-500/25 shadow-[0_2px_8px_-2px_rgba(245,158,11,0.25)]',
+  },
+  rose: {
+    container: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-rose-500/5 text-rose-600 dark:text-rose-400 ring-1 ring-inset ring-rose-500/25 shadow-[0_2px_8px_-2px_rgba(244,63,94,0.25)]',
+  },
+  indigo: {
+    container: 'bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-indigo-500/5 text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/25 shadow-[0_2px_8px_-2px_rgba(99,102,241,0.25)]',
+  },
+  slate: {
+    container: 'bg-gradient-to-br from-slate-500/15 via-slate-500/10 to-slate-500/5 text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-500/25 shadow-[0_2px_8px_-2px_rgba(100,116,139,0.18)]',
+  },
+};
+
+export function CustomIconBadge({ icon: Icon, tone: toneName = 'slate', size = 'size-8', iconSize = 17, className = '' }) {
+  const t = TONE_BADGES[toneName] || TONE_BADGES.slate;
+  if (!Icon) return null;
+  return (
+    <span className={`grid ${size} shrink-0 place-items-center rounded-xl transition-all duration-200 group-hover:scale-105 ${t.container} ${className}`}>
+      <Icon size={iconSize} strokeWidth={2.2} />
+    </span>
+  );
+}
+
 export function PanelHeader({ icon: Icon, tone: toneName = 'slate', title, badge, action, className = '' }) {
   return (
     <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 ${className}`}>
       <div className="flex min-w-0 items-center gap-2.5">
-        {Icon && (
-          <span className={`grid size-7 shrink-0 place-items-center rounded-lg ${tone(toneName).chip}`}>
-            <Icon size={15} strokeWidth={2.2} />
-          </span>
-        )}
-        <h3 className="whitespace-nowrap text-[15px] font-semibold tracking-tight text-foreground">{title}</h3>
+        {Icon && <CustomIconBadge icon={Icon} tone={toneName} size="size-8" iconSize={17} />}
+        <h3 className="whitespace-nowrap text-[15px] font-bold tracking-tight text-foreground">{title}</h3>
         {badge}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}

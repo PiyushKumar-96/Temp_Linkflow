@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import {
-  Zap,
-  Plus,
-  Target,
-  ClipboardCheck,
-  BarChart3,
-  ArrowUpRight,
-} from 'lucide-react';
+  IconWorkflow,
+  IconQuickNewPost,
+  IconQuickPlanTopic,
+  IconQuickOpenQueue,
+  IconQuickViewReports,
+} from './DashboardCustomIcons';
 import { Panel, PanelHeader } from './DashboardPrimitives';
 
 const ACTIONS = [
@@ -17,7 +17,7 @@ const ACTIONS = [
     id: 'qa-new-post',
     label: 'New post',
     description: 'Create a post with AI or from scratch',
-    icon: Plus,
+    icon: IconQuickNewPost,
     route: '/post-creation-composer',
     color: 'blue',
   },
@@ -25,7 +25,7 @@ const ACTIONS = [
     id: 'qa-plan-topic',
     label: 'Plan topic',
     description: 'Organize pillars and campaigns',
-    icon: Target,
+    icon: IconQuickPlanTopic,
     route: '/topics',
     color: 'violet',
   },
@@ -33,7 +33,7 @@ const ACTIONS = [
     id: 'qa-open-queue',
     label: 'Open queue',
     description: 'Review pending approvals',
-    icon: ClipboardCheck,
+    icon: IconQuickOpenQueue,
     route: '/approval-workflow',
     color: 'amber',
   },
@@ -41,7 +41,7 @@ const ACTIONS = [
     id: 'qa-view-reports',
     label: 'View reports',
     description: 'Explore reach and performance',
-    icon: BarChart3,
+    icon: IconQuickViewReports,
     route: '/analytics',
     color: 'emerald',
   },
@@ -84,7 +84,7 @@ export default function DashboardQuickActions({ actions = ACTIONS }) {
   return (
     <Panel className="flex flex-1 flex-col p-5">
       <PanelHeader
-        icon={Zap}
+        icon={IconWorkflow}
         tone="amber"
         title="Quick actions"
         badge={

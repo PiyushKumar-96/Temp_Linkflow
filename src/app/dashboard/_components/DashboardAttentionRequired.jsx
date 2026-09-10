@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ShieldAlert,
   AlertTriangle,
   RotateCw,
   Upload,
@@ -13,6 +12,7 @@ import {
   CheckCircle2,
   RefreshCcw,
 } from 'lucide-react';
+import { IconAttentionRequired } from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, buttonStyles, formatSlot } from './DashboardPrimitives';
 
 const DEMO_FAILURE = {
@@ -52,7 +52,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={ShieldAlert}
+        icon={IconAttentionRequired}
         tone={items.length ? 'rose' : 'emerald'}
         title="Attention required"
         badge={items.length > 0 && <Pill tone="rose">{items.length} critical</Pill>}

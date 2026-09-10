@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ListChecks } from 'lucide-react';
+import { IconTodayFocus } from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill } from './DashboardPrimitives';
 
 const DEFAULT_ITEMS = [
@@ -62,7 +62,7 @@ export default function DashboardTodayFocus({ items = DEFAULT_ITEMS }) {
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={ListChecks}
+        icon={IconTodayFocus}
         tone="blue"
         title="Today's focus"
         action={<PanelLink onClick={() => navigate('/content-calendar')}>View calendar</PanelLink>}

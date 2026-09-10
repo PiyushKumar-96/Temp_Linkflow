@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  CalendarDays,
   ChevronDown,
   Clock,
   MoreVertical,
@@ -16,6 +15,7 @@ import {
   User,
   CalendarPlus,
 } from 'lucide-react';
+import { IconUpcomingPosts } from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, addDays, toISODate, formatSlot } from './DashboardPrimitives';
 
 const FORMATS = {
@@ -82,7 +82,7 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={CalendarDays}
+        icon={IconUpcomingPosts}
         tone="blue"
         title="Upcoming posts"
         badge={<span className="hidden text-xs font-medium text-muted-foreground sm:inline">Next 14 days</span>}

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, PlayCircle, ChevronRight, Check } from 'lucide-react';
+import { PlayCircle, ChevronRight, Check } from 'lucide-react';
+import { IconWorkflow } from './DashboardCustomIcons';
 import { Panel, buttonStyles } from './DashboardPrimitives';
 
 const DEFAULT_STEPS = [
@@ -45,11 +46,11 @@ export default function DashboardWorkflowStepper({ steps = DEFAULT_STEPS, onOpen
         <div className="flex flex-wrap items-center justify-between gap-3 2xl:contents">
           {/* Title block */}
           <div className="flex items-center gap-3 2xl:order-1 2xl:shrink-0 2xl:border-r 2xl:border-border/60 2xl:pr-5">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300">
-              <Zap size={18} strokeWidth={2.2} />
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/5 text-violet-600 dark:text-violet-400 ring-1 ring-inset ring-violet-500/25 shadow-[0_2px_12px_-2px_rgba(139,92,246,0.3)]">
+              <IconWorkflow size={20} />
             </span>
             <div className="min-w-0">
-              <h3 className="text-[15px] font-semibold tracking-tight text-foreground">Standard workflow</h3>
+              <h3 className="text-[15px] font-bold tracking-tight text-foreground">Standard workflow</h3>
               <p className="whitespace-nowrap text-xs text-muted-foreground">From draft to LinkedIn in 4 steps</p>
             </div>
           </div>

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, Sparkles, AlertCircle } from 'lucide-react';
+import { Sparkles, AlertCircle } from 'lucide-react';
+import { IconContentPillars } from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill } from './DashboardPrimitives';
 
 const BAR = {
@@ -31,7 +32,7 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={Target}
+        icon={IconContentPillars}
         tone="indigo"
         title="Content pillars"
         badge={

@@ -3,7 +3,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ClipboardCheck,
   FileText,
   Image as ImageIcon,
   Layers,
@@ -11,6 +10,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
+import { IconPendingReview } from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, Avatar } from './DashboardPrimitives';
 
 const FORMAT_ICONS = { image: ImageIcon, carousel: Layers, text: FileText };
@@ -59,7 +59,7 @@ const mapPost = (p, idx) => ({
 
 /**
  * pendingPosts === undefined -> demo data
- * pendingPosts === []        -> empty queue state
+ * pendingPosts === []        -> "all clear" state
  */
 export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) 
   return (
     <Panel className="flex h-full flex-col p-5">
       <PanelHeader
-        icon={ClipboardCheck}
+        icon={IconPendingReview}
         tone="amber"
         title="Pending review"
         badge={count > 0 && <Pill tone="amber">{count} queued</Pill>}

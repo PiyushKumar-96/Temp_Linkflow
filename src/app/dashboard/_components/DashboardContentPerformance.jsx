@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { ChevronDown, TrendingUp, BarChart3 } from 'lucide-react';
+import { ChevronDown, TrendingUp } from 'lucide-react';
+import { IconContentPerformance } from './DashboardCustomIcons';
 import { addDays } from './DashboardPrimitives';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -92,10 +93,10 @@ export default function DashboardContentPerformance() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/10 text-indigo-200">
-            <BarChart3 size={15} strokeWidth={2.2} />
+          <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-sky-500/10 text-indigo-200 ring-1 ring-white/15 shadow-[0_2px_10px_-2px_rgba(99,102,241,0.4)]">
+            <IconContentPerformance size={17} />
           </span>
-          <h3 className="truncate text-[15px] font-semibold tracking-tight">Content performance</h3>
+          <h3 className="truncate text-[15px] font-bold tracking-tight">Content performance</h3>
         </div>
         <div className="relative shrink-0">
           <select
