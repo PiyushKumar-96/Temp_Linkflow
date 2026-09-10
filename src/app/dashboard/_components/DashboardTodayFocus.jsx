@@ -2,86 +2,110 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ListChecks } from 'lucide-react';
+import { Panel, PanelHeader, PanelLink, Pill } from './DashboardPrimitives';
 
-export default function DashboardTodayFocus({
-  items = [
-    {
-      id: 'focus-1',
-      time: '10:00 AM',
-      color: 'bg-emerald-500',
-      title: 'Review pending posts',
-      detail: '3 items',
-      link: '/approval-workflow?status=awaiting_review',
-    },
-    {
-      id: 'focus-2',
-      time: '12:30 PM',
-      color: 'bg-blue-500',
-      title: 'Approve campaign draft',
-      detail: 'Marketing · High priority',
-      link: '/approval-workflow',
-    },
-    {
-      id: 'focus-3',
-      time: '03:00 PM',
-      color: 'bg-amber-500',
-      title: 'Check pipeline alerts',
-      detail: '1 critical issue',
-      link: '/approval-workflow?status=failed',
-    },
-  ],
-}) {
+const DEFAULT_ITEMS = [
+  {
+    id: 'focus-1',
+    time: '10:00 AM',
+    tone: 'emerald',
+    title: 'Review pending posts',
+    detail: '3 items',
+    link: '/approval-workflow?status=awaiting_review',
+  },
+  {
+    id: 'focus-2',
+    time: '12:30 PM',
+    tone: 'blue',
+    title: 'Approve campaign draft',
+    detail: 'Marketing, high priority',
+    link: '/approval-workflow',
+  },
+  {
+    id: 'focus-3',
+    time: '03:00 PM',
+    tone: 'amber',
+    title: 'Check pipeline alerts',
+    detail: '1 critical issue',
+    link: '/approval-workflow?status=failed',
+  },
+];
+
+const RAIL = {
+  emerald: 'bg-emerald-500',
+  blue: 'bg-blue-500',
+  amber: 'bg-amber-500',
+  rose: 'bg-rose-500',
+  violet: 'bg-violet-500',
+  indigo: 'bg-indigo-500',
+  slate: 'bg-slate-400',
+};
+
+/** "03:00 PM" -> minutes since midnight (or null) */
+function toMinutes(time) {
+  const m = /(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(time || '');
+  if (!m) return null;
+  let h = Number(m[1]) % 12;
+  if (m[3]?.toUpperCase() === 'PM') h += 12;
+  if (!m[3]) h = Number(m[1]);
+  return h * 60 + Number(m[2]);
+}
+
+export default function DashboardTodayFocus({ items = DEFAULT_ITEMS }) {
   const navigate = useNavigate();
 
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nextIdx = items.findIndex((it) => (toMinutes(it.time) ?? Infinity) >= nowMinutes);
+
   return (
-    <div className="card p-5 flex flex-col justify-between rounded-2xl border border-border shadow-xs">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground">Today&apos;s Focus</h3>
-        <button
-          type="button"
-          onClick={() => navigate('/content-calendar')}
-          className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-        >
-          <span>View Calendar</span>
-          <ArrowRight size={12} />
-        </button>
-      </div>
+    <Panel className="flex h-full flex-col p-5">
+      <PanelHeader
+        icon={ListChecks}
+        tone="blue"
+        title="Today's focus"
+        action={<PanelLink onClick={() => navigate('/content-calendar')}>View calendar</PanelLink>}
+      />
 
-      {/* Timeline List */}
-      <div className="flex flex-col gap-3.5 my-auto pt-2">
-        {items.map((item, idx) => (
-          <div
-            key={item.id}
-            onClick={() => navigate(item.link)}
-            className="flex items-start gap-3 text-xs group cursor-pointer hover:bg-muted/30 p-1 rounded-lg transition-colors"
-          >
-            {/* Timestamp */}
-            <span className="text-[11px] font-semibold text-muted-foreground tabular-nums shrink-0 w-16 pt-0.5">
-              {item.time}
-            </span>
+      <ol className="my-auto flex flex-col gap-1 pt-4">
+        {items.map((item, idx) => {
+          const toneName = item.tone || item.color?.match(/bg-(\w+)-/)?.[1] || 'slate';
+          const isPast = nextIdx === -1 || idx < nextIdx;
+          const isNext = idx === nextIdx;
 
-            {/* Indicator Dot with vertical guideline */}
-            <div className="relative flex flex-col items-center shrink-0 pt-1.5">
-              <span className={`w-2 h-2 rounded-full ${item.color} group-hover:scale-125 transition-transform`} />
-              {idx < items.length - 1 && (
-                <span className="w-px h-6 bg-border absolute top-3.5" />
-              )}
-            </div>
-
-            {/* Task Info */}
-            <div className="flex flex-col min-w-0 flex-1 pl-1">
-              <span className="font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                {item.title}
-              </span>
-              <span className="text-[11px] text-muted-foreground truncate">
-                {item.detail}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          return (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => navigate(item.link)}
+                className="group grid w-full grid-cols-[62px_3px_1fr] items-stretch gap-x-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted/60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <time className="pt-px text-xs font-medium text-muted-foreground tabular-nums">{item.time}</time>
+                <span
+                  aria-hidden="true"
+                  className={`rounded-full ${RAIL[toneName] || RAIL.slate} ${isPast ? 'opacity-35' : ''}`}
+                />
+                <span className="min-w-0">
+                  <span
+                    className={`block truncate text-[13px] font-semibold transition-colors group-hover:text-primary ${
+                      isPast ? 'text-muted-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    {item.title}
+                  </span>
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className={`text-xs ${isPast ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
+                      {item.detail}
+                    </span>
+                    {isNext && <Pill tone="blue">Up next</Pill>}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </Panel>
   );
 }

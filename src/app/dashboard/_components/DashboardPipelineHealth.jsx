@@ -1,129 +1,106 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Activity } from 'lucide-react';
+import { Panel, PanelHeader, Pill, TONES } from './DashboardPrimitives';
+
+const ROWS = [
+  { key: 'onTrack', label: 'On track', tone: 'emerald', route: '/content-calendar' },
+  { key: 'inReview', label: 'In review', tone: 'blue', route: '/approval-workflow?status=awaiting_review' },
+  { key: 'needsAttention', label: 'Needs attention', tone: 'amber', route: '/approval-workflow?status=needs_revision' },
+  { key: 'blocked', label: 'Blocked', tone: 'rose', route: '/approval-workflow?status=failed' },
+];
 
 export default function DashboardPipelineHealth({
-  percentage = 78,
-  stats = {
-    onTrack: 22,
-    inReview: 5,
-    needsAttention: 2,
-    blocked: 1,
-  },
+  percentage,
+  stats = { onTrack: 22, inReview: 5, needsAttention: 2, blocked: 1 },
 }) {
   const navigate = useNavigate();
+  const gradientId = `ph-${useId().replace(/:/g, '')}`;
 
-  // Circular gauge constants
+  const total = ROWS.reduce((sum, r) => sum + (stats[r.key] || 0), 0);
+  const pct = percentage ?? (total ? Math.round((stats.onTrack / total) * 100) : 0);
+
   const size = 120;
-  const strokeWidth = 11;
-  const radius = (size - strokeWidth) / 2;
+  const stroke = 11;
+  const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const offset = circumference - (pct / 100) * circumference;
 
   return (
-    <div className="card p-5 flex flex-col justify-between rounded-2xl border border-border shadow-xs">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground">Pipeline Health</h3>
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Live
-        </span>
-      </div>
+    <Panel className="flex h-full flex-col p-5">
+      <PanelHeader
+        icon={Activity}
+        tone="emerald"
+        title="Pipeline health"
+        action={
+          <Pill tone="emerald" dot pulse>
+            Live
+          </Pill>
+        }
+      />
 
-      {/* Main Body: Donut Gauge + Legend */}
-      <div className="flex items-center justify-between gap-4 my-auto pt-2">
-        {/* Donut Gauge */}
-        <div className="relative flex items-center justify-center shrink-0">
+      <div className="my-auto flex items-center gap-4 pt-4">
+        <div
+          className="relative shrink-0"
+          role="img"
+          aria-label={`${pct} percent of posts on track`}
+        >
           <svg width={size} height={size} className="-rotate-90">
-            {/* Background Track */}
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#34D399" />
+                <stop offset="100%" stopColor="#059669" />
+              </linearGradient>
+            </defs>
             <circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="currentColor"
-              strokeWidth={strokeWidth}
-              className="text-muted/40"
-              fill="transparent"
+              strokeWidth={stroke}
+              fill="none"
+              className="stroke-slate-100 dark:stroke-white/10"
             />
-            {/* Progress Arc */}
             <circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#10b981"
-              strokeWidth={strokeWidth}
+              stroke={`url(#${gradientId})`}
+              strokeWidth={stroke}
               strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
+              strokeDashoffset={offset}
               strokeLinecap="round"
-              fill="transparent"
-              className="transition-all duration-700 ease-out"
+              fill="none"
+              className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
             />
           </svg>
-
-          {/* Centered Percentage Label */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none">
-            <span className="text-2xl font-black text-foreground tracking-tight leading-none">
-              {percentage}%
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold leading-none tracking-tight text-foreground tabular-nums">
+              {pct}%
             </span>
-            <span className="text-[11px] font-semibold text-muted-foreground mt-1">
-              On Track
-            </span>
+            <span className="mt-1 text-[11px] font-medium text-muted-foreground">On track</span>
           </div>
         </div>
 
-        {/* Legend Breakdown */}
-        <div className="flex flex-col gap-2 flex-1 min-w-[120px]">
-          <div
-            onClick={() => navigate('/content-calendar')}
-            className="flex items-center justify-between text-xs hover:bg-muted/40 p-1 rounded transition-colors cursor-pointer"
-            title="View scheduled content on calendar"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-muted-foreground">On Track</span>
-            </div>
-            <span className="font-bold text-foreground tabular-nums">{stats.onTrack}</span>
-          </div>
-
-          <div
-            onClick={() => navigate('/approval-workflow?status=awaiting_review')}
-            className="flex items-center justify-between text-xs hover:bg-muted/40 p-1 rounded transition-colors cursor-pointer"
-            title="View posts currently in review"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="font-medium text-muted-foreground">In Review</span>
-            </div>
-            <span className="font-bold text-foreground tabular-nums">{stats.inReview}</span>
-          </div>
-
-          <div
-            onClick={() => navigate('/approval-workflow?status=needs_revision')}
-            className="flex items-center justify-between text-xs hover:bg-muted/40 p-1 rounded transition-colors cursor-pointer"
-            title="View items needing attention"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span className="font-medium text-muted-foreground">Needs Attention</span>
-            </div>
-            <span className="font-bold text-foreground tabular-nums">{stats.needsAttention}</span>
-          </div>
-
-          <div
-            onClick={() => navigate('/approval-workflow?status=failed')}
-            className="flex items-center justify-between text-xs hover:bg-muted/40 p-1 rounded transition-colors cursor-pointer"
-            title="View blocked or failed dispatches"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="font-medium text-muted-foreground">Blocked</span>
-            </div>
-            <span className="font-bold text-foreground tabular-nums">{stats.blocked}</span>
-          </div>
-        </div>
+        <ul className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {ROWS.map((row) => (
+            <li key={row.key}>
+              <button
+                type="button"
+                onClick={() => navigate(row.route)}
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 text-left text-[13px] transition-colors hover:bg-muted/60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className={`size-2 shrink-0 rounded-full ${TONES[row.tone].dot}`} />
+                  <span className="whitespace-nowrap text-muted-foreground">{row.label}</span>
+                </span>
+                <span className="font-semibold text-foreground tabular-nums">{stats[row.key] ?? 0}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </Panel>
   );
 }

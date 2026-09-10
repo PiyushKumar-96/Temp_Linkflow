@@ -2,157 +2,109 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Zap,
-  Play,
-  ArrowRight,
-  Settings,
-  FileText,
-  UserCheck,
-  Send,
-  Check,
-  ChevronRight,
-} from 'lucide-react';
+import { Zap, PlayCircle, ChevronRight, Check } from 'lucide-react';
+import { Panel, buttonStyles } from './DashboardPrimitives';
 
-export default function DashboardWorkflowStepper({ onOpenWorkflowModal }) {
+const DEFAULT_STEPS = [
+  { id: 'slots', title: 'Set slots in settings', meta: '2 slots set', status: 'done', route: '/settings' },
+  { id: 'draft', title: 'Plan topic or draft post', meta: '4 drafts in progress', status: 'active', route: '/topics' },
+  { id: 'approve', title: 'Owner approves in queue', meta: '2 waiting for review', status: 'waiting', route: '/approval-workflow' },
+  { id: 'publish', title: 'Auto-publish to LinkedIn', meta: 'Sent via Buffer', status: 'upcoming', route: '/content-calendar' },
+];
+
+const STATUS_STYLES = {
+  done: {
+    container: 'bg-emerald-50/70 ring-emerald-600/15 hover:bg-emerald-50 dark:bg-emerald-400/[0.06] dark:ring-emerald-400/20',
+    badge: 'bg-emerald-500 text-white',
+    label: 'Completed',
+  },
+  active: {
+    container: 'bg-card ring-primary/30 shadow-[0_4px_14px_-6px_rgba(59,130,246,0.35)] hover:ring-primary/55',
+    badge: 'bg-primary text-primary-foreground',
+    label: 'In progress',
+  },
+  waiting: {
+    container: 'bg-amber-50/60 ring-amber-600/15 hover:bg-amber-50 dark:bg-amber-400/[0.06] dark:ring-amber-400/20',
+    badge: 'bg-amber-500 text-white',
+    label: 'Waiting',
+  },
+  upcoming: {
+    container: 'bg-muted/40 ring-border hover:bg-muted/70',
+    badge: 'bg-card text-muted-foreground ring-1 ring-inset ring-border',
+    label: 'Upcoming',
+  },
+};
+
+export default function DashboardWorkflowStepper({ steps = DEFAULT_STEPS, onOpenWorkflowModal }) {
   const navigate = useNavigate();
 
-  const steps = [
-    {
-      stepNumber: 1,
-      title: 'Set Slots in Settings',
-      description: 'Configure time slots and posting preferences.',
-      icon: Settings,
-      iconBg: 'bg-blue-500/10 text-blue-600',
-      badge: 'Completed',
-      badgeClass: 'bg-emerald-500/10 text-emerald-600',
-      isCheck: true,
-      subtext: '2 slots set',
-      route: '/settings',
-    },
-    {
-      stepNumber: 2,
-      title: 'Plan Topic or Draft Post',
-      description: 'Create or choose a topic and prepare your content.',
-      icon: FileText,
-      iconBg: 'bg-purple-500/10 text-purple-600',
-      badge: 'In Progress',
-      badgeClass: 'bg-blue-500/10 text-blue-600',
-      isDot: true,
-      subtext: '4 drafts',
-      route: '/topics',
-    },
-    {
-      stepNumber: 3,
-      title: 'Owner Approves in Queue',
-      description: 'Content goes for human review and approval.',
-      icon: UserCheck,
-      iconBg: 'bg-amber-500/10 text-amber-600',
-      badge: 'Pending',
-      badgeClass: 'bg-amber-500/10 text-amber-600',
-      isDot: true,
-      subtext: '2 in queue',
-      route: '/approval-workflow',
-    },
-    {
-      stepNumber: 4,
-      title: 'Auto-Publish to LinkedIn',
-      description: 'Approved posts are automatically published.',
-      icon: Send,
-      iconBg: 'bg-emerald-500/10 text-emerald-600',
-      badge: 'Upcoming',
-      badgeClass: 'bg-slate-500/10 text-slate-600 dark:text-slate-300',
-      isDot: true,
-      subtext: 'Scheduled via Buffer',
-      route: '/content-calendar',
-    },
-  ];
-
   return (
-    <div className="card p-5 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/[0.03] via-card to-primary/[0.01] shadow-xs flex flex-col gap-4">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border/60">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center shrink-0">
-            <Zap size={16} />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Standard Workflow</h3>
-            <p className="text-xs text-muted-foreground">
-              From draft to LinkedIn, in 4 simple steps.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenWorkflowModal}
-            className="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1.5 font-semibold text-muted-foreground hover:text-foreground cursor-pointer shadow-2xs"
-          >
-            <Play size={11} className="text-primary fill-primary" />
-            <span>How it works?</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/approval-workflow')}
-            className="btn-secondary text-xs py-1 px-3 flex items-center gap-1.5 font-semibold text-foreground hover:text-primary cursor-pointer shadow-2xs"
-          >
-            <span>View Workflow</span>
-            <ArrowRight size={12} />
-          </button>
-        </div>
-      </div>
-
-      {/* 4 Connected Step Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
-        {steps.map((step, idx) => {
-          const Icon = step.icon;
-          return (
-            <div
-              key={step.stepNumber}
-              onClick={() => navigate(step.route)}
-              className="relative p-4 rounded-xl border border-border bg-card/80 hover:bg-card hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                {/* Step number badge & arrow */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center">
-                      {step.stepNumber}
-                    </span>
-                    {idx < steps.length - 1 && (
-                      <ChevronRight size={12} className="text-muted-foreground/40 hidden lg:block" />
-                    )}
-                  </div>
-                  <div className={`w-8 h-8 rounded-xl ${step.iconBg} flex items-center justify-center shrink-0`}>
-                    <Icon size={15} />
-                  </div>
-                </div>
-
-                <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                  {step.title}
-                </h4>
-                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-
-              {/* Status footer pill + metric */}
-              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-[11px]">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold ${step.badgeClass}`}>
-                  {step.isCheck && <Check size={10} />}
-                  {step.isDot && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
-                  {step.badge}
-                </span>
-                <span className="text-muted-foreground font-medium text-[10px]">
-                  {step.subtext}
-                </span>
-              </div>
+    <Panel className="p-4 sm:p-5">
+      {/* Below 2xl: title + actions on top, steps full-width beneath. At 2xl everything sits on one line. */}
+      <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 2xl:contents">
+          {/* Title block */}
+          <div className="flex items-center gap-3 2xl:order-1 2xl:shrink-0 2xl:border-r 2xl:border-border/60 2xl:pr-5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300">
+              <Zap size={18} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold tracking-tight text-foreground">Standard workflow</h3>
+              <p className="whitespace-nowrap text-xs text-muted-foreground">From draft to LinkedIn in 4 steps</p>
             </div>
-          );
-        })}
+          </div>
+
+          {/* Actions */}
+          <div className="flex shrink-0 items-center gap-1.5 2xl:order-3">
+            {onOpenWorkflowModal && (
+              <button type="button" onClick={onOpenWorkflowModal} className={`${buttonStyles.ghost} h-9`}>
+                <PlayCircle size={15} />
+                How it works
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => navigate('/approval-workflow')}
+              className={`${buttonStyles.outline} h-9 px-3.5`}
+            >
+              View workflow
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <ol className="grid min-w-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center 2xl:order-2">
+          {steps.map((step, idx) => {
+            const s = STATUS_STYLES[step.status] || STATUS_STYLES.upcoming;
+            return (
+              <React.Fragment key={step.id}>
+                <li className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => navigate(step.route)}
+                    aria-label={`Step ${idx + 1}: ${step.title}. ${s.label}. ${step.meta}`}
+                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ring-1 ring-inset transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${s.container}`}
+                  >
+                    <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${s.badge}`}>
+                      {step.status === 'done' ? <Check size={14} strokeWidth={3} /> : idx + 1}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold text-foreground">{step.title}</span>
+                      <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">{step.meta}</span>
+                    </span>
+                  </button>
+                </li>
+                {idx < steps.length - 1 && (
+                  <li aria-hidden="true" className="hidden justify-center text-muted-foreground/50 lg:flex">
+                    <ChevronRight size={16} />
+                  </li>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </ol>
       </div>
-    </div>
+    </Panel>
   );
 }

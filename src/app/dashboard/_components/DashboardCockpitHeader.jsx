@@ -13,48 +13,89 @@ import {
   AlertTriangle,
   Clock,
   X,
-  User,
   Shield,
   Building2,
+  Settings,
+  CalendarClock,
+  Sun,
+  CloudSun,
+  Moon,
 } from 'lucide-react';
+import { Avatar, Pill, TONES, buttonStyles, formatDayLabel, getGreeting } from './DashboardPrimitives';
 
-export default function DashboardCockpitHeader() {
+const DEFAULT_NOTIFICATIONS = [
+  {
+    id: 'n-1',
+    icon: AlertTriangle,
+    tone: 'rose',
+    title: 'Publishing failed',
+    body: 'Buffer timed out while sending a post to LinkedIn.',
+    time: '4 hours ago',
+    route: '/approval-workflow?status=failed',
+  },
+  {
+    id: 'n-2',
+    icon: Clock,
+    tone: 'amber',
+    title: '2 posts waiting for review',
+    body: 'Drafts are ready for approval.',
+    time: '2 hours ago',
+    route: '/approval-workflow?status=awaiting_review',
+  },
+];
+
+const GREETING_ICONS = { morning: Sun, afternoon: CloudSun, evening: Moon };
+
+export default function DashboardCockpitHeader({ notifications = DEFAULT_NOTIFICATIONS }) {
   const navigate = useNavigate();
   const { user, activeAccount, role } = useAuth();
 
-  // Dynamic user data from AuthContext
   const displayName = user?.name || 'Sarah Reeves';
-  const firstName = displayName.split(' ')[0] || 'User';
-  const displayRole = role === 'owner' ? 'Account Owner' : 'Content Operations';
-  const userInitials = user?.initials || displayName.slice(0, 2).toUpperCase();
-  const avatarUrl = user?.avatarUrl;
+  const firstName = displayName.split(' ')[0] || 'there';
+  const displayRole = role === 'owner' ? 'Account owner' : 'Content operations';
 
+  const now = new Date();
+  const greeting = getGreeting(now);
+  const GreetingIcon = GREETING_ICONS[greeting.period];
+
+  const [isMac, setIsMac] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
+  const searchRef = useRef(null);
 
-  // Close dropdowns on outside click
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad/i.test(navigator.userAgent));
+  }, []);
+
+  // Close dropdowns on outside click or Escape
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setShowUserMenu(false);
+    };
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
         setShowNotifications(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setShowUserMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
-  // Keyboard shortcut for Cmd+K / Ctrl+K
+  // ⌘K / Ctrl+K focuses search
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        document.getElementById('cockpit-search-input')?.focus();
+        searchRef.current?.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -67,205 +108,193 @@ export default function DashboardCockpitHeader() {
     navigate(`/content-library?search=${encodeURIComponent(searchQuery.trim())}`);
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        {/* Left: Greeting & Title (Dynamic from logged-in user) */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <span>🌤️ Good morning, {firstName}</span>
-            <span>👋</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight mt-0.5">
-            Operations Cockpit
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Keep your pipeline moving. Review, schedule and publish with confidence.
-          </p>
-        </div>
+  const controlBase =
+    'h-10 rounded-xl border border-border/70 bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors';
 
-        {/* Right Controls: Search Bar, Notifications, Date Pill, User Profile, CTA */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Search bar with fixed, non-wrapping ⌘K badge */}
+  return (
+    <header className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+      {/* Greeting + title */}
+      <div className="min-w-0 xl:flex-1">
+        <p className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
+          <GreetingIcon size={15} className="text-amber-500" strokeWidth={2.2} />
+          {greeting.text}, {firstName}
+        </p>
+        <h1 className="mt-1.5 text-[28px] font-bold leading-none tracking-[-0.025em] text-foreground sm:text-[32px]">
+          Operations Cockpit
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Keep your pipeline moving. Review, schedule and publish with confidence.
+        </p>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col gap-3 xl:shrink-0 xl:items-end">
+        <div className="flex flex-wrap items-center gap-2.5 xl:flex-nowrap">
+          {/* Search */}
           <form
             onSubmit={handleSearchSubmit}
-            className="relative flex items-center bg-card border border-border rounded-xl px-3 py-2 shadow-2xs hover:border-border/80 focus-within:border-primary transition-all w-full sm:w-72 md:w-80 min-w-[240px]"
+            role="search"
+            className={`${controlBase} flex w-full items-center px-3 focus-within:border-primary/60 focus-within:ring-4 focus-within:ring-primary/10 sm:w-80 xl:w-64 2xl:w-[340px]`}
           >
-            <Search size={14} className="text-muted-foreground shrink-0 mr-2" />
+            <Search size={15} className="mr-2.5 shrink-0 text-muted-foreground" />
             <input
+              ref={searchRef}
               id="cockpit-search-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search topics, posts, creators..."
-              className="bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none flex-1 min-w-0"
+              placeholder="Search posts, topics…"
+              aria-label="Search topics, posts and creators"
+              className="min-w-0 flex-1 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground/80"
             />
             {searchQuery ? (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-muted-foreground hover:text-foreground p-0.5 mr-1.5 shrink-0 cursor-pointer"
+                aria-label="Clear search"
+                className="mr-1 grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
               >
                 <X size={13} />
               </button>
-            ) : null}
-            <kbd className="shrink-0 whitespace-nowrap inline-flex items-center justify-center text-[10px] text-muted-foreground bg-muted/90 px-1.5 py-0.5 rounded border border-border/80 font-mono font-semibold ml-1.5 select-none leading-none">
-              ⌘ K
-            </kbd>
+            ) : (
+              <kbd className="ml-2 inline-flex shrink-0 select-none items-center gap-0.5 whitespace-nowrap rounded-md border border-border/80 bg-muted/60 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-muted-foreground">
+                {isMac ? '⌘' : 'Ctrl'} K
+              </kbd>
+            )}
           </form>
 
-          {/* Notifications Bell */}
+          {/* Notifications */}
           <div className="relative" ref={notifRef}>
             <button
               type="button"
               onClick={() => setShowNotifications((prev) => !prev)}
-              className="relative p-2 rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors shadow-2xs cursor-pointer"
-              title="Notifications"
+              aria-label={`Notifications, ${notifications.length} new`}
+              aria-haspopup="true"
+              aria-expanded={showNotifications}
+              className={`${controlBase} relative grid w-10 place-items-center text-muted-foreground hover:bg-muted/50 hover:text-foreground cursor-pointer`}
             >
-              <Bell size={16} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-card" />
+              <Bell size={17} />
+              {notifications.length > 0 && (
+                <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-rose-500 ring-2 ring-card" />
+              )}
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="flex items-center justify-between pb-2 border-b border-border px-1">
-                  <span className="text-xs font-bold text-foreground">Notifications</span>
-                  <span className="text-[10px] font-semibold text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                    2 New
-                  </span>
+              <div className="absolute right-0 z-50 mt-2 w-[340px] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-sm font-semibold text-foreground">Notifications</span>
+                  <Pill tone="rose">{notifications.length} new</Pill>
                 </div>
-                <div className="divide-y divide-border/60 text-xs py-1">
-                  <div
-                    onClick={() => {
-                      setShowNotifications(false);
-                      navigate('/approval-workflow?status=failed');
-                    }}
-                    className="py-2 px-1 hover:bg-muted/30 rounded-lg cursor-pointer transition-colors flex items-start gap-2"
-                  >
-                    <AlertTriangle size={14} className="text-destructive shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-foreground">Pipeline Dispatch Alert</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        Buffer worker timeout contacting LinkedIn API.
-                      </p>
-                      <span className="text-[10px] text-muted-foreground/60">4 hours ago</span>
-                    </div>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setShowNotifications(false);
-                      navigate('/approval-workflow?status=awaiting_review');
-                    }}
-                    className="py-2 px-1 hover:bg-muted/30 rounded-lg cursor-pointer transition-colors flex items-start gap-2"
-                  >
-                    <Clock size={14} className="text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-foreground">2 Posts Pending Review</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        Drafts are ready for stakeholder approval.
-                      </p>
-                      <span className="text-[10px] text-muted-foreground/60">2 hours ago</span>
-                    </div>
-                  </div>
-                </div>
+                <ul className="border-t border-border/60 p-1.5">
+                  {notifications.map((n) => {
+                    const Icon = n.icon;
+                    return (
+                      <li key={n.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowNotifications(false);
+                            navigate(n.route);
+                          }}
+                          className="flex w-full items-start gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-muted/60 cursor-pointer"
+                        >
+                          <span className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${TONES[n.tone].chip}`}>
+                            <Icon size={15} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-[13px] font-semibold text-foreground">{n.title}</span>
+                            <span className="block text-xs text-muted-foreground">{n.body}</span>
+                            <span className="mt-1 block text-[11px] text-muted-foreground/70">{n.time}</span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             )}
           </div>
 
-          {/* Date pill */}
-          <div className="hidden md:flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-1.5 shadow-2xs">
-            <Calendar size={14} className="text-muted-foreground" />
-            <div className="flex flex-col">
-              <span className="text-[11px] font-bold text-foreground leading-none">
-                Mon, 09 Sep 2026
-              </span>
-              <span className="text-[9px] text-muted-foreground leading-none mt-0.5">
-                Have a productive day!
-              </span>
+          {/* Date */}
+          <div className={`${controlBase} hidden items-center gap-2.5 px-3 md:flex`}>
+            <Calendar size={15} className="text-muted-foreground" />
+            <div className="flex flex-col leading-none">
+              <span className="text-xs font-semibold text-foreground">{formatDayLabel(now)}</span>
+              <span className="mt-1 text-[10px] text-muted-foreground">Have a productive day!</span>
             </div>
           </div>
 
-          {/* User profile badge (Bound to logged-in user from AuthContext) */}
+          {/* Profile */}
           <div className="relative" ref={userMenuRef}>
             <button
               type="button"
               onClick={() => setShowUserMenu((prev) => !prev)}
-              className="flex items-center gap-2 bg-card border border-border rounded-xl p-1.5 pr-2.5 shadow-2xs hover:border-border/80 transition-all cursor-pointer"
+              aria-haspopup="true"
+              aria-expanded={showUserMenu}
+              className={`${controlBase} flex items-center gap-2.5 pl-1.5 pr-2.5 hover:bg-muted/40 cursor-pointer`}
             >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className="w-7 h-7 rounded-lg object-cover border border-border/80"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs">
-                  {userInitials}
-                </div>
-              )}
-              <div className="flex flex-col text-left hidden sm:flex">
-                <span className="text-xs font-bold text-foreground leading-none">
-                  {displayName}
-                </span>
-                <span className="text-[10px] text-muted-foreground leading-none mt-0.5">
-                  {displayRole}
-                </span>
-              </div>
-              <ChevronDown size={13} className="text-muted-foreground ml-0.5" />
+              <Avatar src={user?.avatarUrl} name={displayName} size="size-7" className="ring-0" />
+              <span className="hidden flex-col text-left leading-none sm:flex">
+                <span className="text-xs font-semibold text-foreground">{displayName}</span>
+                <span className="mt-1 text-[10px] text-muted-foreground">{displayRole}</span>
+              </span>
+              <ChevronDown
+                size={14}
+                className={`text-muted-foreground transition-transform ${showUserMenu ? 'rotate-180' : ''}`}
+              />
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-xl p-1 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs">
-                <div className="px-3 py-2 border-b border-border">
-                  <p className="font-bold text-foreground truncate">{displayName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{user?.email || 'Logged in'}</p>
-                  <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-primary">
-                    <Shield size={10} />
-                    <span>{displayRole}</span>
-                  </div>
+              <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-border/70 bg-card p-1.5 text-[13px] shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none">
+                <div className="px-3 pb-3 pt-2">
+                  <p className="truncate font-semibold text-foreground">{displayName}</p>
+                  <p className="truncate text-xs text-muted-foreground">{user?.email || 'Signed in'}</p>
+                  <Pill tone="blue" icon={Shield} className="mt-2">
+                    {displayRole}
+                  </Pill>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    navigate('/settings');
-                  }}
-                  className="w-full text-left px-3 py-1.5 rounded hover:bg-muted text-foreground transition-colors cursor-pointer"
-                >
-                  Account Settings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    navigate('/content-calendar');
-                  }}
-                  className="w-full text-left px-3 py-1.5 rounded hover:bg-muted text-foreground transition-colors cursor-pointer"
-                >
-                  Schedule Preferences
-                </button>
+                <div className="border-t border-border/60 pt-1.5">
+                  {[
+                    { label: 'Account settings', icon: Settings, route: '/settings' },
+                    { label: 'Schedule preferences', icon: CalendarClock, route: '/content-calendar' },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate(item.route);
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-foreground transition-colors hover:bg-muted/70 cursor-pointer"
+                    >
+                      <item.icon size={15} className="text-muted-foreground" />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
                 {activeAccount && (
-                  <div className="px-3 py-1.5 text-[10px] text-muted-foreground border-t border-border mt-1 flex items-center gap-1">
-                    <Building2 size={11} />
+                  <div className="mt-1.5 flex items-center gap-2 border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
+                    <Building2 size={13} />
                     <span className="truncate">{activeAccount.name}</span>
                   </div>
                 )}
               </div>
             )}
           </div>
-
-          {/* Compose Post Primary CTA */}
-          <button
-            type="button"
-            onClick={() => navigate('/post-creation-composer')}
-            className="flex items-center gap-1.5 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer"
-          >
-            <Plus size={14} className="text-white" />
-            <span>Compose Post</span>
-            <Sparkles size={13} className="text-amber-400 ml-0.5" />
-          </button>
         </div>
+
+        {/* Primary CTA */}
+        <button
+          type="button"
+          onClick={() => navigate('/post-creation-composer')}
+          className={`${buttonStyles.dark} h-10 self-start px-4 xl:self-end`}
+        >
+          <Plus size={15} />
+          <span>Compose post</span>
+          <Sparkles size={14} className="text-amber-300" />
+        </button>
       </div>
-    </div>
+    </header>
   );
 }
+

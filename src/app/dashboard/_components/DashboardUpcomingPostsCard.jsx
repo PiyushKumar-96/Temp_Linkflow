@@ -1,121 +1,198 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Calendar,
-  ArrowRight,
+  CalendarDays,
   ChevronDown,
-  Radio,
   Clock,
   MoreVertical,
+  Layers,
+  Image as ImageIcon,
+  FileText,
+  Video,
+  LayoutGrid,
+  Building2,
+  User,
+  CalendarPlus,
 } from 'lucide-react';
+import { Panel, PanelHeader, PanelLink, Pill, IconButton, addDays, toISODate, formatSlot } from './DashboardPrimitives';
 
-export default function DashboardUpcomingPostsCard({ upcomingPosts = [] }) {
+const FORMATS = {
+  carousel: { label: 'Carousel', icon: Layers },
+  image: { label: 'Image', icon: ImageIcon },
+  article: { label: 'Article', icon: FileText },
+  none: { label: 'Text', icon: FileText },
+  text: { label: 'Text', icon: FileText },
+  video: { label: 'Video', icon: Video },
+  infographic: { label: 'Infographic', icon: LayoutGrid },
+};
+
+const STATUS = {
+  scheduled: { label: 'Scheduled', tone: 'blue' },
+  approved: { label: 'Approved', tone: 'emerald' },
+  in_queue: { label: 'In queue', tone: 'slate' },
+  awaiting_review: { label: 'In review', tone: 'amber' },
+  failed: { label: 'Failed', tone: 'rose' },
+};
+
+const TARGETS = {
+  company: { label: 'Company page', icon: Building2 },
+  personal: { label: 'Personal profile', icon: User },
+};
+
+function demoPosts() {
+  const today = new Date();
+  const slot = (days, time) => `${toISODate(addDays(today, days))} ${time} UTC`;
+  return [
+    { id: 'u-1', title: 'The modern B2B marketing stack for 2027: what to keep and what to drop', slot: slot(2, '09:30'), format: 'carousel', target: 'company', status: 'scheduled' },
+    { id: 'u-2', title: '5 async communication rules that saved our remote engineering team', slot: slot(5, '14:00'), format: 'image', target: 'personal', status: 'scheduled' },
+    { id: 'u-3', title: 'How we cut customer onboarding time from 14 days to 4 hours', slot: slot(9, '11:00'), format: 'article', target: 'company', status: 'approved' },
+    { id: 'u-4', title: '5 mistakes first-time founders make on LinkedIn', slot: slot(10, '20:00'), format: 'video', target: 'personal', status: 'in_queue' },
+  ];
+}
+
+const mapPost = (p) => ({
+  id: p.id,
+  title: p.title,
+  slot: p.scheduledDate ? `${p.scheduledDate} ${p.scheduledTime || '09:00'} UTC` : '',
+  format: p.visualFormat || 'image',
+  target: p.account === 'company' ? 'company' : 'personal',
+  status: p.status || 'scheduled',
+  month: p.scheduledDate?.slice(0, 7),
+});
+
+/**
+ * upcomingPosts === undefined -> demo data
+ * upcomingPosts === []        -> empty state
+ */
+export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 }) {
   const navigate = useNavigate();
   const [targetFilter, setTargetFilter] = useState('all');
 
-  const defaultPost = {
-    id: 'upcoming-1',
-    title: 'The Modern B2B Marketing Stack for 2027: What to Keep and What to Drop',
-    datetime: '2026-09-12 09:30 UTC',
-    format: 'Carousel',
-    target: 'Company Page',
-    status: 'Scheduled',
-  };
+  const posts = useMemo(
+    () => (upcomingPosts === undefined ? demoPosts() : upcomingPosts.map(mapPost)),
+    [upcomingPosts]
+  );
+  const filtered = posts.filter((p) => targetFilter === 'all' || p.target === targetFilter).slice(0, limit);
 
-  const currentPost = upcomingPosts.length > 0 ? {
-    id: upcomingPosts[0].id,
-    title: upcomingPosts[0].title || defaultPost.title,
-    datetime: upcomingPosts[0].scheduledDate
-      ? `${upcomingPosts[0].scheduledDate} ${upcomingPosts[0].scheduledTime || '09:30'} UTC`
-      : defaultPost.datetime,
-    format: upcomingPosts[0].visualFormat === 'carousel' ? 'Carousel' : 'Image',
-    target: upcomingPosts[0].category || 'Company Page',
-    status: 'Scheduled',
-  } : defaultPost;
+  const openCalendar = (post) =>
+    navigate(post?.month ? `/content-calendar?month=${post.month}` : '/content-calendar');
 
   return (
-    <div className="card p-5 rounded-2xl border border-border shadow-xs flex flex-col justify-between">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-border gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-            <Calendar size={14} />
-          </div>
-          <h3 className="text-sm font-bold text-foreground">
-            Upcoming Posts (Next 14 Days)
-          </h3>
-        </div>
+    <Panel className="flex h-full flex-col p-5">
+      <PanelHeader
+        icon={CalendarDays}
+        tone="blue"
+        title="Upcoming posts"
+        badge={<span className="hidden text-xs font-medium text-muted-foreground sm:inline">Next 14 days</span>}
+        action={
+          <>
+            <div className="relative">
+              <select
+                value={targetFilter}
+                onChange={(e) => setTargetFilter(e.target.value)}
+                aria-label="Filter by publishing target"
+                className="h-8 cursor-pointer appearance-none rounded-lg border border-border/70 bg-card pl-2.5 pr-7 text-xs font-medium text-foreground outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <option value="all">All targets</option>
+                <option value="company">Company page</option>
+                <option value="personal">Personal profile</option>
+              </select>
+              <ChevronDown size={13} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <PanelLink onClick={() => navigate('/content-calendar')} className="hidden sm:inline-flex">
+              Full calendar
+            </PanelLink>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <select
-              value={targetFilter}
-              onChange={(e) => setTargetFilter(e.target.value)}
-              className="bg-muted/50 border border-border/80 text-xs font-semibold text-foreground py-1 px-2.5 rounded-lg outline-none cursor-pointer appearance-none pr-6"
-            >
-              <option value="all">All Targets</option>
-              <option value="company">Company Page</option>
-              <option value="personal">Personal Profile</option>
-            </select>
-            <ChevronDown
-              size={12}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
-          </div>
-
+      {filtered.length === 0 ? (
+        <div className="mt-4 flex flex-1 flex-col items-center justify-center py-8 text-center">
+          <CalendarPlus size={26} className="text-muted-foreground/70" />
+          <p className="mt-2 text-[13px] font-semibold text-foreground">Nothing scheduled yet</p>
+          <p className="mt-1 text-xs text-muted-foreground">Fill the next open slot to keep your cadence.</p>
           <button
             type="button"
-            onClick={() => navigate('/content-calendar')}
-            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+            onClick={() => navigate('/post-creation-composer')}
+            className="mt-3 text-xs font-semibold text-primary hover:underline cursor-pointer"
           >
-            <span>Full Calendar</span>
-            <ArrowRight size={12} />
+            Compose post
           </button>
         </div>
-      </div>
+      ) : (
+        <ul className="mt-3 flex flex-col divide-y divide-border/60">
+          {filtered.map((post) => {
+            const format = FORMATS[post.format] || FORMATS.image;
+            const status = STATUS[post.status] || STATUS.scheduled;
+            const target = TARGETS[post.target];
+            const FormatIcon = format.icon;
+            const TargetIcon = target.icon;
 
-      {/* Post Content */}
-      <div className="mt-3.5 bg-muted/20 hover:bg-muted/40 border border-border/70 rounded-xl p-3.5 transition-colors cursor-pointer group flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-          <Radio size={15} className="group-hover:scale-110 transition-transform" />
-        </div>
+            return (
+              <li key={post.id}>
+                <div
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => openCalendar(post)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      openCalendar(post);
+                    }
+                  }}
+                  className="group -mx-2 flex items-start gap-3 rounded-xl px-2 py-2.5 sm:items-center transition-colors hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  <span
+                    title={format.label}
+                    className="hidden size-9 shrink-0 place-items-center rounded-lg bg-muted/70 text-muted-foreground sm:grid"
+                  >
+                    <FormatIcon size={16} aria-hidden="true" />
+                    <span className="sr-only">{format.label}</span>
+                  </span>
 
-        <div className="flex-1 min-w-0">
-          <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
-            {currentPost.title}
-          </h4>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-foreground transition-colors group-hover:text-primary">
+                      {post.title}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                      <span className="sm:hidden">
+                        <Pill tone={status.tone} dot>
+                          {status.label}
+                        </Pill>
+                      </span>
+                      <span className="inline-flex items-center gap-1 tabular-nums">
+                        <Clock size={11} />
+                        {formatSlot(post.slot)}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <TargetIcon size={11} />
+                        {target.label}
+                      </span>
+                    </div>
+                  </div>
 
-          <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-1 font-mono">
-              <Clock size={11} className="text-muted-foreground" />
-              {currentPost.datetime}
-            </span>
-            <span>·</span>
-            <span className="font-semibold text-foreground/80">{currentPost.format}</span>
-            <span>·</span>
-            <span>{currentPost.target}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            {currentPost.status}
-          </span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('/content-calendar');
-            }}
-            className="text-muted-foreground hover:text-foreground p-0.5 rounded"
-          >
-            <MoreVertical size={13} />
-          </button>
-        </div>
-      </div>
-    </div>
+                  <span className="hidden sm:block">
+                    <Pill tone={status.tone} dot>
+                      {status.label}
+                    </Pill>
+                  </span>
+                  <IconButton
+                    label="Post options"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCalendar(post);
+                    }}
+                  >
+                    <MoreVertical size={14} />
+                  </IconButton>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Panel>
   );
 }

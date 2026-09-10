@@ -2,131 +2,88 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, ArrowRight, Sparkles, Layers } from 'lucide-react';
+import { Target, Sparkles, AlertCircle } from 'lucide-react';
+import { Panel, PanelHeader, PanelLink, Pill } from './DashboardPrimitives';
 
-export default function DashboardContentPillars() {
+const BAR = {
+  emerald: 'bg-emerald-500',
+  blue: 'bg-blue-500',
+  violet: 'bg-violet-500',
+  amber: 'bg-amber-500',
+  rose: 'bg-rose-500',
+};
+
+const DEFAULT_PILLARS = [
+  { id: 'pillar-1', name: 'Thought leadership', current: 12, target: 15, tone: 'emerald', account: 'Personal profile' },
+  { id: 'pillar-2', name: 'Case studies & proof', current: 6, target: 8, tone: 'blue', account: 'Company page' },
+  { id: 'pillar-3', name: 'Engineering culture', current: 5, target: 6, tone: 'violet', account: 'Company page' },
+  { id: 'pillar-4', name: 'Industry insights', current: 4, target: 5, tone: 'amber', account: 'Personal profile' },
+];
+
+export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
   const navigate = useNavigate();
-
-  const pillars = [
-    {
-      id: 'pillar-1',
-      name: 'Thought Leadership',
-      current: 12,
-      target: 15,
-      percentage: 80,
-      color: 'bg-emerald-500',
-      bgClass: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-      account: 'Personal Profile',
-    },
-    {
-      id: 'pillar-2',
-      name: 'Case Studies & Proof',
-      current: 6,
-      target: 8,
-      percentage: 75,
-      color: 'bg-blue-500',
-      bgClass: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-      account: 'Company Page',
-    },
-    {
-      id: 'pillar-3',
-      name: 'Engineering Culture',
-      current: 5,
-      target: 6,
-      percentage: 83,
-      color: 'bg-purple-500',
-      bgClass: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
-      account: 'Company Page',
-    },
-    {
-      id: 'pillar-4',
-      name: 'Industry Insights',
-      current: 4,
-      target: 5,
-      percentage: 80,
-      color: 'bg-amber-500',
-      bgClass: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-      account: 'Personal Profile',
-    },
-  ];
 
   const totalPlanned = pillars.reduce((acc, p) => acc + p.current, 0);
   const totalTarget = pillars.reduce((acc, p) => acc + p.target, 0);
-  const overallBalance = Math.round((totalPlanned / totalTarget) * 100);
+  const balance = totalTarget ? Math.round((totalPlanned / totalTarget) * 100) : 0;
+  const healthy = balance >= 75;
 
   return (
-    <div className="card p-5 rounded-2xl border border-border shadow-xs flex flex-col justify-between h-full gap-3">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
-            <Target size={14} />
-          </div>
-          <h3 className="text-sm font-bold text-foreground">Content Pillars & Themes</h3>
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            {overallBalance}% Balanced
-          </span>
-        </div>
+    <Panel className="flex h-full flex-col p-5">
+      <PanelHeader
+        icon={Target}
+        tone="indigo"
+        title="Content pillars"
+        badge={
+          <Pill tone={healthy ? 'emerald' : 'amber'} dot>
+            {balance}% of target
+          </Pill>
+        }
+        action={<PanelLink onClick={() => navigate('/topics')}>Manage topics</PanelLink>}
+      />
 
-        <button
-          type="button"
-          onClick={() => navigate('/topics')}
-          className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-        >
-          <span>Manage Topics</span>
-          <ArrowRight size={12} />
-        </button>
-      </div>
+      <ul className="my-auto flex flex-col gap-1 pt-4">
+        {pillars.map((pillar) => {
+          const pct = Math.min(100, Math.round((pillar.current / pillar.target) * 100));
+          return (
+            <li key={pillar.id}>
+              <button
+                type="button"
+                onClick={() => navigate(`/topics?series=${encodeURIComponent(pillar.name)}`)}
+                className="group w-full rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="min-w-0 truncate text-[13px] font-semibold text-foreground transition-colors group-hover:text-primary">
+                    {pillar.name}
+                    <span className="ml-2 hidden text-[11px] font-normal text-muted-foreground sm:inline">
+                      {pillar.account}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                    <span className="font-semibold text-foreground">{pillar.current}</span> / {pillar.target}
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    style={{ width: `${pct}%` }}
+                    className={`h-full rounded-full ${BAR[pillar.tone] || BAR.blue} transition-[width] duration-500 motion-reduce:transition-none`}
+                  />
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
 
-      {/* Pillars List with Quota Progress Bars */}
-      <div className="flex flex-col gap-2.5 my-auto">
-        {pillars.map((pillar) => (
-          <div
-            key={pillar.id}
-            onClick={() => navigate(`/topics?series=${encodeURIComponent(pillar.name)}`)}
-            className="p-2 rounded-xl hover:bg-muted/30 transition-colors cursor-pointer group flex flex-col gap-1.5"
-          >
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                  {pillar.name}
-                </span>
-                <span className="text-[10px] text-muted-foreground hidden sm:inline-block">
-                  · {pillar.account}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs shrink-0 font-medium">
-                <span className="font-bold text-foreground tabular-nums">{pillar.current}</span>
-                <span className="text-muted-foreground">/</span>
-                <span className="text-muted-foreground tabular-nums">{pillar.target}</span>
-                <span className="text-[10px] font-mono text-muted-foreground ml-1">
-                  ({pillar.percentage}%)
-                </span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full h-2 rounded-full bg-muted/70 overflow-hidden">
-              <div
-                style={{ width: `${pillar.percentage}%` }}
-                className={`h-full rounded-full ${pillar.color} transition-all duration-500 group-hover:opacity-90`}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer Summary */}
-      <div className="pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
         <span>
-          <span className="font-bold text-foreground">{totalPlanned}</span> of {totalTarget} monthly posts planned
+          <span className="font-semibold text-foreground tabular-nums">{totalPlanned}</span> of {totalTarget} monthly posts planned
         </span>
-        <span className="text-primary font-semibold flex items-center gap-0.5">
-          <Sparkles size={11} />
-          Cadence Healthy
+        <span className={`inline-flex items-center gap-1 font-semibold ${healthy ? 'text-emerald-600 dark:text-emerald-300' : 'text-amber-600 dark:text-amber-300'}`}>
+          {healthy ? <Sparkles size={12} /> : <AlertCircle size={12} />}
+          {healthy ? 'Cadence healthy' : 'Behind plan'}
         </span>
       </div>
-    </div>
+    </Panel>
   );
 }

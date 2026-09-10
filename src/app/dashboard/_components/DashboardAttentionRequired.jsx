@@ -5,163 +5,154 @@ import { useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
   AlertTriangle,
-  ArrowRight,
   RotateCw,
-  Download,
+  Upload,
   FileText,
   MoreVertical,
   XCircle,
+  CheckCircle2,
+  RefreshCcw,
 } from 'lucide-react';
+import { Panel, PanelHeader, PanelLink, Pill, IconButton, buttonStyles, formatSlot } from './DashboardPrimitives';
 
-export default function DashboardAttentionRequired({
-  failedPosts = [],
-  onRetryPost,
-  onManualPublish,
-}) {
+const DEMO_FAILURE = {
+  id: 'failed-mock-1',
+  title: '5 mistakes first-time founders make with their LinkedIn strategy',
+  errorDetails: 'Buffer timed out while sending this post to LinkedIn.',
+  date: '2026-09-05 09:10',
+  attempts: '3 of 3',
+  timeAgo: '4 hours ago',
+  tags: ['retry', 'api_timeout'],
+};
+
+/**
+ * failedPosts === undefined -> demo data (matches the design reference)
+ * failedPosts === []        -> "all clear" state
+ */
+export default function DashboardAttentionRequired({ failedPosts, onRetryPost, onManualPublish }) {
   const navigate = useNavigate();
   const [retrying, setRetrying] = useState(false);
 
-  // Use real failed post or mock post matching screenshot
-  const failedItem =
-    failedPosts.length > 0
-      ? failedPosts[0]
-      : {
-          id: 'failed-mock-1',
-          title: '5 mistakes first-time founders make with their LinkedIn strategy...',
-          errorDetails: 'Dispatch worker timeout contacting Buffer / LinkedIn endpoint',
-          date: '2026-09-05 09:10',
-          attempts: '3 of 3',
-          tags: ['#retry', '#api_timeout'],
-        };
+  const items = failedPosts === undefined ? [DEMO_FAILURE] : failedPosts;
+  const failedItem = items[0];
+  const extra = items.length - 1;
 
   const handleRetry = async () => {
+    if (!failedItem) return;
     setRetrying(true);
-    if (onRetryPost) {
-      await onRetryPost(failedItem.id);
+    try {
+      await onRetryPost?.(failedItem.id);
+    } finally {
+      setRetrying(false);
     }
-    setRetrying(false);
   };
 
-  const handleManual = () => {
-    if (onManualPublish) {
-      onManualPublish(failedItem);
-    }
-  };
+  const goToFailures = () => navigate('/approval-workflow?status=failed');
 
   return (
-    <div className="card p-5 rounded-2xl border border-border shadow-xs flex flex-col justify-between gap-4 h-full">
-      {/* Card Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-red-500/10 text-red-600 flex items-center justify-center shrink-0">
-            <ShieldAlert size={14} />
-          </div>
-          <h3 className="text-sm font-bold text-foreground">Attention Required</h3>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20">
-            1 critical
-          </span>
-        </div>
+    <Panel className="flex h-full flex-col p-5">
+      <PanelHeader
+        icon={ShieldAlert}
+        tone={items.length ? 'rose' : 'emerald'}
+        title="Attention required"
+        badge={items.length > 0 && <Pill tone="rose">{items.length} critical</Pill>}
+        action={<PanelLink onClick={goToFailures}>View all</PanelLink>}
+      />
 
-        <button
-          type="button"
-          onClick={() => navigate('/approval-workflow?status=failed')}
-          className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
-        >
-          <span>View All</span>
-          <ArrowRight size={12} />
-        </button>
-      </div>
-
-      {/* Red Warning Alert Box with ample padding and clean spacing */}
-      <div className="bg-red-50/70 dark:bg-red-950/20 border border-red-200/90 dark:border-red-900/40 rounded-xl p-4 flex flex-col gap-3">
-        {/* Warning Title Row */}
-        <div className="flex items-start justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <AlertTriangle size={16} className="text-red-600 shrink-0" />
-            <span className="text-xs font-bold text-foreground">
-              Pipeline Dispatch Failure Detected
-            </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white tracking-wide shrink-0">
-              Action Required
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0 ml-auto sm:ml-0">
-            <span>4 hours ago</span>
-            <button
-              type="button"
-              onClick={() => navigate('/approval-workflow?status=failed')}
-              className="text-muted-foreground hover:text-foreground p-0.5 rounded ml-0.5 cursor-pointer"
-            >
-              <MoreVertical size={13} />
-            </button>
-          </div>
-        </div>
-
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          1 post encountered fatal publishing errors and was halted before dispatch.
-        </p>
-
-        {/* Nested Post Preview Card with spacious layout */}
-        <div className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-2 shadow-2xs">
-          <div className="flex items-center gap-2">
-            <FileText size={14} className="text-muted-foreground shrink-0" />
-            <span className="text-xs font-bold text-foreground truncate">
-              {failedItem.title}
-            </span>
-          </div>
-
-          <p className="text-xs text-red-600 dark:text-red-400 font-medium pl-6 leading-snug">
-            {failedItem.errorDetails || 'Dispatch worker timeout contacting Buffer / LinkedIn endpoint'}
+      {!failedItem ? (
+        <div className="mt-4 flex flex-1 flex-col items-center justify-center rounded-xl bg-emerald-50/50 px-6 py-8 text-center ring-1 ring-inset ring-emerald-600/10 dark:bg-emerald-400/[0.05]">
+          <CheckCircle2 size={26} className="text-emerald-500" />
+          <p className="mt-2 text-[13px] font-semibold text-foreground">Publishing is running smoothly</p>
+          <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
+            No failed posts. Buffer and LinkedIn are responding normally.
           </p>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-1 flex-col rounded-xl bg-rose-50/60 p-4 ring-1 ring-inset ring-rose-200/80 dark:bg-rose-400/[0.06] dark:ring-rose-400/15">
+          {/* Alert title */}
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle size={17} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" strokeWidth={2.2} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="pt-0.5 text-[13px] font-semibold text-foreground">Pipeline dispatch failed</p>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <span className="text-[11px] text-muted-foreground">{failedItem.timeAgo || 'Recently'}</span>
+                  <IconButton label="More options" onClick={goToFailures} className="size-6">
+                    <MoreVertical size={14} />
+                  </IconButton>
+                </div>
+              </div>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {items.length === 1 ? '1 post was' : `${items.length} posts were`} stopped before reaching LinkedIn.
+              </p>
+            </div>
+          </div>
 
-          <div className="flex items-center justify-between gap-2 flex-wrap pl-6 pt-2.5 border-t border-border/50 text-[11px] text-muted-foreground">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-red-600 flex items-center gap-1 font-semibold">
+          {/* Failed post */}
+          <div className="mt-3 rounded-lg bg-card p-3 ring-1 ring-inset ring-border/70 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+            <div className="flex items-center gap-2">
+              <FileText size={14} className="shrink-0 text-muted-foreground" />
+              <p className="truncate text-xs font-semibold text-foreground">{failedItem.title}</p>
+            </div>
+            <p className="mt-1.5 flex items-start gap-1.5 pl-[22px] text-xs text-rose-600 dark:text-rose-400">
+              {failedItem.errorDetails || 'Buffer timed out while sending this post to LinkedIn.'}
+            </p>
+
+            <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border/60 pl-[22px] pt-2.5 text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400">
                 <XCircle size={12} />
                 Failed
               </span>
-              <span>·</span>
-              <span className="font-mono text-[10px]">{failedItem.date || '2026-09-05 09:10'}</span>
-              <span>·</span>
-              <span className="text-[10px]">Attempts: {failedItem.attempts || '3 of 3'}</span>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              {(failedItem.tags || ['#retry', '#api_timeout']).map((t) => (
-                <span
-                  key={t}
-                  className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-mono text-[9px] border border-border/50"
-                >
-                  {t}
-                </span>
-              ))}
+              <span className="tabular-nums">{formatSlot(failedItem.date) || 'Unknown time'}</span>
+              <span className="inline-flex items-center gap-1 tabular-nums">
+                <RefreshCcw size={11} />
+                {failedItem.attempts || '3 of 3'}
+              </span>
+              <span className="flex flex-wrap gap-1">
+                {(failedItem.tags || []).map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-rose-100/70 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 dark:bg-rose-400/10 dark:text-rose-300"
+                  >
+                    #{String(t).replace(/^#/, '')}
+                  </span>
+                ))}
+              </span>
             </div>
           </div>
+
+          {/* Fix actions */}
+          <div className="mt-auto flex flex-col gap-2 pt-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleRetry}
+              disabled={retrying}
+              className={`${buttonStyles.dark} h-9 w-full px-3 sm:w-auto sm:flex-1`}
+            >
+              <RotateCw size={14} className={retrying ? 'animate-spin motion-reduce:animate-none' : ''} />
+              {retrying ? 'Retrying…' : 'Retry dispatch'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onManualPublish?.(failedItem)}
+              className={`${buttonStyles.outline} h-9 w-full px-3 sm:w-auto sm:flex-1`}
+            >
+              <Upload size={14} />
+              Publish manually
+            </button>
+          </div>
+
+          {extra > 0 && (
+            <button
+              type="button"
+              onClick={goToFailures}
+              className="mt-2 self-center text-[11px] font-semibold text-rose-700 hover:underline dark:text-rose-300 cursor-pointer"
+            >
+              +{extra} more failed {extra === 1 ? 'post' : 'posts'}
+            </button>
+          )}
         </div>
-      </div>
-
-      {/* Action Buttons with comfortable spacing and equal padding */}
-      <div className="mt-auto pt-2 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleRetry}
-          disabled={retrying}
-          className="flex-1 bg-slate-950 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
-        >
-          <RotateCw size={13} className={retrying ? 'animate-spin' : ''} />
-          <span>{retrying ? 'Retrying Dispatch...' : 'Retry Dispatch'}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={handleManual}
-          className="btn-secondary text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-foreground hover:text-primary cursor-pointer shadow-2xs"
-        >
-          <Download size={13} />
-          <span>Publish Manually</span>
-        </button>
-      </div>
-    </div>
+      )}
+    </Panel>
   );
 }
