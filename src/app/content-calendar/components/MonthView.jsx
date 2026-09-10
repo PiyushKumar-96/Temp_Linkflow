@@ -80,14 +80,23 @@ export default function MonthView({ currentDate, posts, selectedPost, onSelectPo
                       {day}
                     </div>
 
-                    <button
-                      onClick={() => navigate(`/topics?view=year&date=${dateStr}`)}
-                      className="opacity-0 group-hover/cell:opacity-100 text-[10px] text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-opacity px-1 py-0.5 rounded hover:bg-muted"
-                      title="Plan a topic for this day"
-                    >
-                      <Plus size={10} />
-                      Plan
-                    </button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => navigate(`/topics?view=year&date=${dateStr}`)}
+                        className="text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 rounded hover:bg-muted"
+                        title="Plan a topic brief for this day"
+                      >
+                        Plan
+                      </button>
+                      <button
+                        onClick={() => navigate(`/post-creation-composer?date=${dateStr}`)}
+                        className="text-[10px] text-primary font-semibold flex items-center gap-0.5 px-1 py-0.5 rounded hover:bg-primary/10"
+                        title="Draft post for this day in Composer"
+                      >
+                        <Plus size={9} />
+                        Post
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1">

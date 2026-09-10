@@ -15,6 +15,7 @@ import {
 } from '../_api';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { POST_STATUS, STATUS_BUCKET, matchesStatusBucket } from '@/lib/post-status';
 
 export default function ApprovalShell() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,12 +39,16 @@ export default function ApprovalShell() {
 
   const filtered = useMemo(() => {
     if (filter === 'all') return postList;
-    if (filter === 'pending') {
-      return postList.filter(
-        (p) => p.status === 'awaiting_review' || p.status === 'pending' || p.status === 'needs_revision'
-      );
+    if (filter === 'pending' || filter === 'in_review') {
+      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.IN_REVIEW));
     }
-    return postList.filter((p) => p.status === filter);
+    if (filter === 'approved' || filter === 'scheduled') {
+      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.SCHEDULED));
+    }
+    if (filter === 'rejected' || filter === 'attention') {
+      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.ATTENTION));
+    }
+    return postList.filter((p) => matchesStatusBucket(p.status, filter) || p.status === filter);
   }, [postList, filter]);
 
   const selectedId = useMemo(() => {
@@ -216,22 +221,29 @@ export default function ApprovalShell() {
           <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
             {[
               { id: 'all', label: 'All' },
-              { id: 'pending', label: 'Pending' },
-              { id: 'approved', label: 'Approved' },
-              { id: 'rejected', label: 'Rejected' },
-            ].map((f) => (
-              <button
-                key={`filter-${f.id}`}
-                onClick={() => handleFilterChange(f.id)}
-                className={`px-3 py-1.5 text-sm font-500 rounded-md capitalize transition-all duration-150 ${
-                  filter === f.id
-                    ? 'bg-card text-foreground card-shadow'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+              { id: 'in_review', label: 'In Review' },
+              { id: 'scheduled', label: 'Scheduled' },
+              { id: 'attention', label: 'Needs Attention' },
+            ].map((f) => {
+              const active =
+                filter === f.id ||
+                (f.id === 'in_review' && filter === 'pending') ||
+                (f.id === 'scheduled' && filter === 'approved') ||
+                (f.id === 'attention' && filter === 'rejected');
+              return (
+                <button
+                  key={`filter-${f.id}`}
+                  onClick={() => handleFilterChange(f.id)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-all duration-150 ${
+                    active
+                      ? 'bg-card text-foreground card-shadow'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

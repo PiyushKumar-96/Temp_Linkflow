@@ -14,20 +14,22 @@ export default function ComposerToolbar({
   hasContent,
   isEditMode = false,
   returnUrl = '/approval-workflow',
+  scheduledSlotLabel,
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {/* AI Panel Toggle */}
+      {/* AI Assistant Toggle */}
       <button
         onClick={onToggleAI}
         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-500 rounded-lg border transition-all duration-150 ${
           showAIPanel
-            ? 'bg-accent/10 border-accent/30 text-accent'
+            ? 'bg-accent/10 border-accent/30 text-accent font-semibold'
             : 'bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted'
         }`}
+        title="Toggle AI Assistant in composer"
       >
         <Sparkles size={13} />
-        <span>AI Panel</span>
+        <span>AI Assistant</span>
       </button>
 
       {isEditMode ? (
@@ -48,6 +50,15 @@ export default function ComposerToolbar({
           >
             <History size={13} />
             <span className="hidden sm:inline">History</span>
+          </button>
+
+          <button
+            onClick={onSchedule}
+            className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1.5 text-foreground"
+            title="Configure or adjust the scheduled publishing slot"
+          >
+            <Clock size={13} className="text-primary" />
+            <span className="hidden sm:inline">{scheduledSlotLabel ? `Slot: ${scheduledSlotLabel}` : 'Set Slot'}</span>
           </button>
 
           <button
@@ -80,11 +91,11 @@ export default function ComposerToolbar({
 
           <button
             onClick={onSchedule}
-            disabled={!hasContent}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+            title="Select target publishing time window"
           >
-            <Clock size={13} />
-            <span>Schedule</span>
+            <Clock size={13} className="text-primary" />
+            <span>{scheduledSlotLabel ? `Slot: ${scheduledSlotLabel}` : 'Schedule'}</span>
           </button>
 
           <button

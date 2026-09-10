@@ -3,7 +3,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, CalendarDays, Plus, Filter, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { STATUS_FILTER_ORDER, STATUS_META } from '@/lib/post-status';
+import { STATUS_BUCKET_LIST, STATUS_FILTER_ORDER, STATUS_META } from '@/lib/post-status';
 
 const members = [
   { id: 'all', label: 'All Members', initials: 'ALL' },
@@ -147,14 +147,23 @@ export default function CalendarHeader({
           <select
             value={filterStatus}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="input-base text-xs py-1 px-2 h-7 bg-background border-border capitalize"
+            className="input-base text-xs py-1 px-2 h-7 bg-background border-border"
           >
             <option value="all">All Statuses</option>
-            {STATUS_FILTER_ORDER.map((st) => (
-              <option key={st} value={st}>
-                {STATUS_META[st]?.label || st}
-              </option>
-            ))}
+            <optgroup label="Workflow Stages">
+              {STATUS_BUCKET_LIST.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.label}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Specific States">
+              {STATUS_FILTER_ORDER.map((st) => (
+                <option key={st} value={st}>
+                  {STATUS_META[st]?.label || st}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </div>
 

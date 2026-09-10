@@ -21,6 +21,7 @@ import ImageCarouselSelector from '@/components/ui/ImageCarouselSelector';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { POST_STATUS } from '@/lib/post-status';
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
+import { getSequentialScheduleSlots, getScheduleSettings } from '@/lib/scheduling';
 
 import { TOPICS } from '@/temp-backend/data/topics';
 import { STOCK_IMAGES_LIST } from '@/temp-backend/data/media';
@@ -166,14 +167,20 @@ export default function AIGeneratorShell() {
 
     await new Promise((r) => setTimeout(r, 1000));
 
+    const sequentialSlots = useScheduleRules
+      ? getSequentialScheduleSlots(postCount, startDate)
+      : [];
+
     const posts = [];
     for (let i = 0; i < postCount; i++) {
       const postTopic =
         customTopics.length > 0
           ? customTopics[i % customTopics.length]
           : topic || MOCK_TOPICS[i % MOCK_TOPICS.length];
-      const schedDate = addDays(startDate, i);
-      posts.push(generateMockPost(postTopic, i, schedDate, defaultTime));
+      const slot = useScheduleRules && sequentialSlots[i]
+        ? sequentialSlots[i]
+        : { date: addDays(startDate, i), time: defaultTime, isSettingsSlot: false };
+      posts.push(generateMockPost(postTopic, i, slot.date, slot.time));
     }
 
     setGeneratedPosts(posts);
@@ -346,14 +353,21 @@ export default function AIGeneratorShell() {
             </div>
 
             {/* Schedule options */}
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="text-xs font-600 text-foreground">Use Publishing Schedule Slots</span>
-              <input
-                type="checkbox"
-                checked={useScheduleRules}
-                onChange={(e) => setUseScheduleRules(e.target.checked)}
-                className="rounded border-border text-primary h-4 w-4"
-              />
+            <div className="pt-2 border-t border-border flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-foreground">Follow Publishing Schedule Rules</span>
+                  <p className="text-[11px] text-muted-foreground">
+                    Sequentially books slots from your configured weekly windows in Settings.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={useScheduleRules}
+                  onChange={(e) => setUseScheduleRules(e.target.checked)}
+                  className="rounded border-border text-primary h-4 w-4 shrink-0"
+                />
+              </div>
             </div>
 
             {!useScheduleRules && (

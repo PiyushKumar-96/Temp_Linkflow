@@ -35,6 +35,7 @@ export default function DashboardHeader({
           <button
             onClick={() => navigate('/topics')}
             className="btn btn-outline text-xs flex items-center gap-1.5"
+            title="Set campaign themes and generate batch drafts"
           >
             <Target size={13} />
             Plan Topic
@@ -42,9 +43,10 @@ export default function DashboardHeader({
           <button
             onClick={() => navigate('/post-creation-composer')}
             className="btn btn-primary text-xs flex items-center gap-1.5"
+            title="Directly write copy and select visuals in Post Composer"
           >
             <Plus size={14} />
-            New Post
+            Compose Post
           </button>
         </div>
       </div>
@@ -109,6 +111,22 @@ export default function DashboardHeader({
             <p className={`text-lg font-bold leading-tight ${failureCount > 0 ? 'text-destructive' : 'text-foreground'}`}>
               {failureCount}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Workflow Orientation Guide */}
+      <div className="p-3.5 bg-card border border-border rounded-xl flex items-center justify-between gap-3 text-xs flex-wrap">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-foreground">Standard Workflow:</span>
+          <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
+            <span className="bg-muted px-2 py-0.5 rounded text-foreground font-medium">1. Set Slots in Settings</span>
+            <span>→</span>
+            <span className="bg-muted px-2 py-0.5 rounded text-foreground font-medium">2. Plan Topic or Draft Post</span>
+            <span>→</span>
+            <span className="bg-muted px-2 py-0.5 rounded text-foreground font-medium">3. Owner Approves in Queue</span>
+            <span>→</span>
+            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-semibold">4. Auto-Publish to LinkedIn</span>
           </div>
         </div>
       </div>

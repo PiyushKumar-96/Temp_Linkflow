@@ -208,3 +208,104 @@ export const STATUS_FILTER_ORDER = Object.freeze([
   POST_STATUS.FAILED,
   POST_STATUS.REJECTED,
 ]);
+
+/**
+ * 4-5 High-level User-Facing Buckets (reduces 11 raw statuses to 4 core stages + attention)
+ */
+export const STATUS_BUCKET = Object.freeze({
+  ALL: 'all',
+  PLANNED: 'planned',
+  IN_REVIEW: 'in_review',
+  SCHEDULED: 'scheduled',
+  PUBLISHED: 'published',
+  ATTENTION: 'attention',
+});
+
+export const STATUS_BUCKET_META = Object.freeze({
+  [STATUS_BUCKET.PLANNED]: {
+    id: STATUS_BUCKET.PLANNED,
+    label: 'Draft & Planned',
+    badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+    dotClass: 'bg-slate-400',
+    description: 'Post idea planned or generating with AI',
+    statuses: [POST_STATUS.PLANNED, POST_STATUS.GENERATING],
+  },
+  [STATUS_BUCKET.IN_REVIEW]: {
+    id: STATUS_BUCKET.IN_REVIEW,
+    label: 'In Review',
+    badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+    dotClass: 'bg-amber-500',
+    description: 'Draft ready for human evaluation or revision',
+    statuses: [POST_STATUS.AUTO_REVIEW, POST_STATUS.AWAITING_REVIEW, POST_STATUS.NEEDS_REVISION],
+  },
+  [STATUS_BUCKET.SCHEDULED]: {
+    id: STATUS_BUCKET.SCHEDULED,
+    label: 'Scheduled',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    dotClass: 'bg-emerald-500',
+    description: 'Approved by owner; locked into publishing schedule',
+    statuses: [POST_STATUS.APPROVED, POST_STATUS.SCHEDULED],
+  },
+  [STATUS_BUCKET.PUBLISHED]: {
+    id: STATUS_BUCKET.PUBLISHED,
+    label: 'Published',
+    badgeClass: 'bg-teal-50 text-teal-800 border-teal-200',
+    dotClass: 'bg-teal-600',
+    description: 'Live on LinkedIn or manually posted',
+    statuses: [POST_STATUS.PUBLISHED, POST_STATUS.MANUAL],
+  },
+  [STATUS_BUCKET.ATTENTION]: {
+    id: STATUS_BUCKET.ATTENTION,
+    label: 'Needs Attention',
+    badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+    dotClass: 'bg-rose-500',
+    description: 'Posting failed or rejected by owner',
+    statuses: [POST_STATUS.FAILED, POST_STATUS.REJECTED],
+  },
+});
+
+export const STATUS_BUCKET_LIST = Object.freeze([
+  STATUS_BUCKET_META[STATUS_BUCKET.IN_REVIEW],
+  STATUS_BUCKET_META[STATUS_BUCKET.SCHEDULED],
+  STATUS_BUCKET_META[STATUS_BUCKET.PLANNED],
+  STATUS_BUCKET_META[STATUS_BUCKET.PUBLISHED],
+  STATUS_BUCKET_META[STATUS_BUCKET.ATTENTION],
+]);
+
+/**
+ * Returns the high-level user-facing bucket for any status
+ * @param {string} status
+ * @returns {string} bucket id ('planned' | 'in_review' | 'scheduled' | 'published' | 'attention')
+ */
+export function getStatusBucket(status) {
+  const canonical = normalizeStatus(status);
+  switch (canonical) {
+    case POST_STATUS.PLANNED:
+    case POST_STATUS.GENERATING:
+      return STATUS_BUCKET.PLANNED;
+    case POST_STATUS.AUTO_REVIEW:
+    case POST_STATUS.AWAITING_REVIEW:
+    case POST_STATUS.NEEDS_REVISION:
+      return STATUS_BUCKET.IN_REVIEW;
+    case POST_STATUS.APPROVED:
+    case POST_STATUS.SCHEDULED:
+      return STATUS_BUCKET.SCHEDULED;
+    case POST_STATUS.PUBLISHED:
+    case POST_STATUS.MANUAL:
+      return STATUS_BUCKET.PUBLISHED;
+    case POST_STATUS.FAILED:
+    case POST_STATUS.REJECTED:
+      return STATUS_BUCKET.ATTENTION;
+    default:
+      return STATUS_BUCKET.PLANNED;
+  }
+}
+
+/**
+ * Checks if a status matches a user bucket filter
+ */
+export function matchesStatusBucket(status, bucket) {
+  if (!bucket || bucket === 'all' || bucket === STATUS_BUCKET.ALL) return true;
+  return getStatusBucket(status) === bucket;
+}
+

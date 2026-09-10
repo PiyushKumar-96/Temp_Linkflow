@@ -37,9 +37,13 @@ export default function RejectFeedbackDialog({ isOpen, onClose, onConfirm, isSub
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Please explain why this post is being rejected. Your feedback will be logged in the audit trail and sent to the author.
-          </p>
+          <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-xs text-destructive flex items-start gap-2">
+            <AlertTriangle size={15} className="shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold block mb-0.5">Consequence of Rejection:</span>
+              <span>This draft will be removed from the active publishing schedule and halted. The author will be notified to revise or discard the draft.</span>
+            </div>
+          </div>
 
           <div>
             <label className="block text-xs font-600 text-foreground mb-1.5">

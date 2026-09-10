@@ -116,10 +116,9 @@ export default function TopicsHeader({
             className="input py-1.5 text-xs bg-input border border-border"
           >
             <option value="all">All Statuses</option>
-            <option value="planned">Planned</option>
-            <option value="generating">Generating</option>
-            <option value="awaiting_review">Awaiting Review</option>
-            <option value="approved">Approved</option>
+            <option value="planned">Draft & Planned</option>
+            <option value="in_review">In Review</option>
+            <option value="scheduled">Scheduled</option>
             <option value="published">Published</option>
           </select>
         </div>

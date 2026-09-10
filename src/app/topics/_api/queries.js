@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { TopicSchema } from '@/lib/contracts/topic.schema';
 import { z } from 'zod';
+import { matchesStatusBucket } from '@/lib/post-status';
 
 import { TOPICS } from '@/temp-backend/data/topics';
 
@@ -44,7 +45,7 @@ export function useTopicsQuery(filters = {}) {
         topics = topics.filter((t) => t.account === filters.account);
       }
       if (filters.status && filters.status !== 'all') {
-        topics = topics.filter((t) => t.status === filters.status);
+        topics = topics.filter((t) => t.status === filters.status || matchesStatusBucket(t.status, filters.status));
       }
       if (filters.search) {
         const q = filters.search.toLowerCase();

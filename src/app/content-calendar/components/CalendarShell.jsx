@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import CalendarHeader from './CalendarHeader';
 import MonthView from './MonthView';
 import WeekView from './WeekView';
-import { POST_STATUS, normalizeStatus } from '@/lib/post-status';
+import { POST_STATUS, normalizeStatus, matchesStatusBucket } from '@/lib/post-status';
 
 import { CALENDAR_POSTS } from '@/temp-backend/data/posts';
 
@@ -62,7 +62,9 @@ export default function CalendarShell() {
       }
       if (filterStatus !== 'all') {
         const canonical = normalizeStatus(p.status);
-        if (canonical !== filterStatus) return false;
+        if (canonical !== filterStatus && !matchesStatusBucket(p.status, filterStatus)) {
+          return false;
+        }
       }
       return true;
     });

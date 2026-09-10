@@ -21,46 +21,51 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 
-const navItems = [
-  { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, group: 'main' },
-  { id: 'nav-analytics', label: 'Analytics', href: '/analytics', icon: BarChart3, group: 'main' },
-  { id: 'nav-topics', label: 'Topics', href: '/topics', icon: Target, group: 'main' },
+const navSections = [
   {
-    id: 'nav-calendar',
-    label: 'Content Calendar',
-    href: '/content-calendar',
-    icon: CalendarDays,
-    group: 'main',
-  },
-  { id: 'nav-ai', label: 'AI Generator', href: '/ai-generator', icon: Sparkles, group: 'main' },
-  {
-    id: 'nav-composer',
-    label: 'Post Composer',
-    href: '/post-creation-composer',
-    icon: PenSquare,
-    group: 'main',
+    key: 'plan',
+    title: 'Plan',
+    items: [
+      { id: 'nav-topics', label: 'Topics', href: '/topics', icon: Target },
+      { id: 'nav-calendar', label: 'Content Calendar', href: '/content-calendar', icon: CalendarDays },
+    ],
   },
   {
-    id: 'nav-approval',
-    label: 'Approval Queue',
-    href: '/approval-workflow',
-    icon: CheckSquare,
-    badge: 5,
-    group: 'main',
+    key: 'create',
+    title: 'Create',
+    items: [
+      { id: 'nav-composer', label: 'Post Composer', href: '/post-creation-composer', icon: PenSquare },
+      { id: 'nav-ai', label: 'AI Generator', href: '/ai-generator', icon: Sparkles },
+      { id: 'nav-templates', label: 'Post Templates', href: '/post-templates', icon: LayoutTemplate },
+    ],
   },
   {
-    id: 'nav-library',
-    label: 'Content Library',
-    href: '/content-library',
-    icon: BookImage,
-    group: 'content',
+    key: 'review',
+    title: 'Review',
+    items: [
+      {
+        id: 'nav-approval',
+        label: 'Approval Queue',
+        href: '/approval-workflow',
+        icon: CheckSquare,
+        badge: 5,
+      },
+    ],
   },
   {
-    id: 'nav-templates',
-    label: 'Post Templates',
-    href: '/post-templates',
-    icon: LayoutTemplate,
-    group: 'content',
+    key: 'measure',
+    title: 'Measure',
+    items: [
+      { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { id: 'nav-analytics', label: 'Analytics', href: '/analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    key: 'assets',
+    title: 'Library',
+    items: [
+      { id: 'nav-library', label: 'Content Library', href: '/content-library', icon: BookImage },
+    ],
   },
 ];
 
@@ -79,9 +84,6 @@ export default function Sidebar({ collapsed, onToggle }) {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
-
-  const mainItems = navItems.filter((i) => i.group === 'main');
-  const contentItems = navItems.filter((i) => i.group === 'content');
 
   return (
     <aside
@@ -113,74 +115,48 @@ export default function Sidebar({ collapsed, onToggle }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 overflow-y-auto scrollbar-thin">
-        {/* Main section */}
-        {!collapsed && (
-          <p className="text-xs font-600 text-muted-foreground uppercase tracking-widest px-2 mb-2">
-            Workspace
-          </p>
-        )}
-        <div className="flex flex-col gap-0.5 mb-4">
-          {mainItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={`nav-item relative group ${active ? 'active' : ''}`}
-                title={collapsed ? item.label : undefined}
-              >
-                <Icon size={18} className="shrink-0" />
-                {!collapsed && <span className="flex-1">{item.label}</span>}
-                {!collapsed && item.badge && item.badge > 0 && (
-                  <span className="ml-auto text-xs font-700 bg-warning text-white px-1.5 py-0.5 rounded-full tabular-nums">
-                    {item.badge}
-                  </span>
-                )}
-                {collapsed && item.badge && item.badge > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full" />
-                )}
-                {collapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                    {item.label}
-                    {item.badge ? ` (${item.badge})` : ''}
-                  </div>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+      <nav className="flex-1 px-2 py-3 overflow-y-auto scrollbar-thin flex flex-col gap-3">
+        {navSections.map((section, sIdx) => (
+          <div key={section.key} className="flex flex-col gap-0.5">
+            {!collapsed ? (
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                {section.title}
+              </p>
+            ) : sIdx > 0 ? (
+              <div className="border-t border-border my-1 mx-1" />
+            ) : null}
 
-        {/* Content section */}
-        {!collapsed && (
-          <p className="text-xs font-600 text-muted-foreground uppercase tracking-widest px-2 mb-2 mt-2">
-            Content
-          </p>
-        )}
-        {collapsed && <div className="border-t border-border my-2" />}
-        <div className="flex flex-col gap-0.5">
-          {contentItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={`nav-item relative group ${active ? 'active' : ''}`}
-                title={collapsed ? item.label : undefined}
-              >
-                <Icon size={18} className="shrink-0" />
-                {!collapsed && <span className="flex-1">{item.label}</span>}
-                {collapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                    {item.label}
-                  </div>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.id}
+                  to={item.href}
+                  className={`nav-item relative group ${active ? 'active' : ''}`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <Icon size={17} className="shrink-0" />
+                  {!collapsed && <span className="flex-1 text-xs font-medium">{item.label}</span>}
+                  {!collapsed && item.badge && item.badge > 0 && (
+                    <span className="ml-auto text-[11px] font-bold bg-warning text-white px-1.5 py-0.2 rounded-full tabular-nums">
+                      {item.badge}
+                    </span>
+                  )}
+                  {collapsed && item.badge && item.badge > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full" />
+                  )}
+                  {collapsed && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                      {item.label}
+                      {item.badge ? ` (${item.badge})` : ''}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom */}

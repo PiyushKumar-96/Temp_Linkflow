@@ -6,11 +6,14 @@ import ComposerEditor from './ComposerEditor';
 import ComposerPreview from './ComposerPreview';
 import ComposerAIPanel from './ComposerAIPanel';
 import ComposerToolbar from './ComposerToolbar';
-import ScheduleDrawer from './ScheduleDrawer';
+import ScheduleControl from '@/components/ScheduleControl';
+import PipelineStageStepper from '@/components/PipelineStageStepper';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import VersionHistoryDialog from '@/components/VersionHistoryDialog';
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
 import { GitCommit, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getNextAvailableSlot } from '@/lib/scheduling';
 
 import { STOCK_IMAGES } from '@/temp-backend/data/media';
 import { getStoredPosts } from '@/temp-backend';
@@ -57,6 +60,16 @@ export default function ComposerShell() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const dateParam = searchParams.get('date');
+  const [scheduledDate, setScheduledDate] = useState(() => dateParam || getNextAvailableSlot().date);
+  const [scheduledTime, setScheduledTime] = useState(() => getNextAvailableSlot().time);
+
+  useEffect(() => {
+    if (dateParam && !isEditMode) {
+      setScheduledDate(dateParam);
+    }
+  }, [dateParam, isEditMode]);
+
   // Load existing draft if opened in edit mode or from a template
   useEffect(() => {
     if (isEditMode && editPostId) {
@@ -74,6 +87,13 @@ export default function ComposerShell() {
       const targetPost = allPosts.find((p) => p.id === editPostId);
       if (targetPost) {
         setActivePost(targetPost);
+
+        if (targetPost.scheduledDate || targetPost.dueDate) {
+          setScheduledDate(targetPost.scheduledDate || targetPost.dueDate);
+        }
+        if (targetPost.scheduledTime) {
+          setScheduledTime(targetPost.scheduledTime);
+        }
 
         // Separate CTA if present at bottom
         const lines = (targetPost.content || '').split('\n').filter((l) => l.trim() !== '');
@@ -175,6 +195,9 @@ export default function ComposerShell() {
             category,
             visualFormat,
             imageUrl: visualFormat === 'none' ? null : imageUrl,
+            scheduledDate,
+            scheduledTime,
+            dueDate: scheduledDate,
             revisions: nextVersion,
             revisionsList: [...(p.revisionsList || []), newRevision],
             activityLog: [
@@ -182,7 +205,7 @@ export default function ComposerShell() {
               {
                 id: `act-${Date.now()}`,
                 actor: 'Sarah Reeves',
-                action: `Created new revision v${nextVersion}`,
+                action: `Created new revision v${nextVersion} (Slot: ${scheduledDate} ${scheduledTime})`,
                 timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
               },
             ],
@@ -196,7 +219,7 @@ export default function ComposerShell() {
       }
     } else {
       // Create mode
-      toast.success('Draft saved to library');
+      toast.success(`Draft saved to library (Scheduled for ${scheduledDate} ${scheduledTime})`);
     }
   };
 
@@ -213,6 +236,23 @@ export default function ComposerShell() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Wayfinding Breadcrumbs */}
+      {isEditMode ? (
+        <Breadcrumbs
+          items={[
+            { label: 'Approval Queue', href: '/approval-workflow' },
+            { label: `Edit Draft: ${activePost?.title || 'Review Item'}` },
+          ]}
+        />
+      ) : (
+        <Breadcrumbs
+          items={[
+            { label: 'Content Operations', href: '/dashboard' },
+            { label: 'Post Composer' },
+          ]}
+        />
+      )}
+
       {/* Mode Alert Banner if opened from Approval Queue */}
       {isEditMode && activePost && (
         <div className="p-3.5 bg-primary/10 border border-primary/30 rounded-xl flex items-center justify-between gap-4 flex-wrap">
@@ -221,7 +261,7 @@ export default function ComposerShell() {
               <GitCommit size={16} />
             </div>
             <div>
-              <p className="text-xs font-600 text-foreground">
+              <p className="text-xs font-semibold text-foreground">
                 Editing Review Draft: &ldquo;{activePost.title}&rdquo;
               </p>
               <p className="text-[11px] text-muted-foreground">
@@ -240,10 +280,18 @@ export default function ComposerShell() {
         </div>
       )}
 
+      {/* Pipeline Stepper showing exact lifecycle stage & next step */}
+      {isEditMode && activePost && (
+        <PipelineStageStepper
+          status={activePost.status}
+          post={{ ...activePost, scheduledDate, scheduledTime }}
+        />
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-700 text-foreground">
+          <h1 className="text-2xl font-bold text-foreground">
             {isEditMode ? 'Edit Draft (New Revision)' : 'Post Composer'}
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -263,13 +311,14 @@ export default function ComposerShell() {
           hasContent={(content || '').length > 0}
           isEditMode={isEditMode}
           returnUrl="/approval-workflow"
+          scheduledSlotLabel={`${scheduledDate} ${scheduledTime}`}
         />
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-        {/* Editor */}
-        <div className={`${showAIPanel ? 'xl:col-span-2' : 'xl:col-span-3'}`}>
+      {/* Main Grid: 2-column side-by-side layout for real-time preview without scrolling */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Editor + Merged AI Assistant (Left Column) */}
+        <div className="lg:col-span-7 xl:col-span-7 flex flex-col gap-5">
           <ComposerEditor
             content={content}
             onChange={setContent}
@@ -291,24 +340,13 @@ export default function ComposerShell() {
             onRemoveCandidates={handleRemoveCandidates}
             isGenerating={isGenerating}
             onAIGenerate={handleAIGenerate}
+            showAIPanel={showAIPanel}
+            onToggleAIPanel={() => setShowAIPanel((s) => !s)}
           />
         </div>
 
-        {/* AI Panel */}
-        {showAIPanel && (
-          <div className="xl:col-span-1">
-            <ComposerAIPanel
-              content={content}
-              tone={selectedTone}
-              onToneChange={setSelectedTone}
-              onHashtagsChange={setHashtags}
-              onApplySuggestion={setContent}
-            />
-          </div>
-        )}
-
-        {/* Preview */}
-        <div className="xl:col-span-2">
+        {/* Live LinkedIn Preview (Right Column - sticky in real time!) */}
+        <div className="lg:col-span-5 xl:col-span-5 sticky top-20">
           <ComposerPreview
             content={content}
             cta={cta}
@@ -320,14 +358,18 @@ export default function ComposerShell() {
         </div>
       </div>
 
-      {/* Schedule Drawer */}
+      {/* Centralized Schedule Control Drawer */}
       {showScheduleDrawer && (
-        <ScheduleDrawer
-          onClose={() => setShowScheduleDrawer(false)}
-          onSchedule={(date, time) => {
-            setShowScheduleDrawer(false);
-            toast.success(`Post scheduled for ${date} at ${time}`);
+        <ScheduleControl
+          isDrawer={true}
+          date={scheduledDate}
+          time={scheduledTime}
+          onChange={({ date, time }) => {
+            setScheduledDate(date);
+            setScheduledTime(time);
+            toast.success(`Publishing slot updated to ${date} at ${time}`);
           }}
+          onClose={() => setShowScheduleDrawer(false)}
         />
       )}
 

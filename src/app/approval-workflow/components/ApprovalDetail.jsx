@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import RejectFeedbackDialog from './RejectFeedbackDialog';
 import ChangeBriefDialog from './ChangeBriefDialog';
 import VersionHistoryDialog from './VersionHistoryDialog';
+import PipelineStageStepper from '@/components/PipelineStageStepper';
 
 const commentTypeColors = {
   comment: 'bg-muted/60 border border-border/40',
@@ -167,16 +168,27 @@ export default function ApprovalDetail({
   const activityLog = post.activityLog || [];
   const revisionsCount = post.revisions || (post.revisionsList?.length || 0);
 
+  const targetSlotText = post.scheduledDate
+    ? `${post.scheduledDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
+    : post.dueDate
+      ? `${post.dueDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
+      : 'Scheduled Slot';
+
   return (
     <div className="card flex flex-col h-full overflow-hidden border border-border shadow-md">
+      {/* Pipeline Stepper showing exact lifecycle stage & next step */}
+      <div className="p-3.5 border-b border-border bg-muted/20">
+        <PipelineStageStepper status={post.status} post={post} />
+      </div>
+
       {/* Header bar */}
       <div className="px-5 py-4 border-b border-border bg-card">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <StatusBadge status={post.status} />
-              <span className="text-xs px-2.5 py-0.5 bg-muted rounded-full text-muted-foreground font-500">
-                {post.category}
+              <span className="text-xs px-2.5 py-0.5 bg-muted rounded-full text-muted-foreground font-semibold">
+                Series: {post.series || post.category || 'General'}
               </span>
 
               {/* Version History Button */}
@@ -270,18 +282,19 @@ export default function ApprovalDetail({
                   <button
                     onClick={handleApprove}
                     disabled={!isOwner || isApproving}
-                    className={`text-xs py-1.5 px-3.5 rounded-lg font-600 flex items-center gap-1.5 transition-all ${
+                    className={`text-xs py-1.5 px-3.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
                       isOwner
                         ? 'btn-success cursor-pointer shadow-sm'
                         : 'bg-muted text-muted-foreground cursor-not-allowed border border-border opacity-70'
                     }`}
+                    title={`Approves this post and locks it into publishing slot (${targetSlotText})`}
                   >
                     {isApproving ? (
                       <RefreshCw size={13} className="animate-spin" />
                     ) : (
                       <Check size={13} />
                     )}
-                    Approve & Publish
+                    Approve & Schedule for {targetSlotText}
                   </button>
 
                   {!isOwner && (

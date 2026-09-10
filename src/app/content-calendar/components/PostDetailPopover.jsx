@@ -79,7 +79,7 @@ export default function PostDetailPopover({ post, onClose }) {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Tag size={12} />
-              <span>{post.category}</span>
+              <span>Series: {post.series || post.category || 'General'}</span>
             </div>
           </div>
 
