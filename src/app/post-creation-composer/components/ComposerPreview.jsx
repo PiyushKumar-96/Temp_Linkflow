@@ -262,7 +262,7 @@ export default function ComposerPreview({
             </div>
 
             {/* Visual Media Attachment */}
-            {visualFormat === 'carousel' && (
+            {(visualFormat === 'carousel' || visualFormat === 'pdf') && (
               <div className="border-t border-gray-100 p-2 bg-slate-50">
                 <CarouselVisual slides={carouselSlides} isEditable={false} />
               </div>

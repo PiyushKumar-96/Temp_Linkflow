@@ -22,11 +22,26 @@ export default function ScheduleControl({
   onClose,
   isDrawer = false,
 }) {
-  const [currentDate, setCurrentDate] = useState(date || '');
-  const [currentTime, setCurrentTime] = useState(time || '09:00');
+  const [scheduleConfig, setScheduleConfig] = useState(() => getScheduleSettings());
+  const defaultSlot = useMemo(() => getNextAvailableSlot(), [scheduleConfig]);
 
-  const { timezone } = useMemo(() => getScheduleSettings(), []);
-  const upcomingSlots = useMemo(() => getSequentialScheduleSlots(3), []);
+  const [currentDate, setCurrentDate] = useState(date || defaultSlot.date);
+  const [currentTime, setCurrentTime] = useState(time || defaultSlot.time);
+
+  const timezone = scheduleConfig.timezone;
+  const upcomingSlots = useMemo(() => getSequentialScheduleSlots(3), [scheduleConfig]);
+
+  // Sync settings dynamically when mounted or updated
+  useEffect(() => {
+    setScheduleConfig(getScheduleSettings());
+    const handleStorage = (e) => {
+      if (e.key === 'linkedflow_settings') {
+        setScheduleConfig(getScheduleSettings());
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     if (date) setCurrentDate(date);
@@ -35,7 +50,7 @@ export default function ScheduleControl({
 
   const matchesSettings = useMemo(() => {
     return isSlotFromSettings(currentDate, currentTime);
-  }, [currentDate, currentTime]);
+  }, [currentDate, currentTime, scheduleConfig]);
 
   const handleApplySlot = (slotDate, slotTime) => {
     setCurrentDate(slotDate);

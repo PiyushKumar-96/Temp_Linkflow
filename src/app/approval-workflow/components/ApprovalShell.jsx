@@ -5,6 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckSquare, Keyboard, RotateCcw, AlertCircle } from 'lucide-react';
 import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
+import ApprovalSourceTabs from './ApprovalSourceTabs';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import {
   useApprovalPosts,
@@ -35,21 +36,39 @@ export default function ApprovalShell() {
 
   // URL state synchronization
   const filter = searchParams.get('status') || 'all';
+  const sourceFilter = searchParams.get('source') || 'all';
   const selectedParamId = searchParams.get('post');
 
+  const sourceCounts = useMemo(() => {
+    return {
+      all: postList.length,
+      composer: postList.filter((p) => (p.source || 'ai_generator') === 'composer').length,
+      ai_generator: postList.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
+      bulk_upload: postList.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
+    };
+  }, [postList]);
+
   const filtered = useMemo(() => {
-    if (filter === 'all') return postList;
+    let list = postList;
+
+    // Filter by Source
+    if (sourceFilter !== 'all') {
+      list = list.filter((p) => (p.source || 'ai_generator') === sourceFilter);
+    }
+
+    // Filter by Status
+    if (filter === 'all') return list;
     if (filter === 'pending' || filter === 'in_review') {
-      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.IN_REVIEW));
+      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.IN_REVIEW));
     }
     if (filter === 'approved' || filter === 'scheduled') {
-      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.SCHEDULED));
+      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.SCHEDULED));
     }
     if (filter === 'rejected' || filter === 'attention') {
-      return postList.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.ATTENTION));
+      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.ATTENTION));
     }
-    return postList.filter((p) => matchesStatusBucket(p.status, filter) || p.status === filter);
-  }, [postList, filter]);
+    return list.filter((p) => matchesStatusBucket(p.status, filter) || p.status === filter);
+  }, [postList, filter, sourceFilter]);
 
   const selectedId = useMemo(() => {
     if (selectedParamId && filtered.some((p) => p.id === selectedParamId)) {
@@ -74,6 +93,17 @@ export default function ApprovalShell() {
       nextParams.delete('status');
     } else {
       nextParams.set('status', newFilter);
+    }
+    nextParams.delete('post');
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const handleSourceChange = (newSource) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (newSource === 'all') {
+      nextParams.delete('source');
+    } else {
+      nextParams.set('source', newSource);
     }
     nextParams.delete('post');
     setSearchParams(nextParams, { replace: true });
@@ -246,6 +276,15 @@ export default function ApprovalShell() {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Source Filter Tabs */}
+      <div className="bg-card p-2 rounded-xl border border-border">
+        <ApprovalSourceTabs
+          activeSource={sourceFilter}
+          onSelectSource={handleSourceChange}
+          counts={sourceCounts}
+        />
       </div>
 
       {/* Split panel */}

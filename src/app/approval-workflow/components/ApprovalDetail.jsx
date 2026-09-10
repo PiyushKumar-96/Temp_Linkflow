@@ -182,19 +182,37 @@ export default function ApprovalDetail({
       </div>
 
       {/* Header bar */}
-      <div className="px-5 py-4 border-b border-border bg-card">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+      <div className="px-5 py-3.5 border-b border-border bg-card">
+        <div className="flex flex-col gap-3">
+          {/* Row 1: Badges & Author/Schedule metadata */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={post.status} />
-              <span className="text-xs px-2.5 py-0.5 bg-muted rounded-full text-muted-foreground font-semibold">
+              <span className="text-xs px-2.5 py-0.5 bg-muted rounded-full text-muted-foreground font-semibold shrink-0">
                 Series: {post.series || post.category || 'General'}
               </span>
+
+              {/* Source Badge */}
+              {post.source === 'composer' && (
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shrink-0">
+                  ✍️ Post Composer
+                </span>
+              )}
+              {post.source === 'bulk_upload' && (
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0">
+                  📁 Bulk Upload
+                </span>
+              )}
+              {(!post.source || post.source === 'ai_generator') && (
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 shrink-0">
+                  🤖 AI Generator
+                </span>
+              )}
 
               {/* Version History Button */}
               <button
                 onClick={() => setHistoryDialogOpen(true)}
-                className="text-xs flex items-center gap-1.5 text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted px-2.5 py-0.5 rounded-full transition-colors cursor-pointer"
+                className="text-xs flex items-center gap-1.5 text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted px-2.5 py-0.5 rounded-full transition-colors cursor-pointer shrink-0"
                 title="View full version history and revision diffs"
               >
                 <History size={11} className="text-primary" />
@@ -205,7 +223,7 @@ export default function ApprovalDetail({
             </div>
 
             <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <div className="w-5 h-5 rounded-full gradient-primary flex items-center justify-center shrink-0">
                   <span className="text-white text-[9px] font-700">{post.authorInitials}</span>
                 </div>
@@ -213,12 +231,12 @@ export default function ApprovalDetail({
                   {post.author} · {post.authorRole || 'Author'}
                 </span>
               </div>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 shrink-0">
                 <Clock size={11} />
                 Submitted {post.submittedAt || 'Recently'}
               </span>
               {post.dueDate && (
-                <span className="flex items-center gap-1 text-warning font-500">
+                <span className="flex items-center gap-1 text-warning font-500 shrink-0">
                   <Clock size={11} />
                   Due {post.dueDate}
                 </span>
@@ -226,89 +244,93 @@ export default function ApprovalDetail({
             </div>
           </div>
 
-          {/* All 5 Reviewer Decision Actions */}
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            {/* 1. Download for manual publishing */}
-            <button
-              onClick={handleDownloadManual}
-              className="btn-secondary text-xs py-1.5 px-2.5"
-              title="Download post text & assets for manual publishing"
-            >
-              <Download size={13} />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-
-            {/* 2. Edit in Composer */}
-            <Link to={`/post-creation-composer?id=${post.id}&mode=edit`}>
+          {/* Row 2: All Reviewer Decision Actions */}
+          <div className="flex items-center justify-between gap-2.5 flex-wrap pt-2.5 border-t border-border/50">
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* 1. Download for manual publishing */}
               <button
-                className="btn-secondary text-xs py-1.5 px-2.5"
-                title="Open loaded in Composer to create a new revision"
+                onClick={handleDownloadManual}
+                className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1.5"
+                title="Download post text & assets for manual publishing"
               >
-                <Edit3 size={13} />
-                <span className="hidden sm:inline">Edit Draft</span>
+                <Download size={13} />
+                <span>Export</span>
               </button>
-            </Link>
 
-            {/* 3. Change Topic or Brief (loops back to regeneration) */}
-            <button
-              onClick={() => setChangeBriefDialogOpen(true)}
-              className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1"
-              title="Update brief directive and trigger AI regeneration"
-            >
-              <Sparkles size={13} className="text-primary" />
-              <span className="hidden sm:inline">Change Brief</span>
-            </button>
+              {/* 2. Edit in Composer */}
+              <Link to={`/post-creation-composer?id=${post.id}&mode=edit`}>
+                <button
+                  className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1.5"
+                  title="Open loaded in Composer to create a new revision"
+                >
+                  <Edit3 size={13} />
+                  <span>Edit Draft</span>
+                </button>
+              </Link>
+
+              {/* 3. Change Topic or Brief */}
+              <button
+                onClick={() => setChangeBriefDialogOpen(true)}
+                className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1.5"
+                title="Update brief directive and trigger AI regeneration"
+              >
+                <Sparkles size={13} className="text-primary" />
+                <span>Change Brief</span>
+              </button>
+            </div>
 
             {/* 4 & 5. Reject and Approve (gated by status & role) */}
-            {(canReview(post.status) || normalizeStatus(post.status) === POST_STATUS.AWAITING_REVIEW) && (
-              <>
-                {/* 4. Reject with Feedback */}
-                <button
-                  onClick={() => setRejectDialogOpen(true)}
-                  disabled={!isOwner}
-                  className={`text-xs py-1.5 px-3 rounded-lg font-600 flex items-center gap-1.5 transition-all ${
-                    isOwner
-                      ? 'btn-danger cursor-pointer'
-                      : 'bg-muted text-muted-foreground cursor-not-allowed border border-border opacity-70'
-                  }`}
-                  title={!isOwner ? 'Only Account Owners can reject posts' : 'Reject post with feedback'}
-                >
-                  <X size={13} />
-                  Reject
-                </button>
-
-                {/* 5. Approve (Optimistic) */}
-                <div className="relative group">
+            <div className="flex items-center gap-2 flex-wrap ml-auto">
+              {(canReview(post.status) || normalizeStatus(post.status) === POST_STATUS.AWAITING_REVIEW) && (
+                <>
+                  {/* 4. Reject with Feedback */}
                   <button
-                    onClick={handleApprove}
-                    disabled={!isOwner || isApproving}
-                    className={`text-xs py-1.5 px-3.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
+                    onClick={() => setRejectDialogOpen(true)}
+                    disabled={!isOwner}
+                    className={`text-xs py-1.5 px-3 rounded-lg font-600 flex items-center gap-1.5 transition-all ${
                       isOwner
-                        ? 'btn-success cursor-pointer shadow-sm'
+                        ? 'btn-danger cursor-pointer'
                         : 'bg-muted text-muted-foreground cursor-not-allowed border border-border opacity-70'
                     }`}
-                    title={`Approves this post and locks it into publishing slot (${targetSlotText})`}
+                    title={!isOwner ? 'Only Account Owners can reject posts' : 'Reject post with feedback'}
                   >
-                    {isApproving ? (
-                      <RefreshCw size={13} className="animate-spin" />
-                    ) : (
-                      <Check size={13} />
-                    )}
-                    Approve & Schedule for {targetSlotText}
+                    <X size={13} />
+                    <span>Reject</span>
                   </button>
 
-                  {!isOwner && (
-                    <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-foreground text-primary-foreground text-[11px] rounded-lg shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                      <div className="flex items-center gap-1 text-warning font-600 mb-0.5">
-                        <ShieldAlert size={12} />
-                        <span>Owner Role Required</span>
+                  {/* 5. Approve (Optimistic) */}
+                  <div className="relative group">
+                    <button
+                      onClick={handleApprove}
+                      disabled={!isOwner || isApproving}
+                      className={`text-xs py-1.5 px-3.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
+                        isOwner
+                          ? 'btn-success cursor-pointer shadow-sm'
+                          : 'bg-muted text-muted-foreground cursor-not-allowed border border-border opacity-70'
+                      }`}
+                      title={`Approves this post and locks it into publishing slot (${targetSlotText})`}
+                    >
+                      {isApproving ? (
+                        <RefreshCw size={13} className="animate-spin" />
+                      ) : (
+                        <Check size={13} />
+                      )}
+                      <span>Approve & Schedule for {targetSlotText}</span>
+                    </button>
+
+                    {!isOwner && (
+                      <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-foreground text-primary-foreground text-[11px] rounded-lg shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <div className="flex items-center gap-1 text-warning font-600 mb-0.5">
+                          <ShieldAlert size={12} />
+                          <span>Owner Role Required</span>
+                        </div>
+                        Only Account Owners can authorize publishing to LinkedIn. Switch role in topbar.
                       </div>
-                      Only Account Owners can authorize publishing to LinkedIn. Switch role in topbar.
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

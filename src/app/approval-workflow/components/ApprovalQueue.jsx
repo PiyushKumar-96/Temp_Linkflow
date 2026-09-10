@@ -48,9 +48,24 @@ export default function ApprovalQueue({ posts = [], selectedId, onSelect }) {
                   <span className="text-white text-xs font-700">{post.authorInitials}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                     <StatusBadge status={post.status} size="sm" />
-                    {isOverdue && <AlertTriangle size={11} className="text-warning" />}
+                    {post.source === 'composer' && (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shrink-0">
+                        ✍️ Composer
+                      </span>
+                    )}
+                    {post.source === 'bulk_upload' && (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0">
+                        📁 Bulk Upload
+                      </span>
+                    )}
+                    {(!post.source || post.source === 'ai_generator') && (
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 shrink-0">
+                        🤖 AI Generator
+                      </span>
+                    )}
+                    {isOverdue && <AlertTriangle size={11} className="text-warning shrink-0" />}
                   </div>
                   <p className="text-sm text-foreground line-clamp-2 leading-snug mb-1.5">
                     {post.title}

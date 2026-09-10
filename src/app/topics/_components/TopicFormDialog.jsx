@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateTopicInputSchema } from '@/lib/contracts/topic.schema';
-import { X, Calendar, Sparkles, Building2, User, Target } from 'lucide-react';
+import { X, Sparkles, Target } from 'lucide-react';
+import TopicDateRangePicker from './TopicDateRangePicker';
 
 const DEFAULT_SERIES = [
   { id: 'series-1', name: 'Thought Leadership' },
@@ -18,69 +19,84 @@ export default function TopicFormDialog({
   onClose,
   initialData = null,
   initialDate = null,
+  initialCadence = 'custom',
   onSubmit,
   isSubmitting = false,
 }) {
+  const [dateError, setDateError] = useState(null);
+
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(CreateTopicInputSchema),
     defaultValues: {
+      title: '',
+      seriesId: 'series-1',
+      seriesName: 'Thought Leadership',
+      account: 'personal',
+      audience: 'B2B SaaS Founders',
+      cadence: 'custom',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      publicationDate: new Date().toISOString().split('T')[0],
+      brief: '',
+    },
+  });
+
+  const watchedCadence = watch('cadence');
+  const watchedStartDate = watch('startDate');
+  const watchedEndDate = watch('endDate');
+
+  useEffect(() => {
+    setDateError(null);
+    const today = new Date().toISOString().split('T')[0];
+    const baseDate = initialData?.startDate || initialData?.publicationDate || initialDate || today;
+    const baseEndDate = initialData?.endDate || baseDate;
+    const cadence = initialData?.cadence || initialCadence || 'custom';
+
+    reset({
       title: initialData?.title || '',
       seriesId: initialData?.seriesId || 'series-1',
       seriesName: initialData?.seriesName || 'Thought Leadership',
       account: initialData?.account || 'personal',
       audience: initialData?.audience || 'B2B SaaS Founders',
-      publicationDate: initialData?.publicationDate || initialDate || new Date().toISOString().split('T')[0],
+      cadence,
+      startDate: baseDate,
+      endDate: baseEndDate,
+      publicationDate: baseDate,
       brief: initialData?.brief || '',
-    },
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      reset({
-        title: initialData.title || '',
-        seriesId: initialData.seriesId || 'series-1',
-        seriesName: initialData.seriesName || 'Thought Leadership',
-        account: initialData.account || 'personal',
-        audience: initialData.audience || 'B2B SaaS Founders',
-        publicationDate: initialData.publicationDate || new Date().toISOString().split('T')[0],
-        brief: initialData.brief || '',
-      });
-    } else if (initialDate) {
-      reset({
-        title: '',
-        seriesId: 'series-1',
-        seriesName: 'Thought Leadership',
-        account: 'personal',
-        audience: 'B2B SaaS Founders',
-        publicationDate: initialDate,
-        brief: '',
-      });
-    } else {
-      reset({
-        title: '',
-        seriesId: 'series-1',
-        seriesName: 'Thought Leadership',
-        account: 'personal',
-        audience: 'B2B SaaS Founders',
-        publicationDate: new Date().toISOString().split('T')[0],
-        brief: '',
-      });
-    }
-  }, [initialData, initialDate, reset]);
+    });
+  }, [initialData, initialDate, initialCadence, reset]);
 
   if (!isOpen) return null;
 
+  const handleDateChange = (val) => {
+    setValue('cadence', val.cadence);
+    setValue('startDate', val.startDate);
+    setValue('endDate', val.endDate);
+    setValue('publicationDate', val.publicationDate);
+    if (val.endDate < val.startDate) {
+      setDateError('End date cannot be earlier than start date');
+    } else {
+      setDateError(null);
+    }
+  };
+
   const handleFormSubmit = (data) => {
-    const matchedSeries = DEFAULT_SERIES.find((s) => s.id === data.seriesId);
+    if (data.endDate && data.endDate < data.startDate) {
+      setDateError('End date cannot be earlier than start date');
+      return;
+    }
+    const matched = DEFAULT_SERIES.find((s) => s.id === data.seriesId);
     onSubmit({
       ...data,
-      seriesName: matchedSeries ? matchedSeries.name : data.seriesName,
+      publicationDate: data.startDate,
+      seriesName: matched ? matched.name : data.seriesName,
     });
   };
 
@@ -98,7 +114,7 @@ export default function TopicFormDialog({
                 {initialData ? 'Edit Planned Topic' : 'Plan New Topic'}
               </h2>
               <p className="text-[11px] text-muted-foreground">
-                Define the editorial angle before generating downstream content
+                Define editorial scope, cadence, and schedule before generating drafts
               </p>
             </div>
           </div>
@@ -112,10 +128,9 @@ export default function TopicFormDialog({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-y-auto p-6 gap-4">
-          {/* Topic Title */}
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
-              Topic Title / Angle <span className="text-destructive">*</span>
+              Topic Title / Strategic Angle <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
@@ -123,17 +138,12 @@ export default function TopicFormDialog({
               {...register('title')}
               className={`input w-full text-xs ${errors.title ? 'border-destructive' : ''}`}
             />
-            {errors.title && (
-              <span className="text-[10px] text-destructive mt-1 block">{errors.title.message}</span>
-            )}
+            {errors.title && <span className="text-[10px] text-destructive mt-1 block">{errors.title.message}</span>}
           </div>
 
-          {/* Series & Target Account */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Series Category
-              </label>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">Series Category</label>
               <select
                 {...register('seriesId')}
                 onChange={(e) => {
@@ -152,9 +162,7 @@ export default function TopicFormDialog({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Target Account
-              </label>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">Target Account</label>
               <select {...register('account')} className="input w-full text-xs bg-input">
                 <option value="personal">Personal Profile</option>
                 <option value="company">Company Page</option>
@@ -162,65 +170,42 @@ export default function TopicFormDialog({
             </div>
           </div>
 
-          {/* Target Audience & Publication Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Target Audience
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Engineering Managers, CTOs"
-                {...register('audience')}
-                className="input w-full text-xs"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">
-                Planned Date <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="date"
-                {...register('publicationDate')}
-                className={`input w-full text-xs ${errors.publicationDate ? 'border-destructive' : ''}`}
-              />
-              {errors.publicationDate && (
-                <span className="text-[10px] text-destructive mt-1 block">
-                  {errors.publicationDate.message}
-                </span>
-              )}
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">Target Audience</label>
+            <input
+              type="text"
+              placeholder="e.g. Engineering Managers, CTOs"
+              {...register('audience')}
+              className="input w-full text-xs"
+            />
           </div>
 
-          {/* Brief / Prompt Notes */}
+          {/* Schedule & Date Range Picker */}
+          <TopicDateRangePicker
+            cadence={watchedCadence}
+            startDate={watchedStartDate}
+            endDate={watchedEndDate}
+            onChange={handleDateChange}
+            error={dateError || errors.startDate?.message}
+          />
+
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
               Topic Brief & Prompt Guidelines (Optional)
             </label>
             <textarea
-              rows={4}
-              placeholder="Outline specific takeaways, metrics to highlight, or audience pain points for the AI generator..."
+              rows={3}
+              placeholder="Outline specific takeaways, metrics to highlight, or audience pain points..."
               {...register('brief')}
               className="input w-full text-xs leading-relaxed resize-none"
             />
           </div>
 
-          {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 mt-2 border-t border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline text-xs px-4 py-2"
-              disabled={isSubmitting}
-            >
+          <div className="flex items-center justify-end gap-2.5 pt-3 mt-1 border-t border-border">
+            <button type="button" onClick={onClose} className="btn btn-outline text-xs px-4 py-2" disabled={isSubmitting}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary text-xs px-5 py-2 flex items-center gap-1.5"
-              disabled={isSubmitting}
-            >
+            <button type="submit" className="btn btn-primary text-xs px-5 py-2 flex items-center gap-1.5" disabled={isSubmitting}>
               <Sparkles size={13} />
               {isSubmitting ? 'Saving...' : initialData ? 'Save Changes' : 'Plan Topic'}
             </button>

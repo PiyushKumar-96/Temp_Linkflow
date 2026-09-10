@@ -4,11 +4,14 @@ import React from 'react';
 import { BookImage, Search, Grid3X3, List, Trash2, Copy, Download, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
+import LibrarySourceTabs from './LibrarySourceTabs';
+
 const typeFilters = [
   { value: 'all', label: 'All Assets' },
   { value: 'post', label: 'Posts' },
-  { value: 'caption', label: 'Captions' },
   { value: 'image', label: 'Images' },
+  { value: 'carousel', label: 'Carousels' },
+  { value: 'infographic', label: 'Infographics' },
   { value: 'hashtag_set', label: 'Hashtag Sets' },
 ];
 
@@ -17,6 +20,9 @@ export default function LibraryHeader({
   onViewChange,
   search,
   onSearchChange,
+  sourceFilter,
+  onSourceFilterChange,
+  sourceCounts,
   typeFilter,
   onTypeFilterChange,
   statusFilter,
@@ -64,6 +70,15 @@ export default function LibraryHeader({
         </div>
       </div>
 
+      {/* Source Tabs — All Sources, Post Composer, AI Generator, Bulk Upload */}
+      {view !== 'bulk' && (
+        <LibrarySourceTabs
+          activeSource={sourceFilter}
+          onSelectSource={onSourceFilterChange}
+          counts={sourceCounts}
+        />
+      )}
+
       {/* Filters row — only show for grid/list views */}
       {view !== 'bulk' && (
         <div className="flex items-center gap-3 flex-wrap">
@@ -98,12 +113,11 @@ export default function LibraryHeader({
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value)}
             className="input-base text-sm py-1.5 px-3 w-auto"
-            style={{ width: 130 }}
+            style={{ width: 140 }}
           >
             <option value="all">All Status</option>
+            <option value="scheduled">Scheduled</option>
             <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
           </select>
         </div>
       )}

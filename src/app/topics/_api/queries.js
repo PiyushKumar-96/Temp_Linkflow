@@ -14,7 +14,13 @@ export function getStoredTopics() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return z.array(TopicSchema).parse(parsed);
+      const normalized = parsed.map((item) => ({
+        ...item,
+        cadence: item.cadence || 'custom',
+        startDate: item.startDate || item.publicationDate,
+        endDate: item.endDate || item.startDate || item.publicationDate,
+      }));
+      return z.array(TopicSchema).parse(normalized);
     }
   } catch {
     // Fallback to initial
@@ -47,6 +53,9 @@ export function useTopicsQuery(filters = {}) {
       if (filters.status && filters.status !== 'all') {
         topics = topics.filter((t) => t.status === filters.status || matchesStatusBucket(t.status, filters.status));
       }
+      if (filters.cadence && filters.cadence !== 'all') {
+        topics = topics.filter((t) => (t.cadence || 'custom') === filters.cadence);
+      }
       if (filters.search) {
         const q = filters.search.toLowerCase();
         topics = topics.filter((t) => t.title.toLowerCase().includes(q) || t.brief?.toLowerCase().includes(q));
@@ -60,3 +69,4 @@ export function useTopicsQuery(filters = {}) {
     staleTime: 30000,
   });
 }
+

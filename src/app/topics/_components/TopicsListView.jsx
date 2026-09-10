@@ -126,7 +126,7 @@ export default function TopicsListView({
                 <th className="p-3">Series</th>
                 <th className="p-3">Target Context</th>
                 <th className="p-3">Audience</th>
-                <th className="p-3">Publication Date</th>
+                <th className="p-3">Cadence & Dates</th>
                 <th className="p-3">Downstream Status</th>
                 <th className="p-3 text-right">Actions</th>
               </tr>
@@ -197,9 +197,23 @@ export default function TopicsListView({
                         {topic.audience || '—'}
                       </td>
 
-                      {/* Planned Date */}
+                      {/* Cadence & Dates */}
                       <td className="p-3 whitespace-nowrap text-foreground font-medium">
-                        {topic.publicationDate}
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-medium capitalize">
+                              {topic.cadence || 'custom'}
+                            </span>
+                            <span className="tabular-nums text-xs font-semibold">
+                              {topic.startDate || topic.publicationDate}
+                            </span>
+                          </div>
+                          {topic.endDate && topic.endDate !== topic.startDate && (
+                            <span className="text-[10px] text-muted-foreground tabular-nums">
+                              → {topic.endDate}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Status */}

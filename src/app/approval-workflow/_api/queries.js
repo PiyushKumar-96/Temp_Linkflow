@@ -347,24 +347,39 @@ export function useApprovalPosts() {
   return useQuery({
     queryKey: ['posts', 'approval-queue'],
     queryFn: async () => {
+      let result = null;
       try {
         const data = await apiClient.get('/posts', { params: { queue: 'approval' } });
         const list = Array.isArray(data?.posts) ? data.posts : (Array.isArray(data) ? data : null);
-        if (list && list.length > 0) return list;
+        if (list && list.length > 0) result = list;
       } catch {
         // Fallback below
       }
-      const stored = localStorage.getItem('linkedflow_approval_posts');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch {
-          // Ignore parse error
+      if (!result) {
+        const stored = localStorage.getItem('linkedflow_approval_posts');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) result = parsed;
+          } catch {
+            // Ignore parse error
+          }
         }
       }
-      return INITIAL_APPROVAL_POSTS;
+      if (!result) result = INITIAL_APPROVAL_POSTS;
+
+      return result.map((p) => ({
+        ...p,
+        source:
+          p.source ||
+          (p.id?.startsWith('bulk-') || p.id === 'up-3' || p.id === 'appr-003'
+            ? 'bulk_upload'
+            : p.id?.startsWith('comp-') || p.id === 'up-1' || p.id === 'up-4' || p.id === 'appr-002' || p.id === 'appr-004'
+            ? 'composer'
+            : 'ai_generator'),
+      }));
     },
     staleTime: 30 * 1000,
   });
 }
+

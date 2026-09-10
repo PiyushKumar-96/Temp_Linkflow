@@ -6,6 +6,7 @@
 import {
   getStoredPosts,
   saveStoredPosts,
+  createPost,
   getPostById,
   updatePost,
   approvePost,
@@ -53,6 +54,11 @@ export async function handleMockRequest(endpoint, options = {}) {
         return { posts: filtered, total: filtered.length };
       }
       return { posts, total: posts.length };
+    }
+    if (method === 'POST') {
+      const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+      const created = await createPost(body);
+      return created;
     }
   }
 

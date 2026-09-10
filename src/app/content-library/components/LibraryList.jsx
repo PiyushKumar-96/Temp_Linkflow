@@ -53,10 +53,7 @@ export default function LibraryList({ items, selectedIds, onToggleSelect }) {
               Author
             </th>
             <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide">
-              Saved
-            </th>
-            <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide">
-              Used
+              Post Date
             </th>
             <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide">
               Eng. Rate
@@ -109,10 +106,7 @@ export default function LibraryList({ items, selectedIds, onToggleSelect }) {
                   </div>
                 </td>
                 <td className="px-3 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                  {item.savedAt}
-                </td>
-                <td className="px-3 py-3 text-xs text-foreground tabular-nums">
-                  {item.usageCount}×
+                  {item.publishDate || item.savedAt || '—'}
                 </td>
                 <td className="px-3 py-3">
                   {item.engagementRate ? (

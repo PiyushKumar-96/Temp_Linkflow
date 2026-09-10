@@ -1,87 +1,38 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import {
-  Upload,
-  FileSpreadsheet,
-  Sparkles,
-  Image as ImageIcon,
-  Trash2,
-  Calendar,
-  CheckCircle2,
-  Loader2,
-  Download,
-  Plus,
-} from 'lucide-react';
+import React, { useRef, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { FileSpreadsheet, Upload, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-
-const MOCK_IMAGE_URLS = [
-  'https://img.rocket.new/generatedImages/rocket_gen_img_1b4fc0b68-1773435165826.png',
-  'https://img.rocket.new/generatedImages/rocket_gen_img_11c4a0e7e-1767621207129.png',
-];
-
-const SAMPLE_POSTS = [
-  {
-    header: 'Milestone: 10K Customers',
-    content:
-      "We just crossed 10,000 customers — here's what we learned about building trust at scale...",
-    hashtags: '#milestone #growth #saas',
-    scheduledDate: '2026-09-15',
-    scheduledTime: '09:00',
-  },
-  {
-    header: 'Remote Work Insights',
-    content:
-      'After 3 years of async-first culture, here are the 5 habits that changed everything for our team...',
-    hashtags: '#remotework #culture #productivity',
-    scheduledDate: '2026-09-17',
-    scheduledTime: '10:00',
-  },
-  {
-    header: 'Product Launch Announcement',
-    content:
-      'Excited to announce our new AI-powered analytics dashboard — built for teams who move fast...',
-    hashtags: '#productlaunch #ai #saas',
-    scheduledDate: '2026-09-19',
-    scheduledTime: '11:00',
-  },
-  {
-    header: 'LinkedIn Growth Strategy',
-    content:
-      'The 5 LinkedIn habits that helped us grow from 800 to 22,000 followers in 18 months...',
-    hashtags: '#linkedin #growth #contentmarketing',
-    scheduledDate: '2026-09-22',
-    scheduledTime: '09:00',
-  },
-  {
-    header: 'Customer Success Story',
-    content: 'How one of our customers reduced onboarding time by 62% using our platform...',
-    hashtags: '#customersuccess #casestudy #saas',
-    scheduledDate: '2026-09-24',
-    scheduledTime: '10:00',
-  },
-];
-
-function generateId() {
-  return `bulk-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-}
+import { getStoredPosts, saveStoredPosts } from '@/temp-backend';
+import { BulkPostPreviewModal } from './BulkPreviewModals';
+import BulkUploadToolbar from './BulkUploadToolbar';
+import BulkUploadRow from './BulkUploadRow';
+import {
+  MOCK_IMAGE_URLS,
+  SAMPLE_POSTS,
+  generateId,
+  generateMockCarousel,
+} from './bulkUploadHelpers';
 
 export default function BulkUploadTable({ posts, onPostsChange }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
-  const imageInputRef = useRef(null);
-  const [generatingAll, setGeneratingAll] = useState(false);
   const [generatingId, setGeneratingId] = useState(null);
-  const [schedulingAll, setSchedulingAll] = useState(false);
+  const [bulkGenerating, setBulkGenerating] = useState(false);
+  const [sendingReview, setSendingReview] = useState(false);
+  const [previewingPost, setPreviewingPost] = useState(null);
 
+  // Parse Excel / CSV file
   const handleExcelUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Mock parsing — in production this would use xlsx library
-    const mockParsed = SAMPLE_POSTS.map((p, i) => ({
+    const mockParsed = SAMPLE_POSTS.map((p) => ({
       ...p,
       id: generateId(),
-      imageStatus: 'none',
     }));
     onPostsChange(mockParsed);
     toast.success(`Parsed ${mockParsed.length} posts from ${file.name}`);
@@ -96,6 +47,7 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
       hashtags: '',
       scheduledDate: '2026-09-25',
       scheduledTime: '09:00',
+      visualFormat: 'image',
       imageStatus: 'none',
     };
     onPostsChange([...posts, newPost]);
@@ -109,69 +61,236 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
     onPostsChange(posts.filter((p) => p.id !== id));
   };
 
+  // Format Switcher: Image vs PDF
+  const handleSelectFormat = (id, format) => {
+    const post = posts.find((p) => p.id === id);
+    if (!post) return;
+
+    if (format === 'pdf') {
+      updatePost(id, {
+        visualFormat: 'pdf',
+        imageUrl: null,
+        imageAlt: null,
+        imageStatus: 'ready',
+        pdfName: post.pdfName || `${(post.header || 'Document').replace(/\s+/g, '-')}.pdf`,
+        pdfPages: post.pdfPages || 5,
+        carouselSlides: post.carouselSlides || generateMockCarousel(post.header),
+      });
+      toast.info('Switched to PDF format. Please upload your PDF document.');
+    } else {
+      updatePost(id, {
+        visualFormat: 'image',
+        pdfName: null,
+        pdfPages: null,
+        carouselSlides: null,
+        imageStatus: post.imageUrl ? 'ready' : 'none',
+      });
+      toast.info('Switched to Image format.');
+    }
+  };
+
+  // AI Image generator for a specific post
   const generateImageForPost = async (id) => {
     setGeneratingId(id);
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 800));
     const mockUrl = MOCK_IMAGE_URLS[Math.floor(Math.random() * MOCK_IMAGE_URLS.length)];
     updatePost(id, {
+      visualFormat: 'image',
       imageUrl: mockUrl,
       imageAlt: 'AI generated image for LinkedIn post',
+      pdfName: null,
+      pdfPages: null,
+      carouselSlides: null,
       imageStatus: 'ready',
     });
     setGeneratingId(null);
-    toast.success('Image generated for post');
+    toast.success('Generated AI Image');
   };
 
-  const generateAllImages = async () => {
-    const postsWithoutImages = posts.filter((p) => p.imageStatus === 'none');
-    if (postsWithoutImages.length === 0) {
-      toast.info('All posts already have images');
-      return;
-    }
-    setGeneratingAll(true);
-    for (const post of postsWithoutImages) {
-      await new Promise((r) => setTimeout(r, 600));
-      const mockUrl = MOCK_IMAGE_URLS[Math.floor(Math.random() * MOCK_IMAGE_URLS.length)];
-      onPostsChange((prev) =>
-        prev.map((p) =>
-          p.id === post.id
-            ? {
-                ...p,
-                imageUrl: mockUrl,
-                imageAlt: 'AI generated image for LinkedIn post',
-                imageStatus: 'ready',
-              }
-            : p
-        )
-      );
-    }
-    setGeneratingAll(false);
-    toast.success(`Generated images for ${postsWithoutImages.length} posts`);
-  };
-
-  const scheduleAll = async () => {
-    setSchedulingAll(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSchedulingAll(false);
-    toast.success(`${posts.length} posts scheduled to Content Calendar!`);
-  };
-
+  // Manual image upload
   const handleImageFileUpload = (postId, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     updatePost(postId, {
+      visualFormat: 'image',
       imageUrl: url,
       imageAlt: `Uploaded image: ${file.name}`,
+      pdfName: null,
+      pdfPages: null,
+      carouselSlides: null,
       imageStatus: 'provided',
     });
-    toast.success('Image uploaded');
+    toast.success(`Image uploaded: ${file.name}`);
     e.target.value = '';
   };
 
-  const downloadTemplate = () => {
-    toast.info('Template download started (CSV format)');
+  // Manual PDF file upload
+  const handlePdfFileUpload = (postId, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const post = posts.find((p) => p.id === postId);
+    updatePost(postId, {
+      visualFormat: 'pdf',
+      pdfName: file.name,
+      pdfPages: Math.floor(Math.random() * 4) + 4,
+      imageUrl: null,
+      imageAlt: null,
+      imageStatus: 'ready',
+      carouselSlides: generateMockCarousel((post && post.header) || file.name.replace(/\.pdf$/i, '')),
+    });
+    toast.success(`PDF document uploaded: ${file.name}`);
+    e.target.value = '';
   };
+
+  // Bulk actions: Generate all images
+  const handleGenerateAllImages = async () => {
+    setBulkGenerating(true);
+    await new Promise((r) => setTimeout(r, 900));
+
+    onPostsChange(
+      posts.map((p) => {
+        const mockUrl = MOCK_IMAGE_URLS[Math.floor(Math.random() * MOCK_IMAGE_URLS.length)];
+        return {
+          ...p,
+          visualFormat: 'image',
+          imageUrl: mockUrl,
+          imageAlt: 'AI generated image for LinkedIn post',
+          pdfName: null,
+          pdfPages: null,
+          carouselSlides: null,
+          imageStatus: 'ready',
+        };
+      })
+    );
+
+    setBulkGenerating(false);
+    toast.success('Generated AI images for all posts');
+  };
+
+  // Bulk action: Set all to PDF
+  const handleSetAllPdf = () => {
+    onPostsChange(
+      posts.map((p) => ({
+        ...p,
+        visualFormat: 'pdf',
+        imageUrl: null,
+        imageAlt: null,
+        imageStatus: 'ready',
+        pdfName: p.pdfName || `${(p.header || 'Document').replace(/\s+/g, '-')}.pdf`,
+        pdfPages: p.pdfPages || 5,
+        carouselSlides: p.carouselSlides || generateMockCarousel(p.header),
+      }))
+    );
+    toast.info('Switched all posts to PDF format');
+  };
+
+  // Send all posts to Approval Queue for review
+  const handleSendAllForReview = async () => {
+    if (posts.length === 0) return;
+    setSendingReview(true);
+    await new Promise((r) => setTimeout(r, 600));
+
+    const formattedBulkPosts = posts.map((p, idx) => {
+      const isPdf = p.visualFormat === 'pdf';
+
+      return {
+        id: p.id || `bulk-${Date.now()}-${idx}`,
+        title: p.header || (p.content || '').slice(0, 50) || `Bulk Upload Post #${idx + 1}`,
+        content: p.content || '',
+        hashtags:
+          typeof p.hashtags === 'string'
+            ? p.hashtags.split(/\s+/).filter(Boolean)
+            : Array.isArray(p.hashtags)
+            ? p.hashtags
+            : [],
+        scheduledDate: p.scheduledDate || '2026-09-25',
+        scheduledTime: p.scheduledTime || '09:00',
+        dueDate: p.scheduledDate || '2026-09-25',
+        visualFormat: isPdf ? 'carousel' : 'image',
+        imageUrl: isPdf ? null : p.imageUrl,
+        pdfName: isPdf ? p.pdfName : null,
+        pdfPages: isPdf ? p.pdfPages : null,
+        carouselSlides: isPdf ? (p.carouselSlides || generateMockCarousel(p.header)) : null,
+        infographicData: null,
+        status: 'awaiting_review',
+        source: 'bulk_upload',
+        author: 'Sarah Reeves',
+        authorInitials: 'SR',
+        authorRole: 'Head of Content',
+        submittedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        revisions: 1,
+        revisionsList: [
+          {
+            id: `rev-${Date.now()}-${idx}`,
+            versionNumber: 1,
+            createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+            author: 'Sarah Reeves',
+            authorType: 'human',
+            summary: 'Imported from spreadsheet file',
+          },
+        ],
+        activityLog: [
+          {
+            id: `act-${Date.now()}-${idx}`,
+            actor: 'Sarah Reeves',
+            action: `Imported and sent for review with scheduled date ${p.scheduledDate || '2026-09-25'} ${p.scheduledTime || '09:00'}`,
+            timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          },
+        ],
+        qualityAudit: {
+          score: 88,
+          grade: 'B+',
+          verdict: 'Ready for Review',
+          hookScore: 86,
+          clarityScore: 90,
+          voiceScore: 88,
+          readabilityWpm: 205,
+          issues: [],
+        },
+        citations: [],
+        comments: [],
+      };
+    });
+
+    try {
+      const stored = localStorage.getItem('linkedflow_approval_posts');
+      const approvalPosts = stored ? JSON.parse(stored) : [];
+      const newIds = new Set(formattedBulkPosts.map((p) => p.id));
+      const nextApproval = [...formattedBulkPosts, ...approvalPosts.filter((p) => !newIds.has(p.id))];
+      localStorage.setItem('linkedflow_approval_posts', JSON.stringify(nextApproval));
+
+      const masterPosts = getStoredPosts();
+      const nextMaster = [...formattedBulkPosts, ...masterPosts.filter((p) => !newIds.has(p.id))];
+      saveStoredPosts(nextMaster);
+
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
+
+      setSendingReview(false);
+      toast.success(`${posts.length} posts sent to Approval Queue for review!`, {
+        action: {
+          label: 'View Queue',
+          onClick: () => navigate('/approval-workflow?source=bulk_upload'),
+        },
+      });
+    } catch {
+      setSendingReview(false);
+      toast.error('Failed to submit posts for review');
+    }
+  };
+
+  // Summary counts for Images vs PDFs
+  const counts = useMemo(() => {
+    let images = 0;
+    let pdfs = 0;
+    posts.forEach((p) => {
+      if (p.visualFormat === 'pdf') pdfs++;
+      else images++;
+    });
+    return { images, pdfs };
+  }, [posts]);
 
   if (posts.length === 0) {
     return (
@@ -179,21 +298,14 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
           <FileSpreadsheet size={28} className="text-primary" />
         </div>
-        <div className="text-center">
-          <p className="text-base font-700 text-foreground">Bulk Post Upload</p>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            Upload an Excel/CSV file with your post content, headers, and schedule dates. Then
-            generate or upload images for each post.
+        <div className="text-center max-w-md">
+          <h3 className="text-base font-600 text-foreground mb-1">Upload posts in bulk</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Upload an Excel (.xlsx) or CSV file with your post headers, content, hashtags, and
+            dates. Then configure each post with an Image or PDF document.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={downloadTemplate}
-            className="btn-secondary flex items-center gap-2 text-sm"
-          >
-            <Download size={14} />
-            Download Template
-          </button>
           <button
             onClick={() => fileInputRef.current?.click()}
             className="btn-primary flex items-center gap-2 text-sm"
@@ -201,10 +313,7 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
             <Upload size={14} />
             Upload Excel / CSV
           </button>
-          <button
-            onClick={handleAddManual}
-            className="btn-secondary flex items-center gap-2 text-sm"
-          >
+          <button onClick={handleAddManual} className="btn-secondary flex items-center gap-2 text-sm">
             <Plus size={14} />
             Add Manually
           </button>
@@ -220,212 +329,64 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
     );
   }
 
-  const withImages = posts.filter((p) => p.imageStatus !== 'none').length;
-  const withoutImages = posts.filter((p) => p.imageStatus === 'none').length;
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="btn-secondary flex items-center gap-1.5 text-sm"
-          >
-            <Upload size={14} />
-            Re-upload File
-          </button>
-          <button
-            onClick={handleAddManual}
-            className="btn-secondary flex items-center gap-1.5 text-sm"
-          >
-            <Plus size={14} />
-            Add Row
-          </button>
-          <span className="text-xs text-muted-foreground">
-            {posts.length} posts · {withImages} with images · {withoutImages} without
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={generateAllImages}
-            disabled={generatingAll || withoutImages === 0}
-            className="btn-secondary flex items-center gap-1.5 text-sm disabled:opacity-50"
-          >
-            {generatingAll ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Sparkles size={14} />
-            )}
-            {generatingAll ? 'Generating...' : `Generate All Images (${withoutImages})`}
-          </button>
-          <button
-            onClick={scheduleAll}
-            disabled={schedulingAll}
-            className="btn-primary flex items-center gap-1.5 text-sm"
-          >
-            {schedulingAll ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Calendar size={14} />
-            )}
-            Schedule All
-          </button>
-        </div>
-      </div>
+      {/* Top Toolbar */}
+      <BulkUploadToolbar
+        postsCount={posts.length}
+        counts={counts}
+        bulkGenerating={bulkGenerating}
+        schedulingAll={sendingReview}
+        onGenerateAllImages={handleGenerateAllImages}
+        onSetAllPdf={handleSetAllPdf}
+        onReupload={() => fileInputRef.current?.click()}
+        onAddManual={handleAddManual}
+        onSendForReview={handleSendAllForReview}
+      />
 
-      {/* Table */}
-      <div className="card overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+      {/* Spacious Uncramped Table with Smooth Scroll */}
+      <div className="card overflow-x-auto p-0 border border-border shadow-xs">
+        <table className="w-full min-w-[1240px] text-left border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/40">
-              <th className="text-left px-4 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide w-8">
+            <tr className="border-b border-border bg-muted/50">
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider w-10 text-center">
                 #
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide min-w-[160px]">
-                Header
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[190px]">
+                Header / Title
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide min-w-[260px]">
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[340px]">
                 Post Content
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide min-w-[140px]">
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[150px]">
                 Hashtags
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide w-[120px]">
-                Date
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[150px]">
+                Scheduled Slot
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide w-[90px]">
-                Time
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[260px]">
+                Format & Media
               </th>
-              <th className="text-left px-3 py-2.5 text-xs font-600 text-muted-foreground uppercase tracking-wide w-[180px]">
-                Image
+              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[110px] text-right">
+                Actions
               </th>
-              <th className="px-3 py-2.5 w-8" />
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border">
             {posts.map((post, idx) => (
-              <tr
+              <BulkUploadRow
                 key={post.id}
-                className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors"
-              >
-                <td className="px-4 py-3 text-xs text-muted-foreground tabular-nums">{idx + 1}</td>
-                <td className="px-3 py-3">
-                  <input
-                    type="text"
-                    value={post.header}
-                    onChange={(e) => updatePost(post.id, { header: e.target.value })}
-                    placeholder="Post header..."
-                    className="w-full bg-transparent text-sm text-foreground outline-none border-b border-transparent hover:border-border focus:border-primary transition-colors py-0.5"
-                  />
-                </td>
-                <td className="px-3 py-3">
-                  <textarea
-                    value={post.content}
-                    onChange={(e) => updatePost(post.id, { content: e.target.value })}
-                    placeholder="Post content..."
-                    rows={2}
-                    className="w-full bg-transparent text-sm text-foreground outline-none border-b border-transparent hover:border-border focus:border-primary transition-colors py-0.5 resize-none"
-                  />
-                </td>
-                <td className="px-3 py-3">
-                  <input
-                    type="text"
-                    value={post.hashtags}
-                    onChange={(e) => updatePost(post.id, { hashtags: e.target.value })}
-                    placeholder="#hashtag..."
-                    className="w-full bg-transparent text-xs text-primary outline-none border-b border-transparent hover:border-border focus:border-primary transition-colors py-0.5"
-                  />
-                </td>
-                <td className="px-3 py-3">
-                  <input
-                    type="date"
-                    value={post.scheduledDate}
-                    onChange={(e) => updatePost(post.id, { scheduledDate: e.target.value })}
-                    className="bg-transparent text-xs text-foreground outline-none w-full"
-                  />
-                </td>
-                <td className="px-3 py-3">
-                  <input
-                    type="time"
-                    value={post.scheduledTime}
-                    onChange={(e) => updatePost(post.id, { scheduledTime: e.target.value })}
-                    className="bg-transparent text-xs text-foreground outline-none w-full"
-                  />
-                </td>
-                <td className="px-3 py-3">
-                  <div className="flex items-center gap-2">
-                    {post.imageStatus === 'none' && (
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => generateImageForPost(post.id)}
-                          disabled={generatingId === post.id}
-                          className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-600 disabled:opacity-50"
-                        >
-                          {generatingId === post.id ? (
-                            <Loader2 size={10} className="animate-spin" />
-                          ) : (
-                            <Sparkles size={10} />
-                          )}
-                          AI Image
-                        </button>
-                        <label className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors font-600 cursor-pointer">
-                          <ImageIcon size={10} />
-                          Upload
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleImageFileUpload(post.id, e)}
-                          />
-                        </label>
-                      </div>
-                    )}
-                    {post.imageStatus === 'generating' && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Loader2 size={12} className="animate-spin" />
-                        Generating...
-                      </div>
-                    )}
-                    {(post.imageStatus === 'ready' || post.imageStatus === 'provided') &&
-                      post.imageUrl && (
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={post.imageUrl}
-                            alt={post.imageAlt || 'Post image'}
-                            className="w-10 h-10 rounded-lg object-cover"
-                          />
-                          <div className="flex flex-col gap-0.5">
-                            <span className="flex items-center gap-1 text-xs text-success font-600">
-                              <CheckCircle2 size={10} />
-                              {post.imageStatus === 'provided' ? 'Uploaded' : 'AI Generated'}
-                            </span>
-                            <button
-                              onClick={() =>
-                                updatePost(post.id, {
-                                  imageUrl: undefined,
-                                  imageAlt: undefined,
-                                  imageStatus: 'none',
-                                })
-                              }
-                              className="text-xs text-muted-foreground hover:text-danger transition-colors"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                  </div>
-                </td>
-                <td className="px-3 py-3">
-                  <button
-                    onClick={() => removePost(post.id)}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-danger transition-colors"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </td>
-              </tr>
+                post={post}
+                idx={idx}
+                generatingId={generatingId}
+                onUpdatePost={updatePost}
+                onRemovePost={removePost}
+                onSelectFormat={handleSelectFormat}
+                onGenerateImage={generateImageForPost}
+                onImageFileUpload={handleImageFileUpload}
+                onPdfFileUpload={handlePdfFileUpload}
+                onPreviewPost={(p) => setPreviewingPost(p)}
+              />
             ))}
           </tbody>
         </table>
@@ -437,6 +398,13 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         accept=".xlsx,.xls,.csv"
         className="hidden"
         onChange={handleExcelUpload}
+      />
+
+      {/* Post Preview Modal */}
+      <BulkPostPreviewModal
+        isOpen={!!previewingPost}
+        onClose={() => setPreviewingPost(null)}
+        post={previewingPost}
       />
     </div>
   );

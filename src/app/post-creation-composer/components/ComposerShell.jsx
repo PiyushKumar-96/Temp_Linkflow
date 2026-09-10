@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import ComposerEditor from './ComposerEditor';
 import ComposerPreview from './ComposerPreview';
 import ComposerAIPanel from './ComposerAIPanel';
@@ -16,7 +17,7 @@ import { toast } from 'sonner';
 import { getNextAvailableSlot } from '@/lib/scheduling';
 
 import { STOCK_IMAGES } from '@/temp-backend/data/media';
-import { getStoredPosts } from '@/temp-backend';
+import { getStoredPosts, saveStoredPosts } from '@/temp-backend';
 
 const MOCK_CANDIDATE_IMAGES = [
   {
@@ -40,6 +41,7 @@ export default function ComposerShell() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const editPostId = searchParams.get('id');
   const isEditMode = searchParams.get('mode') === 'edit';
@@ -165,28 +167,27 @@ export default function ComposerShell() {
     toast.info('Switched to text-only (visual removed)');
   };
 
-  const handleSaveDraftOrRevision = () => {
+  const handleSaveDraftOrRevision = (isSubmit = false) => {
     const fullContent = cta ? `${content}\n\n${cta}` : content;
+    const targetStatus = isSubmit ? 'awaiting_review' : 'draft';
 
     if (isEditMode && editPostId) {
-      // Save creates a NEW VERSION in the approval queue without overwriting
       try {
         const stored = localStorage.getItem('linkedflow_approval_posts');
         let posts = stored ? JSON.parse(stored) : INITIAL_APPROVAL_POSTS;
+        const nextVersion = (activePost?.revisions || 0) + 1;
+        const newRevision = {
+          id: `rev-${Date.now()}`,
+          versionNumber: nextVersion,
+          createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          author: 'Sarah Reeves',
+          authorType: 'human',
+          summary: isSubmit ? `Submitted revision v${nextVersion} for review` : `Edited draft in composer (v${nextVersion})`,
+          diff: `+ Human revision saved at ${new Date().toLocaleTimeString()}`,
+        };
 
         posts = posts.map((p) => {
           if (p.id !== editPostId) return p;
-          const nextVersion = (p.revisions || 0) + 1;
-          const newRevision = {
-            id: `rev-${Date.now()}`,
-            versionNumber: nextVersion,
-            createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-            author: 'Sarah Reeves',
-            authorType: 'human',
-            summary: `Edited draft in composer (v${nextVersion})`,
-            diff: `+ Human revision saved at ${new Date().toLocaleTimeString()}`,
-          };
-
           return {
             ...p,
             content: fullContent,
@@ -198,6 +199,8 @@ export default function ComposerShell() {
             scheduledDate,
             scheduledTime,
             dueDate: scheduledDate,
+            status: isSubmit ? 'awaiting_review' : p.status,
+            source: p.source || 'composer',
             revisions: nextVersion,
             revisionsList: [...(p.revisionsList || []), newRevision],
             activityLog: [
@@ -205,7 +208,9 @@ export default function ComposerShell() {
               {
                 id: `act-${Date.now()}`,
                 actor: 'Sarah Reeves',
-                action: `Created new revision v${nextVersion} (Slot: ${scheduledDate} ${scheduledTime})`,
+                action: isSubmit
+                  ? `Submitted revision v${nextVersion} for review (Slot: ${scheduledDate} ${scheduledTime})`
+                  : `Created new revision v${nextVersion}`,
                 timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
               },
             ],
@@ -213,25 +218,113 @@ export default function ComposerShell() {
         });
 
         localStorage.setItem('linkedflow_approval_posts', JSON.stringify(posts));
-        toast.success(`Saved new revision v${(activePost?.revisions || 0) + 1} to approval queue!`);
+
+        // Sync with master posts
+        const masterPosts = getStoredPosts();
+        const updatedMaster = masterPosts.map((p) => {
+          if (p.id !== editPostId) return p;
+          const target = posts.find((ap) => ap.id === editPostId);
+          return target ? { ...p, ...target } : p;
+        });
+        saveStoredPosts(updatedMaster);
+
+        queryClient.invalidateQueries({ queryKey: ['posts'] });
+        queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
+
+        if (isSubmit) {
+          toast.success(`Revision v${nextVersion} submitted to Approval Queue!`);
+          navigate(`/approval-workflow?post=${editPostId}&source=composer`);
+        } else {
+          toast.success(`Saved new revision v${nextVersion} to approval queue!`);
+        }
       } catch {
-        toast.success('Saved new revision!');
+        toast.error('Failed to save revision');
       }
     } else {
       // Create mode
-      toast.success(`Draft saved to library (Scheduled for ${scheduledDate} ${scheduledTime})`);
+      const newPostId = `comp-${Date.now()}`;
+      const firstLine = content.trim().split('\n')[0].replace(/^[#*\-•\s]+/, '').slice(0, 60);
+      const newPost = {
+        id: newPostId,
+        title: firstLine || 'Post Composer Draft',
+        content: fullContent,
+        cta,
+        hashtags: hashtags || [],
+        category: category || 'Thought Leadership',
+        visualFormat,
+        imageUrl: visualFormat === 'none' ? null : imageUrl,
+        scheduledDate,
+        scheduledTime,
+        dueDate: scheduledDate,
+        status: targetStatus,
+        source: 'composer',
+        author: 'Sarah Reeves',
+        authorInitials: 'SR',
+        authorRole: 'Content Strategist',
+        submittedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        revisions: 1,
+        revisionsList: [
+          {
+            id: `rev-${Date.now()}`,
+            versionNumber: 1,
+            createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+            author: 'Sarah Reeves',
+            authorType: 'human',
+            summary: isSubmit ? 'Created & submitted via Post Composer' : 'Draft saved in Post Composer',
+          },
+        ],
+        activityLog: [
+          {
+            id: `act-${Date.now()}`,
+            actor: 'Sarah Reeves',
+            action: isSubmit
+              ? `Submitted to Approval Queue (Slot: ${scheduledDate} ${scheduledTime})`
+              : 'Draft saved in Post Composer',
+            timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          },
+        ],
+        qualityAudit: {
+          score: 93,
+          grade: 'A',
+          verdict: 'Ready for Review',
+          hookScore: 92,
+          clarityScore: 94,
+          voiceScore: 93,
+          readabilityWpm: 215,
+          issues: [],
+        },
+        citations: [],
+        comments: [],
+      };
+
+      try {
+        const stored = localStorage.getItem('linkedflow_approval_posts');
+        const approvalPosts = stored ? JSON.parse(stored) : INITIAL_APPROVAL_POSTS;
+        localStorage.setItem(
+          'linkedflow_approval_posts',
+          JSON.stringify([newPost, ...approvalPosts.filter((p) => p.id !== newPostId)])
+        );
+
+        const masterPosts = getStoredPosts();
+        saveStoredPosts([newPost, ...masterPosts.filter((p) => p.id !== newPostId)]);
+
+        queryClient.invalidateQueries({ queryKey: ['posts'] });
+        queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
+
+        if (isSubmit) {
+          toast.success('Submitted to Approval Queue — ready for review!');
+          navigate(`/approval-workflow?post=${newPostId}&source=composer`);
+        } else {
+          toast.success(`Draft saved (Scheduled for ${scheduledDate} ${scheduledTime})`);
+        }
+      } catch {
+        toast.error('Failed to save post');
+      }
     }
   };
 
   const handleSubmitForReview = () => {
-    handleSaveDraftOrRevision();
-    if (isEditMode) {
-      toast.success('Revision submitted for review!');
-      navigate('/approval-workflow');
-    } else {
-      toast.success('Submitted for review — approvers notified');
-      navigate('/approval-workflow');
-    }
+    handleSaveDraftOrRevision(true);
   };
 
   return (

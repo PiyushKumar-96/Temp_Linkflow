@@ -26,8 +26,26 @@ const TEAM_STORAGE_KEY = 'linkedflow_team_members';
  * Normalizes a post object to ensure all arrays and objects are safely defined.
  */
 function normalizePost(post) {
+  let source = post.source;
+  if (!source) {
+    if (post.id?.startsWith('bulk-') || post.id === 'up-3' || post.id === 'appr-003') {
+      source = 'bulk_upload';
+    } else if (
+      post.id?.startsWith('comp-') ||
+      post.id === 'up-1' ||
+      post.id === 'up-4' ||
+      post.id === 'appr-002' ||
+      post.id === 'appr-004'
+    ) {
+      source = 'composer';
+    } else {
+      source = 'ai_generator';
+    }
+  }
+
   return {
     ...post,
+    source,
     comments: Array.isArray(post.comments) ? post.comments : [],
     revisionsList: Array.isArray(post.revisionsList) ? post.revisionsList : [],
     activityLog: Array.isArray(post.activityLog) ? post.activityLog : [],
@@ -126,6 +144,36 @@ export async function getPendingReviewPosts() {
 export async function getFailedPosts() {
   const posts = getStoredPosts();
   return posts.filter((p) => p.status === POST_STATUS.FAILED);
+}
+
+export async function createPost(postData) {
+  const posts = getStoredPosts();
+  const normalized = normalizePost({
+    ...postData,
+    id: postData.id || `comp-${Date.now()}`,
+    source: postData.source || 'composer',
+    status: postData.status || POST_STATUS.AWAITING_REVIEW,
+    createdAt: postData.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  const nextPosts = [normalized, ...posts];
+  saveStoredPosts(nextPosts);
+
+  if (
+    typeof window !== 'undefined' &&
+    (normalized.status === POST_STATUS.AWAITING_REVIEW || normalized.status === 'awaiting_review')
+  ) {
+    try {
+      const stored = localStorage.getItem('linkedflow_approval_posts');
+      const approvalPosts = stored ? JSON.parse(stored) : [];
+      const updated = [normalized, ...approvalPosts.filter((p) => p.id !== normalized.id)];
+      localStorage.setItem('linkedflow_approval_posts', JSON.stringify(updated));
+    } catch {
+      // Ignore
+    }
+  }
+
+  return normalized;
 }
 
 export async function updatePost(id, updates) {

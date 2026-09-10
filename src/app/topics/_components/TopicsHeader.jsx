@@ -14,6 +14,8 @@ export default function TopicsHeader({
   onAccountChange,
   selectedStatus,
   onStatusChange,
+  selectedCadence = 'all',
+  onCadenceChange,
   onOpenCreate,
   totalCount,
 }) {
@@ -120,6 +122,18 @@ export default function TopicsHeader({
             <option value="in_review">In Review</option>
             <option value="scheduled">Scheduled</option>
             <option value="published">Published</option>
+          </select>
+
+          {/* Cadence Filter */}
+          <select
+            value={selectedCadence}
+            onChange={(e) => onCadenceChange(e.target.value)}
+            className="input py-1.5 text-xs bg-input border border-border"
+          >
+            <option value="all">All Cadences</option>
+            <option value="weekly">Weekly Cadence</option>
+            <option value="daily">Daily Cadence</option>
+            <option value="custom">Custom Range</option>
           </select>
         </div>
       </div>

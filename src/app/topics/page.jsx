@@ -8,14 +8,16 @@ import {
   useUpdateTopicMutation,
   useDeleteTopicMutation,
   useBulkUpdateTopicsMutation,
+  useBulkCreateTopicsMutation,
   useStartTopicGenerationMutation,
 } from './_api';
 import TopicsHeader from './_components/TopicsHeader';
 import TopicsYearView from './_components/TopicsYearView';
 import TopicsListView from './_components/TopicsListView';
 import TopicFormDialog from './_components/TopicFormDialog';
+import MonthBatchPlanDialog from './_components/MonthBatchPlanDialog';
 import BulkReassignSeriesModal from './_components/BulkReassignSeriesModal';
-import { Target, AlertCircle, RefreshCw, Plus } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function TopicsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,6 +27,7 @@ export default function TopicsPage() {
   const selectedSeries = searchParams.get('series') || 'all';
   const selectedAccount = searchParams.get('account') || 'all';
   const selectedStatus = searchParams.get('status') || 'all';
+  const selectedCadence = searchParams.get('cadence') || 'all';
   const search = searchParams.get('q') || '';
 
   const updateParam = (key, value) => {
@@ -41,6 +44,7 @@ export default function TopicsPage() {
   const setSeries = (series) => updateParam('series', series);
   const setAccount = (account) => updateParam('account', account);
   const setStatus = (status) => updateParam('status', status);
+  const setCadence = (cadence) => updateParam('cadence', cadence);
   const setSearch = (q) => updateParam('q', q);
 
   // Queries & Mutations
@@ -48,6 +52,7 @@ export default function TopicsPage() {
     series: selectedSeries,
     account: selectedAccount,
     status: selectedStatus,
+    cadence: selectedCadence,
     search,
   });
 
@@ -55,25 +60,30 @@ export default function TopicsPage() {
   const updateTopic = useUpdateTopicMutation();
   const deleteTopic = useDeleteTopicMutation();
   const bulkUpdate = useBulkUpdateTopicsMutation();
+  const bulkCreate = useBulkCreateTopicsMutation();
   const startGeneration = useStartTopicGenerationMutation();
 
   // Dialog states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState(null);
   const [initialDateForCreate, setInitialDateForCreate] = useState(null);
+  const [initialCadenceForCreate, setInitialCadenceForCreate] = useState('custom');
 
+  const [batchPlanMonth, setBatchPlanMonth] = useState(null);
   const [isReassignOpen, setIsReassignOpen] = useState(false);
   const [reassignTopicIds, setReassignTopicIds] = useState([]);
 
-  const handleOpenCreate = (prefillDate = null) => {
+  const handleOpenCreate = ({ monthDate = null, cadence = 'custom' } = {}) => {
     setEditingTopic(null);
-    setInitialDateForCreate(prefillDate);
+    setInitialDateForCreate(monthDate);
+    setInitialCadenceForCreate(cadence);
     setIsFormOpen(true);
   };
 
   const handleEditTopic = (topic) => {
     setEditingTopic(topic);
-    setInitialDateForCreate(null);
+    setInitialDateForCreate(topic.startDate || topic.publicationDate);
+    setInitialCadenceForCreate(topic.cadence || 'custom');
     setIsFormOpen(true);
   };
 
@@ -95,31 +105,27 @@ export default function TopicsPage() {
     ids.forEach((id) => {
       const current = topicMap.get(id);
       if (current) {
-        const currentDate = new Date(current.publicationDate);
-        currentDate.setDate(currentDate.getDate() + days);
-        const newDateStr = currentDate.toISOString().split('T')[0];
+        const shift = (dStr) => {
+          if (!dStr) return dStr;
+          const d = new Date(dStr);
+          d.setDate(d.getDate() + days);
+          return d.toISOString().split('T')[0];
+        };
         updateTopic.mutate({
           id,
-          updates: { publicationDate: newDateStr },
+          updates: {
+            publicationDate: shift(current.publicationDate),
+            startDate: shift(current.startDate || current.publicationDate),
+            endDate: shift(current.endDate || current.startDate || current.publicationDate),
+          },
         });
       }
     });
   };
 
-  const handleOpenBulkReassign = (ids) => {
-    setReassignTopicIds(ids);
-    setIsReassignOpen(true);
-  };
-
-  const handleConfirmBulkReassign = (ids, seriesId, seriesName) => {
-    bulkUpdate.mutate({
-      ids,
-      updates: { seriesId, seriesName },
-    });
-  };
-
-  const handleBulkDelete = (ids) => {
-    ids.forEach((id) => deleteTopic.mutate(id));
+  const handleConfirmBatchPlan = async (generatedSlots) => {
+    await bulkCreate.mutateAsync(generatedSlots);
+    setBatchPlanMonth(null);
   };
 
   return (
@@ -136,7 +142,9 @@ export default function TopicsPage() {
         onAccountChange={setAccount}
         selectedStatus={selectedStatus}
         onStatusChange={setStatus}
-        onOpenCreate={() => handleOpenCreate(null)}
+        selectedCadence={selectedCadence}
+        onCadenceChange={setCadence}
+        onOpenCreate={() => handleOpenCreate({ cadence: 'custom' })}
         totalCount={topics.length}
       />
 
@@ -168,7 +176,8 @@ export default function TopicsPage() {
             <TopicsYearView
               topics={topics}
               onEditTopic={handleEditTopic}
-              onAddTopicForMonth={(monthDate) => handleOpenCreate(monthDate)}
+              onAddTopic={handleOpenCreate}
+              onBatchPlanMonth={(month) => setBatchPlanMonth(month)}
               onStartGeneration={(id) => startGeneration.mutate(id)}
             />
           ) : (
@@ -178,8 +187,11 @@ export default function TopicsPage() {
               onDeleteTopic={(id) => deleteTopic.mutate(id)}
               onStartGeneration={(id) => startGeneration.mutate(id)}
               onBulkReschedule={handleBulkReschedule}
-              onBulkReassignSeries={handleOpenBulkReassign}
-              onBulkDelete={handleBulkDelete}
+              onBulkReassignSeries={(ids) => {
+                setReassignTopicIds(ids);
+                setIsReassignOpen(true);
+              }}
+              onBulkDelete={(ids) => ids.forEach((id) => deleteTopic.mutate(id))}
             />
           )}
         </>
@@ -194,8 +206,19 @@ export default function TopicsPage() {
         }}
         initialData={editingTopic}
         initialDate={initialDateForCreate}
+        initialCadence={initialCadenceForCreate}
         onSubmit={handleFormSubmit}
         isSubmitting={createTopic.isPending || updateTopic.isPending}
+      />
+
+      {/* Month Batch Plan Modal */}
+      <MonthBatchPlanDialog
+        isOpen={Boolean(batchPlanMonth)}
+        onClose={() => setBatchPlanMonth(null)}
+        monthKey={batchPlanMonth?.key || '2026-01'}
+        monthName={batchPlanMonth?.name || ''}
+        onConfirm={handleConfirmBatchPlan}
+        isSubmitting={bulkCreate.isPending}
       />
 
       {/* Bulk Reassign Modal */}
@@ -203,7 +226,7 @@ export default function TopicsPage() {
         isOpen={isReassignOpen}
         onClose={() => setIsReassignOpen(false)}
         topicIds={reassignTopicIds}
-        onConfirm={handleConfirmBulkReassign}
+        onConfirm={(ids, sId, sName) => bulkUpdate.mutate({ ids, updates: { seriesId: sId, seriesName: sName } })}
       />
     </div>
   );

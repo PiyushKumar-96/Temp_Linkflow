@@ -125,7 +125,7 @@ export default function LibraryGrid({ items, selectedIds, onToggleSelect }) {
                       {item.authorInitials}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{item.savedAt}</span>
+                  <span className="text-xs text-muted-foreground">{item.publishDate || item.savedAt}</span>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   {item.engagementRate && (

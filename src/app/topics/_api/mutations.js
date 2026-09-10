@@ -13,6 +13,10 @@ export function useCreateTopicMutation() {
         ...newTopicData,
         id: `top-${Date.now()}`,
         status: 'planned',
+        cadence: newTopicData.cadence || 'custom',
+        startDate: newTopicData.startDate || newTopicData.publicationDate,
+        endDate: newTopicData.endDate || newTopicData.startDate || newTopicData.publicationDate,
+        publicationDate: newTopicData.publicationDate || newTopicData.startDate,
         createdAt: new Date().toISOString(),
       };
       const updated = [newTopic, ...topics];
@@ -25,6 +29,38 @@ export function useCreateTopicMutation() {
     },
     onError: (err) => {
       toast.error(`Failed to plan topic: ${err.message}`);
+    },
+  });
+}
+
+export function useBulkCreateTopicsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newTopicsList) => {
+      await new Promise((r) => setTimeout(r, 200));
+      const topics = getStoredTopics();
+      const now = Date.now();
+      const prepared = newTopicsList.map((item, idx) => ({
+        ...item,
+        id: `top-${now}-${idx}`,
+        status: 'planned',
+        cadence: item.cadence || 'weekly',
+        startDate: item.startDate || item.publicationDate,
+        endDate: item.endDate || item.startDate || item.publicationDate,
+        publicationDate: item.publicationDate || item.startDate,
+        createdAt: new Date(now + idx * 1000).toISOString(),
+      }));
+      const updated = [...prepared, ...topics];
+      saveStoredTopics(updated);
+      return prepared;
+    },
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ['topics'] });
+      toast.success(`Batch planned ${created.length} topics`);
+    },
+    onError: (err) => {
+      toast.error(`Batch planning failed: ${err.message}`);
     },
   });
 }
