@@ -29,8 +29,8 @@ const STATUS_STYLES = {
     label: 'Waiting',
   },
   upcoming: {
-    container: 'bg-muted/40 ring-border hover:bg-muted/70',
-    badge: 'bg-card text-muted-foreground ring-1 ring-inset ring-border',
+    container: 'bg-purple-50/80 ring-purple-500/25 hover:bg-purple-100/70 dark:bg-purple-400/[0.08] dark:ring-purple-400/25',
+    badge: 'bg-purple-500 text-white',
     label: 'Upcoming',
   },
 };
@@ -56,18 +56,13 @@ export default function DashboardWorkflowStepper({ steps = DEFAULT_STEPS, onOpen
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-1.5 2xl:order-3">
-            {onOpenWorkflowModal && (
-              <button type="button" onClick={onOpenWorkflowModal} className={`${buttonStyles.ghost} h-9`}>
-                <PlayCircle size={15} />
-                How it works
-              </button>
-            )}
             <button
               type="button"
-              onClick={() => navigate('/approval-workflow')}
-              className={`${buttonStyles.outline} h-9 px-3.5`}
+              onClick={onOpenWorkflowModal || (() => navigate('/approval-workflow'))}
+              className={`${buttonStyles.outline} h-9 px-3.5 flex items-center gap-1.5`}
             >
-              View workflow
+              <PlayCircle size={14} />
+              <span>How it works</span>
               <ChevronRight size={14} />
             </button>
           </div>

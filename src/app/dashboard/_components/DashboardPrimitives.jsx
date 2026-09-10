@@ -201,7 +201,7 @@ export function ModalShell({
   maxWidth = 'max-w-lg',
 }) {
   const titleId = useId();
-  const closeRef = useRef(null);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -211,7 +211,8 @@ export function ModalShell({
     window.addEventListener('keydown', onKey);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
+    // Focus the dialog itself (not the close button) so no focus ring flashes on open
+    dialogRef.current?.focus({ preventScroll: true });
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = previousOverflow;
@@ -228,10 +229,12 @@ export function ModalShell({
         className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] animate-in fade-in duration-150 motion-reduce:animate-none"
       />
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative flex max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none`}
+        className={`relative flex outline-none max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none`}
       >
         <div className="flex items-start justify-between gap-4 px-6 pb-4 pt-5">
           <div className="flex items-center gap-3">
@@ -248,7 +251,6 @@ export function ModalShell({
             </div>
           </div>
           <button
-            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
