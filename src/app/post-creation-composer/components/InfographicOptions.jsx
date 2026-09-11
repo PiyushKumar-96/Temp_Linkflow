@@ -4,22 +4,40 @@ import React, { useRef, useState } from 'react';
 import { LayoutGrid, Plus, RefreshCw, Sparkles, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { InfographicVisual } from '@/components/visuals';
+import {
+  INFOGRAPHIC_GEN_STEPS,
+  GenProgress,
+  GenTile,
+  getGenStep,
+  useElapsed,
+} from './ImageOptions';
 
 export default function InfographicOptions({
   data,
   onChangeData,
-  canGenerate = false,
+  generation = null,
+  onGenerate,
+  onCancel,
+  canGenerate = true,
   isGenerating = false,
   content = '',
 }) {
-  const [generating, setGenerating] = useState(false);
+  const [localGenerating, setLocalGenerating] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const fileInputRef = useRef(null);
+
+  const pending = Boolean(generation) || localGenerating;
+  const elapsed = useElapsed(generation?.startedAt || (localGenerating ? Date.now() : null));
+  const step = getGenStep(elapsed, INFOGRAPHIC_GEN_STEPS);
 
   const hasData = Boolean(data && (data.title || data.pillars?.length > 0 || data.imageUrl));
 
   const handleGenerateAI = () => {
-    setGenerating(true);
+    if (onGenerate) {
+      onGenerate();
+      return;
+    }
+    setLocalGenerating(true);
     toast.info('Generating infographic framework with AI...');
 
     setTimeout(() => {
@@ -52,9 +70,9 @@ export default function InfographicOptions({
       };
 
       onChangeData?.(generatedData);
-      setGenerating(false);
+      setLocalGenerating(false);
       toast.success('Infographic framework generated with AI!');
-    }, 1200);
+    }, 4500);
   };
 
   const handleImageUpload = (file) => {
@@ -76,21 +94,41 @@ export default function InfographicOptions({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Option Cards when no infographic exists */}
-      {!hasData ? (
+      {pending ? (
+        <div className="flex flex-col gap-3">
+          <GenProgress
+            title="Generating framework infographic"
+            steps={INFOGRAPHIC_GEN_STEPS}
+            step={step}
+            elapsed={elapsed}
+            onCancel={onCancel}
+            hint="Extracting growth metrics and structuring framework pillars. You can keep editing your post."
+          />
+          <div className="w-full max-w-[360px] mx-auto aspect-square max-h-[360px] rounded-xl overflow-hidden shadow-lg border border-border bg-slate-900 relative">
+            <GenTile step={step} reveal="develop" className="w-full h-full min-h-[350px]">
+              <span className="cmp-gen-caption">
+                <Sparkles size={13} />
+                <span key={step} className="m-swap">
+                  {INFOGRAPHIC_GEN_STEPS[step]?.label || 'Generating infographic…'}
+                </span>
+              </span>
+            </GenTile>
+          </div>
+        </div>
+      ) : !hasData ? (
         <div className="cmp-tiles">
           {/* Create with AI Option */}
           <button
             type="button"
             className="cmp-gen-cta"
             onClick={handleGenerateAI}
-            disabled={generating || isGenerating}
+            disabled={pending || isGenerating}
           >
             <span className="cmp-drop-plus" aria-hidden="true">
-              <Sparkles size={16} className={generating ? 'animate-spin' : ''} />
+              <Sparkles size={16} />
             </span>
             <span>
-              <strong>{generating ? 'Generating graphic...' : 'Create with AI'}</strong>
+              <strong>Create with AI</strong>
               Auto-generate framework & stats
             </span>
           </button>
@@ -152,10 +190,10 @@ export default function InfographicOptions({
                 type="button"
                 className="cmp-link-btn text-xs"
                 onClick={handleGenerateAI}
-                disabled={generating || isGenerating}
+                disabled={pending || isGenerating}
                 title="Regenerate infographic using AI"
               >
-                <RefreshCw size={13} className={generating ? 'animate-spin' : ''} />
+                <RefreshCw size={13} className={pending ? 'animate-spin' : ''} />
                 <span>Regenerate</span>
               </button>
 

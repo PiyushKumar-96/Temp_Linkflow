@@ -431,8 +431,14 @@ export default function ComposerEditor({
   onVisualFormatChange,
   carouselSlides,
   onChangeCarouselSlides,
+  carouselGeneration,
+  onGenerateCarousel,
+  onCancelCarousel,
   infographicData,
   onChangeInfographicData,
+  infographicGeneration,
+  onGenerateInfographic,
+  onCancelInfographic,
   candidateImages = [],
   imageUrl,
   imageGeneration,
@@ -1010,7 +1016,10 @@ export default function ComposerEditor({
               <CarouselOptions
                 slides={carouselSlides}
                 onChangeSlides={onChangeCarouselSlides}
-                canGenerate={!isGenerating}
+                generation={carouselGeneration}
+                onGenerate={onGenerateCarousel}
+                onCancel={onCancelCarousel}
+                canGenerate={!isGenerating && !carouselGeneration}
                 isGenerating={isGenerating}
                 content={safeContent}
               />
@@ -1019,7 +1028,10 @@ export default function ComposerEditor({
               <InfographicOptions
                 data={infographicData}
                 onChangeData={onChangeInfographicData}
-                canGenerate={!isGenerating}
+                generation={infographicGeneration}
+                onGenerate={onGenerateInfographic}
+                onCancel={onCancelInfographic}
+                canGenerate={!isGenerating && !infographicGeneration}
                 isGenerating={isGenerating}
                 content={safeContent}
               />

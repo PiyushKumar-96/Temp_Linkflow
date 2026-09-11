@@ -8,10 +8,10 @@ import { toast } from 'sonner';
 import ComposerEditor from './ComposerEditor';
 import ComposerPreview from './ComposerPreview';
 import ComposerToolbar from './ComposerToolbar';
+import ComposerHeader from './ComposerHeader';
 import { WorkflowMini } from './ComposerUI';
 import ScheduleControl from '@/components/ScheduleControl';
 import PipelineStageStepper from '@/components/PipelineStageStepper';
-import Breadcrumbs from '@/components/Breadcrumbs';
 import VersionHistoryDialog from '@/components/VersionHistoryDialog';
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
 import { getNextAvailableSlot } from '@/lib/scheduling';
@@ -79,6 +79,8 @@ export default function ComposerShell() {
   const [infographicData, setInfographicData] = useState(null);
 
   const [imageGeneration, setImageGeneration] = useState(null); // { startedAt, count } while generating
+  const [carouselGeneration, setCarouselGeneration] = useState(null); // { startedAt, count } while generating
+  const [infographicGeneration, setInfographicGeneration] = useState(null); // { startedAt } while generating
 
   const [revealMode, setRevealMode] = useState('develop');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -222,6 +224,107 @@ export default function ComposerShell() {
     generationRun.current += 1;
     setImageGeneration(null);
     toast('Image generation cancelled');
+  };
+
+  const handleGenerateCarousel = async () => {
+    const run = ++generationRun.current;
+    setVisualFormat('carousel');
+    setCarouselGeneration({ startedAt: Date.now(), count: 4 });
+
+    await wait(5200);
+    if (run !== generationRun.current) return;
+
+    const lines = content.split('\n').filter((l) => l.trim().length > 0);
+    const firstLine = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 60) || 'The Strategic Growth Playbook';
+    const points = lines.slice(1, 5).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+
+    const newSlides = [
+      {
+        id: `slide-1`,
+        headline: firstLine,
+        body: 'A breakdown of key strategic takeaways and execution principles for high-performing teams.',
+        tag: 'SLIDE 01 / 04',
+        accentColor: '#0a66c2',
+      },
+      {
+        id: `slide-2`,
+        headline: points[0] || '1. Focus on Pipeline Velocity',
+        body: points[1] || 'Content that drives high-intent discussions consistently outperforms vanity metrics.',
+        tag: 'SLIDE 02 / 04',
+        accentColor: '#6366f1',
+      },
+      {
+        id: `slide-3`,
+        headline: points[2] || '2. High-Leverage Distribution',
+        body: points[3] || 'Turn each high-performing insight into structured multi-channel assets.',
+        tag: 'SLIDE 03 / 04',
+        accentColor: '#8b5cf6',
+      },
+      {
+        id: `slide-4`,
+        headline: 'Next Steps & Execution',
+        body: 'Document what converts, double down on validated distribution, and iterate weekly.',
+        tag: 'SLIDE 04 / 04',
+        accentColor: '#10b981',
+      },
+    ];
+
+    setCarouselSlides(newSlides);
+    setCarouselGeneration(null);
+    toast.success('4-slide carousel generated with AI!');
+  };
+
+  const handleCancelCarousel = () => {
+    generationRun.current += 1;
+    setCarouselGeneration(null);
+    toast('Carousel generation cancelled');
+  };
+
+  const handleGenerateInfographic = async () => {
+    const run = ++generationRun.current;
+    setVisualFormat('infographic');
+    setInfographicGeneration({ startedAt: Date.now() });
+
+    await wait(5200);
+    if (run !== generationRun.current) return;
+
+    const lines = content.split('\n').filter((l) => l.trim().length > 0);
+    const title = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 50) || 'B2B Growth Engine Framework';
+    const points = lines.slice(1, 4).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+
+    const generatedData = {
+      title,
+      metricNumber: '+280%',
+      metricLabel: 'Pipeline Growth Rate',
+      pillars: [
+        {
+          step: '01',
+          title: points[0] ? points[0].slice(0, 30) : 'Audience Validation',
+          desc: points[1] ? points[1].slice(0, 60) : 'Direct feedback loops and customer conversation mapping',
+        },
+        {
+          step: '02',
+          title: points[2] ? points[2].slice(0, 30) : 'High-Intent Distribution',
+          desc: 'Targeted reach across relevant decision-maker communities',
+        },
+        {
+          step: '03',
+          title: 'Revenue Attribution',
+          desc: 'Direct correlation between thought leadership and qualified pipeline',
+        },
+      ],
+      footerNote: 'Source: LinkedFlow Insights Studio',
+    };
+
+    setInfographicData(generatedData);
+    setInfographicGeneration(null);
+    toast.success('Infographic framework generated with AI!');
+  };
+
+  const handleCancelInfographic = () => {
+    generationRun.current += 1;
+    setInfographicGeneration(null);
+    toast('Infographic generation cancelled');
   };
 
   // ---------- Images ----------
@@ -433,26 +536,23 @@ export default function ComposerShell() {
   };
 
   return (
-    <div className="cmp flex flex-col gap-5">
-      {isEditMode ? (
-        <Breadcrumbs
-          items={[
-            { label: 'Approval Queue', href: '/approval-workflow' },
-            { label: `Edit Draft: ${activePost?.title || 'Review Item'}` },
-          ]}
-        />
-      ) : (
-        <Breadcrumbs items={[{ label: 'Content Operations', href: '/dashboard' }, { label: 'Post Composer' }]} />
-      )}
+    <div className="cmp flex flex-col gap-4">
+      {/* Editorial Hero Header matching Dashboard Theme & Reference Image 2 */}
+      <ComposerHeader
+        isEditMode={isEditMode}
+        activePost={activePost}
+      />
 
-      <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between m-rise" style={{ '--m-i': 0 }}>
-        <div>
-          <h1 className="cmp-page-title">{isEditMode ? 'Edit draft' : 'Post composer'}</h1>
-          <p className="cmp-page-sub">
-            {isEditMode
-              ? 'Make changes, then send the new version back for approval.'
-              : 'Write, preview and send your post to the owner for approval.'}
-          </p>
+      {/* Top Action Bar */}
+      <div className="flex items-center justify-between gap-3 px-3 py-2 bg-card/70 backdrop-blur-sm border border-border/70 rounded-xl shadow-sm flex-wrap">
+        <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold text-foreground">Post Composer</span>
+          <span className="text-slate-300 dark:text-slate-700">|</span>
+          <span>Target slot: <strong className="text-foreground font-medium">{scheduledDate} {scheduledTime}</strong></span>
         </div>
 
         <ComposerToolbar
@@ -468,7 +568,7 @@ export default function ComposerShell() {
           saveState={saveState}
           submitState={submitState}
         />
-      </header>
+      </div>
 
       {isEditMode && activePost ? (
         <>
@@ -513,8 +613,14 @@ export default function ComposerShell() {
             onVisualFormatChange={setVisualFormat}
             carouselSlides={carouselSlides}
             onChangeCarouselSlides={setCarouselSlides}
+            carouselGeneration={carouselGeneration}
+            onGenerateCarousel={handleGenerateCarousel}
+            onCancelCarousel={handleCancelCarousel}
             infographicData={infographicData}
             onChangeInfographicData={setInfographicData}
+            infographicGeneration={infographicGeneration}
+            onGenerateInfographic={handleGenerateInfographic}
+            onCancelInfographic={handleCancelInfographic}
             candidateImages={candidateImages}
             imageUrl={imageUrl}
             imageGeneration={imageGeneration}
@@ -537,7 +643,9 @@ export default function ComposerShell() {
             foldIndex={foldIndex}
             visualFormat={visualFormat}
             carouselSlides={carouselSlides}
+            carouselGeneration={carouselGeneration}
             infographicData={infographicData}
+            infographicGeneration={infographicGeneration}
             imageUrl={imageUrl}
             imageGeneration={imageGeneration}
             revealMode={revealMode}

@@ -4,23 +4,41 @@ import React, { useRef, useState } from 'react';
 import { FileText, Plus, RefreshCw, Sparkles, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { CarouselVisual } from '@/components/visuals';
+import {
+  CAROUSEL_GEN_STEPS,
+  GenProgress,
+  GenTile,
+  getGenStep,
+  useElapsed,
+} from './ImageOptions';
 
 export default function CarouselOptions({
   slides = [],
   onChangeSlides,
-  canGenerate = false,
+  generation = null,
+  onGenerate,
+  onCancel,
+  canGenerate = true,
   isGenerating = false,
   content = '',
 }) {
-  const [generating, setGenerating] = useState(false);
+  const [localGenerating, setLocalGenerating] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const [uploadedPdfName, setUploadedPdfName] = useState(null);
   const fileInputRef = useRef(null);
 
+  const pending = Boolean(generation) || localGenerating;
+  const elapsed = useElapsed(generation?.startedAt || (localGenerating ? Date.now() : null));
+  const step = getGenStep(elapsed, CAROUSEL_GEN_STEPS);
+
   const hasSlides = Array.isArray(slides) && slides.length > 0;
 
   const handleGenerateAI = () => {
-    setGenerating(true);
+    if (onGenerate) {
+      onGenerate();
+      return;
+    }
+    setLocalGenerating(true);
     toast.info('Generating carousel slides with AI...');
 
     setTimeout(() => {
@@ -62,9 +80,9 @@ export default function CarouselOptions({
 
       onChangeSlides?.(newSlides);
       setUploadedPdfName(null);
-      setGenerating(false);
+      setLocalGenerating(false);
       toast.success('4-slide carousel generated with AI!');
-    }, 1200);
+    }, 4500);
   };
 
   const handlePdfUpload = (file) => {
@@ -115,21 +133,46 @@ export default function CarouselOptions({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Option Cards when no slides exist */}
-      {!hasSlides ? (
+      {pending ? (
+        <div className="flex flex-col gap-3">
+          <GenProgress
+            title="Creating 4-slide carousel deck"
+            steps={CAROUSEL_GEN_STEPS}
+            step={step}
+            elapsed={elapsed}
+            count={4}
+            onCancel={onCancel}
+            hint="Structuring slide headlines and takeaways. You can keep editing your post."
+          />
+          <div className="cmp-tiles">
+            {[0, 1, 2, 3].map((idx) => (
+              <div key={idx} className="cmp-tile">
+                <GenTile index={idx} step={step} reveal="develop">
+                  <span className="cmp-gen-caption">
+                    <Sparkles size={12} />
+                    <span key={step} className="m-swap">
+                      Slide 0{idx + 1}
+                    </span>
+                  </span>
+                </GenTile>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : !hasSlides ? (
         <div className="cmp-tiles">
           {/* Create with AI Option */}
           <button
             type="button"
             className="cmp-gen-cta"
             onClick={handleGenerateAI}
-            disabled={generating || isGenerating}
+            disabled={pending || isGenerating}
           >
             <span className="cmp-drop-plus" aria-hidden="true">
-              <Sparkles size={16} className={generating ? 'animate-spin' : ''} />
+              <Sparkles size={16} />
             </span>
             <span>
-              <strong>{generating ? 'Generating slides...' : 'Create with AI'}</strong>
+              <strong>Create with AI</strong>
               Auto-generate 4-slide deck
             </span>
           </button>
@@ -193,10 +236,10 @@ export default function CarouselOptions({
                 type="button"
                 className="cmp-link-btn text-xs"
                 onClick={handleGenerateAI}
-                disabled={generating || isGenerating}
+                disabled={pending || isGenerating}
                 title="Regenerate slides using AI"
               >
-                <RefreshCw size={13} className={generating ? 'animate-spin' : ''} />
+                <RefreshCw size={13} className={pending ? 'animate-spin' : ''} />
                 <span>Regenerate</span>
               </button>
 

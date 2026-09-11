@@ -19,7 +19,14 @@ import { AVATARS } from '@/temp-backend/data/media';
 import { useAuth } from '@/context/AuthContext';
 import APP_CONFIG from '@/lib/config';
 import { CardHeader, DrawnCheck, ProgressRing, Segmented, useCountTo } from './ComposerUI';
-import { GEN_STEPS, GenTile, getGenStep, useElapsed } from './ImageOptions';
+import {
+  CAROUSEL_GEN_STEPS,
+  GEN_STEPS,
+  INFOGRAPHIC_GEN_STEPS,
+  GenTile,
+  getGenStep,
+  useElapsed,
+} from './ImageOptions';
 
 const DEVICE_OPTIONS = [
   { value: 'desktop', label: 'Desktop', icon: Monitor, iconOnly: true },
@@ -40,11 +47,43 @@ function renderFormatted(text) {
   });
 }
 
-function MediaPreview({ visualFormat, imageUrl, imageGeneration, revealMode, carouselSlides, infographicData }) {
-  const elapsed = useElapsed(imageGeneration?.startedAt);
-  const step = getGenStep(elapsed);
+function MediaPreview({
+  visualFormat,
+  imageUrl,
+  imageGeneration,
+  revealMode,
+  carouselSlides,
+  carouselGeneration,
+  infographicData,
+  infographicGeneration,
+}) {
+  const isGeneratingCarousel = Boolean(carouselGeneration);
+  const isGeneratingInfographic = Boolean(infographicGeneration);
+  const isGeneratingImage = Boolean(imageGeneration);
+
+  const activeStartedAt =
+    carouselGeneration?.startedAt ||
+    infographicGeneration?.startedAt ||
+    imageGeneration?.startedAt;
+
+  const elapsed = useElapsed(activeStartedAt);
 
   if (visualFormat === 'carousel' || visualFormat === 'pdf') {
+    if (isGeneratingCarousel) {
+      const step = getGenStep(elapsed, CAROUSEL_GEN_STEPS);
+      return (
+        <div className="cmp-li-media">
+          <GenTile step={step} reveal={revealMode}>
+            <span className="cmp-gen-caption">
+              <Sparkles size={13} />
+              <span key={step} className="m-swap">
+                {CAROUSEL_GEN_STEPS[step]?.label || 'Generating carousel slides…'}
+              </span>
+            </span>
+          </GenTile>
+        </div>
+      );
+    }
     if (!carouselSlides || carouselSlides.length === 0) return null;
     return (
       <div className="border-t border-gray-100 p-2 bg-slate-50">
@@ -52,7 +91,23 @@ function MediaPreview({ visualFormat, imageUrl, imageGeneration, revealMode, car
       </div>
     );
   }
+
   if (visualFormat === 'infographic') {
+    if (isGeneratingInfographic) {
+      const step = getGenStep(elapsed, INFOGRAPHIC_GEN_STEPS);
+      return (
+        <div className="cmp-li-media">
+          <GenTile step={step} reveal={revealMode}>
+            <span className="cmp-gen-caption">
+              <Sparkles size={13} />
+              <span key={step} className="m-swap">
+                {INFOGRAPHIC_GEN_STEPS[step]?.label || 'Generating infographic…'}
+              </span>
+            </span>
+          </GenTile>
+        </div>
+      );
+    }
     if (!infographicData) return null;
     return (
       <div className="border-t border-gray-100 p-2 bg-slate-50">
@@ -60,8 +115,10 @@ function MediaPreview({ visualFormat, imageUrl, imageGeneration, revealMode, car
       </div>
     );
   }
+
   if (visualFormat !== 'image' || (!imageUrl && !imageGeneration)) return null;
 
+  const step = getGenStep(elapsed, GEN_STEPS);
   // Same element for "generating" and "ready", so the image develops in place.
   return (
     <div className="cmp-li-media">
@@ -134,6 +191,8 @@ export default function ComposerPreview({
   visualFormat = 'image',
   imageUrl,
   imageGeneration,
+  carouselGeneration,
+  infographicGeneration,
   revealMode = 'develop',
   carouselSlides,
   infographicData,
@@ -255,6 +314,8 @@ export default function ComposerPreview({
               visualFormat={visualFormat}
               imageUrl={imageUrl}
               imageGeneration={imageGeneration}
+              carouselGeneration={carouselGeneration}
+              infographicGeneration={infographicGeneration}
               revealMode={revealMode}
               carouselSlides={carouselSlides}
               infographicData={infographicData}

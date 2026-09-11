@@ -12,11 +12,25 @@ export const GEN_STEPS = [
   { at: 7500, label: 'Finishing up' },
 ];
 
+export const CAROUSEL_GEN_STEPS = [
+  { at: 0, label: 'Reading your post' },
+  { at: 1400, label: 'Structuring slide deck' },
+  { at: 3000, label: 'Formatting cards & typography' },
+  { at: 4600, label: 'Finishing carousel deck' },
+];
+
+export const INFOGRAPHIC_GEN_STEPS = [
+  { at: 0, label: 'Analyzing core thesis' },
+  { at: 1400, label: 'Extracting metrics & pillars' },
+  { at: 3000, label: 'Structuring visual hierarchy' },
+  { at: 4600, label: 'Finishing framework graphic' },
+];
+
 const NOISE_BY_STEP = [0.5, 0.38, 0.27, 0.18];
 
-export function getGenStep(elapsed) {
+export function getGenStep(elapsed, steps = GEN_STEPS) {
   let step = 0;
-  GEN_STEPS.forEach((s, i) => {
+  steps.forEach((s, i) => {
     if (elapsed >= s.at) step = i;
   });
   return step;
@@ -87,7 +101,16 @@ export function GenTile({ src, alt = '', index = 0, step = 0, reveal = 'develop'
   );
 }
 
-export function GenProgress({ step, elapsed, count = 3, onCancel }) {
+export function GenProgress({
+  title,
+  steps = GEN_STEPS,
+  step = 0,
+  elapsed = 0,
+  count = 3,
+  onCancel,
+  hint = 'Usually takes 5–15 seconds. You can keep editing your post.',
+}) {
+  const displayTitle = title || `Creating ${count} image options`;
   return (
     <div className="cmp-gen-head">
       <span className="cmp-badge tone-violet cmp-gen-badge" aria-hidden="true">
@@ -95,22 +118,22 @@ export function GenProgress({ step, elapsed, count = 3, onCancel }) {
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="cmp-gen-title">Creating {count} image options</p>
+          <p className="cmp-gen-title">{displayTitle}</p>
           <span className="cmp-gen-time" aria-hidden="true">
             {formatElapsed(elapsed)}
           </span>
         </div>
         <p className="cmp-gen-step" aria-live="polite">
           <span key={step} className="m-swap">
-            {GEN_STEPS[step].label}
+            {steps[step]?.label || steps[0]?.label}
           </span>
         </p>
-        <div className="cmp-gen-bar" style={{ '--steps': GEN_STEPS.length }} aria-hidden="true">
-          {GEN_STEPS.map((s, i) => (
+        <div className="cmp-gen-bar" style={{ '--steps': steps.length }} aria-hidden="true">
+          {steps.map((s, i) => (
             <span key={s.label} className={i < step ? 'is-done' : i === step ? 'is-current' : ''} />
           ))}
         </div>
-        <p className="mt-2 text-[12px] cmp-muted">Usually takes 10–20 seconds. You can keep editing your post.</p>
+        <p className="mt-2 text-[12px] cmp-muted">{hint}</p>
       </div>
       {onCancel && (
         <button type="button" className="cmp-link-btn shrink-0 mt-0.5" onClick={onCancel}>
