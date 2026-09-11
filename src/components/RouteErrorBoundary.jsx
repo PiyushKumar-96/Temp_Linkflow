@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertCircle, RotateCcw, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import NotFoundPage from '@/NotFoundPage';
 
 /**
  * RouteErrorBoundary Component
@@ -28,6 +29,26 @@ export class RouteErrorBoundary extends React.Component {
     if (this.state.hasError) {
       const error = this.state.error;
       const requestId = error?.requestId || null;
+
+      // When network is down, chunk fails to fetch, or route is unreachable
+      const isUnreachableOrNetwork =
+        !navigator.onLine ||
+        /Failed to fetch/i.test(error?.message || '') ||
+        /NetworkError/i.test(error?.message || '') ||
+        /Loading chunk .* failed/i.test(error?.message || '') ||
+        /Failed to load resource/i.test(error?.message || '') ||
+        /dynamically imported module/i.test(error?.message || '') ||
+        /net::ERR_/i.test(error?.message || '');
+
+      if (isUnreachableOrNetwork) {
+        return (
+          <NotFoundPage
+            isNetworkError={true}
+            error={error}
+            onRetry={this.handleReset}
+          />
+        );
+      }
 
       return (
         <div className="card p-8 text-center max-w-lg mx-auto my-12 border border-danger/30 bg-danger/5">

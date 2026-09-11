@@ -1,7 +1,11 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import RouteErrorBoundary from './components/RouteErrorBoundary';
+import NotFoundPage from './NotFoundPage';
+import LoadingScreen from './LoadingScreen';
+import { QueryClientProvider } from '@tanstack/react-query';
+import queryClient from './lib/query-client';
 
 // Lazy-loaded page routes for code splitting
 const LoginPage = lazy(() => import('./app/login/page'));
@@ -16,23 +20,31 @@ const ContentLibraryPage = lazy(() => import('./app/content-library/page'));
 const PostTemplatesPage = lazy(() => import('./app/post-templates/page'));
 const TeamPage = lazy(() => import('./app/team/page'));
 const TopicsPage = lazy(() => import('./app/topics/page'));
-const NotFoundPage = lazy(() => import('./app/not-found'));
 
-import { QueryClientProvider } from '@tanstack/react-query';
-import queryClient from './lib/query-client';
+/**
+ * Deferred loading screen:
+ * Suppresses loading splash during normal, fast tab transitions (< 350ms).
+ * Only mounts the full LoadingScreen when there is a genuine network/load delay (> 350ms).
+ */
+function DeferredRouteLoading({ delay = 350, label = 'Content Operations' }) {
+  const [show, setShow] = useState(false);
 
-function RouteLoading() {
-  return (
-    <div className="flex items-center justify-center p-12 min-h-[40vh]">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShow(true);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!show) return null;
+
+  return <LoadingScreen label={label} />;
 }
 
-function withBoundary(Component) {
+function withBoundary(Component, label) {
   return (
     <RouteErrorBoundary>
-      <Suspense fallback={<RouteLoading />}>
+      <Suspense fallback={<DeferredRouteLoading delay={350} label={label} />}>
         <Component />
       </Suspense>
     </RouteErrorBoundary>
@@ -43,28 +55,29 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
-      {/* Login Screen (outside AppLayout) */}
-      <Route path="/login" element={withBoundary(LoginPage)} />
+        {/* Login Screen (outside AppLayout) */}
+        <Route path="/login" element={withBoundary(LoginPage, 'Authentication')} />
 
-      {/* Main App Screens wrapped in AppLayout */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={withBoundary(OperationsDashboardPage)} />
-        <Route path="/dashboard" element={withBoundary(OperationsDashboardPage)} />
-        <Route path="/analytics" element={withBoundary(AnalyticsPage)} />
-        <Route path="/approval-workflow" element={withBoundary(ApprovalWorkflowPage)} />
-        <Route path="/post-creation-composer" element={withBoundary(ComposerPage)} />
-        <Route path="/settings" element={withBoundary(SettingsPage)} />
-        <Route path="/ai-generator" element={withBoundary(AIGeneratorPage)} />
-        <Route path="/content-calendar" element={withBoundary(ContentCalendarPage)} />
-        <Route path="/content-library" element={withBoundary(ContentLibraryPage)} />
-        <Route path="/post-templates" element={withBoundary(PostTemplatesPage)} />
-        <Route path="/team" element={withBoundary(TeamPage)} />
-        <Route path="/topics" element={withBoundary(TopicsPage)} />
-      </Route>
+        {/* Main App Screens wrapped in AppLayout */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={withBoundary(OperationsDashboardPage, 'Dashboard')} />
+          <Route path="/dashboard" element={withBoundary(OperationsDashboardPage, 'Dashboard')} />
+          <Route path="/analytics" element={withBoundary(AnalyticsPage, 'Analytics')} />
+          <Route path="/approval-workflow" element={withBoundary(ApprovalWorkflowPage, 'Approval Workflow')} />
+          <Route path="/post-creation-composer" element={withBoundary(ComposerPage, 'Post Composer')} />
+          <Route path="/composer" element={<Navigate to="/post-creation-composer" replace />} />
+          <Route path="/settings" element={withBoundary(SettingsPage, 'Settings')} />
+          <Route path="/ai-generator" element={withBoundary(AIGeneratorPage, 'AI Generator')} />
+          <Route path="/content-calendar" element={withBoundary(ContentCalendarPage, 'Content Calendar')} />
+          <Route path="/content-library" element={withBoundary(ContentLibraryPage, 'Content Library')} />
+          <Route path="/post-templates" element={withBoundary(PostTemplatesPage, 'Post Templates')} />
+          <Route path="/team" element={withBoundary(TeamPage, 'Team')} />
+          <Route path="/topics" element={withBoundary(TopicsPage, 'Topics')} />
+        </Route>
 
-      {/* 404 Route */}
-      <Route path="*" element={withBoundary(NotFoundPage)} />
-    </Routes>
-  </QueryClientProvider>
+        {/* 404 & Unreachable Route */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </QueryClientProvider>
   );
 }

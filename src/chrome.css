@@ -1,0 +1,344 @@
+@import './styles/motion.css';
+
+/* ==========================================================================
+   chrome.css — boot loader + 404 page
+   Requires motion.css to be loaded first (for --m-ease, m-rise, m-swap,
+   and the m-spin / m-ring-out keyframes reused below). Otherwise standalone,
+   so the loader can render before the rest of the app's CSS is ready.
+   ========================================================================== */
+
+.lf {
+  --lf-bg: #f5f7fb;
+  --lf-card: #ffffff;
+  --lf-line: #e2e8f0;
+  --lf-ink: #0f172a;
+  --lf-muted: #64748b;
+  --lf-navy: #0f172a;
+  --lf-navy-hover: #1e293b;
+  --lf-link: #2563eb;
+  --lf-green: #10b981;
+  --lf-red: #f43f5e;
+  color: var(--lf-ink);
+}
+
+.dark .lf,
+[data-theme='dark'] .lf {
+  --lf-bg: #0b1120;
+  --lf-card: #1e293b;
+  --lf-line: #334155;
+  --lf-ink: #f8fafc;
+  --lf-muted: #94a3b8;
+  --lf-navy: #2563eb;
+  --lf-navy-hover: #1d4ed8;
+  --lf-link: #60a5fa;
+}
+
+.lf-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--lf-navy);
+  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.55);
+}
+
+/* ---------- Boot loader ---------- */
+
+.lf-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  overflow: hidden;
+  background: var(--lf-bg);
+}
+
+.lf-field {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.lf-blob {
+  position: absolute;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.4;
+  animation: lf-drift 12s var(--m-ease-in-out) infinite alternate;
+}
+
+.lf-blob.b1 { top: 6%; left: 8%; background: #bfdbfe; }
+.lf-blob.b2 { right: 6%; bottom: 8%; background: #ddd6fe; animation-duration: 15s; animation-direction: alternate-reverse; }
+
+@keyframes lf-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10%, 12%) scale(1.12); }
+}
+
+.lf-ring {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+}
+
+.lf-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lf-ring-track { stroke: var(--lf-line); stroke-width: 4; fill: none; }
+
+.lf-ring-arc {
+  stroke: var(--lf-link);
+  stroke-width: 4;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 58 137;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: m-spin 1.3s linear infinite;
+}
+
+.lf-ring-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--lf-navy);
+  animation: lf-breathe 2.6s var(--m-ease-in-out) infinite;
+}
+
+@keyframes lf-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.lf-steps {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+.lf-step {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--lf-line);
+  animation: lf-pulse 2.4s var(--m-ease-in-out) infinite;
+  animation-delay: calc(var(--i, 0) * 0.3s);
+}
+
+.lf-link {
+  width: 22px;
+  height: 2px;
+  margin: 0 5px;
+  border-radius: 2px;
+  background: var(--lf-line);
+}
+
+@keyframes lf-pulse {
+  0%, 100% { background: var(--lf-line); transform: scale(1); }
+  45% { background: var(--lf-link); transform: scale(1.3); }
+}
+
+.lf-eyebrow {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lf-ink);
+}
+
+.lf-status {
+  position: relative;
+  z-index: 1;
+  min-width: 230px;
+  height: 18px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--lf-muted);
+  text-align: center;
+}
+
+/* ---------- 404 page ---------- */
+
+.lf-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  min-height: 100vh;
+  padding: 32px 20px;
+  text-align: center;
+  background: var(--lf-bg);
+  overflow-x: hidden;
+}
+
+.lf-404-mark {
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+}
+
+.lf-flow {
+  display: flex;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+  animation-delay: var(--m-stagger);
+}
+
+.lf-flow-step { display: flex; align-items: flex-start; }
+
+.lf-flow-node-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 64px;
+}
+
+.lf-flow-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lf-muted);
+  background: #eef2f6;
+}
+
+.lf-flow-step.is-done .lf-flow-node { color: #fff; background: var(--lf-green); }
+.lf-flow-step.is-broken .lf-flow-node { color: #fff; background: var(--lf-red); }
+
+.lf-flow-step.is-broken .lf-flow-node::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 2px solid var(--lf-red);
+  opacity: 0;
+  animation: m-ring-out 1.4s var(--m-ease) 900ms 2;
+}
+
+.lf-flow-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--lf-muted);
+  white-space: nowrap;
+}
+
+@media (min-width: 420px) {
+  .lf-flow-label { font-size: 12.5px; }
+}
+
+.lf-flow-step.is-broken .lf-flow-label { font-weight: 600; color: var(--lf-ink); }
+
+.lf-flow-link {
+  width: 22px;
+  height: 2px;
+  margin-top: 16px;
+  border-radius: 2px;
+  background: var(--lf-line);
+  flex-shrink: 0;
+}
+
+@media (min-width: 420px) {
+  .lf-flow-link { width: 34px; }
+}
+
+.lf-flow-link.is-done { background: var(--lf-green); }
+
+.lf-flow-link.is-broken,
+.lf-flow-link.is-todo {
+  background-image: linear-gradient(90deg, currentColor 0 6px, transparent 6px 10px);
+  background-size: 10px 2px;
+  background-color: transparent;
+}
+
+.lf-flow-link.is-broken { color: var(--lf-red); }
+.lf-flow-link.is-todo { color: var(--lf-line); }
+
+.lf-404-title {
+  max-width: 460px;
+  margin: 0;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--lf-ink);
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+  animation-delay: calc(var(--m-stagger) * 2);
+}
+
+.lf-404-sub {
+  max-width: 420px;
+  margin: -8px 0 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--lf-muted);
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+  animation-delay: calc(var(--m-stagger) * 3);
+}
+
+.lf-404-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+  animation-delay: calc(var(--m-stagger) * 4);
+}
+
+.lf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 240ms var(--m-ease), color 240ms var(--m-ease), box-shadow 240ms var(--m-ease), transform 160ms var(--m-ease);
+}
+
+.lf-btn:active { transform: scale(0.98); }
+
+.lf-btn-primary {
+  color: #fff;
+  background: var(--lf-navy);
+  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.6);
+}
+
+.lf-btn-primary:hover { background: var(--lf-navy-hover); }
+
+.lf-btn-outline {
+  color: var(--lf-ink);
+  background: var(--lf-card);
+  box-shadow: inset 0 0 0 1px var(--lf-line);
+}
+
+.lf-btn-outline:hover { background: #f8fafc; }
