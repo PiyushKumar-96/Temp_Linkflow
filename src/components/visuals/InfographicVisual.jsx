@@ -49,14 +49,26 @@ export default function InfographicVisual({
   return (
     <div className="flex flex-col gap-3 w-full max-w-[360px] mx-auto">
       {/* Visual Canvas */}
-      <div className="aspect-square max-h-[360px] w-full rounded-xl overflow-hidden shadow-lg border border-border bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white p-5 flex flex-col justify-between">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-          <span className="text-[10px] uppercase font-mono tracking-wider text-primary flex items-center gap-1 font-semibold">
-            <LayoutGrid size={11} /> Framework Infographic
-          </span>
-          <span className="text-[9px] text-slate-400 font-mono">LinkedFlow Studio</span>
+      {current.imageUrl ? (
+        <div className="aspect-square max-h-[360px] w-full rounded-xl overflow-hidden shadow-lg border border-border bg-slate-900 flex items-center justify-center relative group">
+          <img
+            src={current.imageUrl}
+            alt={current.title || 'Infographic'}
+            className="w-full h-full object-contain"
+          />
+          <div className="absolute top-2 left-2 px-2 py-1 rounded bg-black/60 backdrop-blur text-[10px] uppercase font-mono tracking-wider text-white flex items-center gap-1 font-semibold">
+            <LayoutGrid size={11} className="text-primary" /> Infographic
+          </div>
         </div>
+      ) : (
+        <div className="aspect-square max-h-[360px] w-full rounded-xl overflow-hidden shadow-lg border border-border bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white p-5 flex flex-col justify-between">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-primary flex items-center gap-1 font-semibold">
+              <LayoutGrid size={11} /> Framework Infographic
+            </span>
+            <span className="text-[9px] text-slate-400 font-mono">LinkedFlow Studio</span>
+          </div>
 
         {/* Main Content Area */}
         <div className="flex flex-col gap-3 my-auto">
@@ -143,6 +155,7 @@ export default function InfographicVisual({
           <span className="text-primary font-semibold">Verified Data</span>
         </div>
       </div>
+      )}
     </div>
   );
 }

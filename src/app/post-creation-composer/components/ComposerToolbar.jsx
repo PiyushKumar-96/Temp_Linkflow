@@ -1,12 +1,66 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, Save, Send, Clock, GitCommit, ArrowLeft, History } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, CalendarClock, Check, GitCommit, History, Save, Send } from 'lucide-react';
+import { formatSlot } from '../_model/composer-utils';
+
+function SlotChip({ date, time, onClick }) {
+  const slot = formatSlot(date, time);
+  return (
+    <button
+      type="button"
+      className={`cmp-slot ${slot.isPast ? 'is-past' : ''}`}
+      onClick={onClick}
+      aria-label={`Publishing slot ${slot.day} ${slot.time}. Change slot`}
+    >
+      <span className={`cmp-badge is-sm ${slot.isPast ? 'tone-amber' : 'tone-blue'}`} aria-hidden="true">
+        <CalendarClock size={15} />
+      </span>
+      <span>
+        <span className="cmp-slot-day">{slot.day}</span>
+        <span className="cmp-slot-meta">{slot.isPast ? 'This slot has passed' : slot.time}</span>
+      </span>
+    </button>
+  );
+}
+
+function SaveButton({ state, onClick, idleLabel, savedLabel, icon: Icon }) {
+  return (
+    <button
+      type="button"
+      className="cmp-btn cmp-btn-outline is-lg cmp-save"
+      data-state={state}
+      onClick={() => state === 'idle' && onClick()}
+    >
+      <span key={state} className="cmp-send-icon" aria-hidden="true">
+        {state === 'saved' ? <Check size={16} strokeWidth={2.6} /> : <Icon size={15} />}
+      </span>
+      <span aria-live="polite">{state === 'saved' ? savedLabel : idleLabel}</span>
+    </button>
+  );
+}
+
+function SendButton({ state, disabled, onClick, idleLabel, sentLabel }) {
+  const label = state === 'sending' ? 'Sending…' : state === 'sent' ? sentLabel : idleLabel;
+  return (
+    <button
+      type="button"
+      className="cmp-btn cmp-btn-primary is-lg cmp-send"
+      data-state={state}
+      disabled={disabled && state === 'idle'}
+      aria-disabled={state !== 'idle' || undefined}
+      onClick={() => state === 'idle' && onClick()}
+    >
+      <span className="cmp-send-fill" aria-hidden="true" />
+      <span key={state === 'sent' ? 'sent' : 'send'} className="cmp-send-icon" aria-hidden="true">
+        {state === 'sent' ? <Check size={16} strokeWidth={2.6} /> : <Send size={15} />}
+      </span>
+      <span aria-live="polite">{label}</span>
+    </button>
+  );
+}
 
 export default function ComposerToolbar({
-  showAIPanel,
-  onToggleAI,
   onSaveDraft,
   onSubmitReview,
   onSchedule,
@@ -14,100 +68,43 @@ export default function ComposerToolbar({
   hasContent,
   isEditMode = false,
   returnUrl = '/approval-workflow',
-  scheduledSlotLabel,
+  scheduledDate,
+  scheduledTime,
+  saveState = 'idle',
+  submitState = 'idle',
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {/* AI Assistant Toggle */}
-      <button
-        onClick={onToggleAI}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-500 rounded-lg border transition-all duration-150 ${
-          showAIPanel
-            ? 'bg-accent/10 border-accent/30 text-accent font-semibold'
-            : 'bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted'
-        }`}
-        title="Toggle AI Assistant in composer"
-      >
-        <Sparkles size={13} />
-        <span>AI Assistant</span>
-      </button>
-
-      {isEditMode ? (
+    <div className="flex items-center gap-2.5 flex-wrap">
+      {isEditMode && (
         <>
-          <Link
-            to={returnUrl}
-            className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1 text-muted-foreground"
-            title="Discard unsaved edits and return to review"
-          >
-            <ArrowLeft size={13} />
-            <span className="hidden sm:inline">Back to Review</span>
+          <Link to={returnUrl} className="cmp-btn cmp-btn-outline is-lg" title="Leave without saving and go back to review">
+            <ArrowLeft size={15} />
+            <span className="hidden sm:inline">Back to review</span>
           </Link>
-
-          <button
-            onClick={onOpenHistory}
-            className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1"
-            title="View revision history and compare diffs"
-          >
-            <History size={13} />
+          <button type="button" className="cmp-btn cmp-btn-outline is-lg" onClick={onOpenHistory} title="Compare earlier versions">
+            <History size={15} />
             <span className="hidden sm:inline">History</span>
-          </button>
-
-          <button
-            onClick={onSchedule}
-            className="btn-secondary text-xs py-1.5 px-2.5 flex items-center gap-1.5 text-foreground"
-            title="Configure or adjust the scheduled publishing slot"
-          >
-            <Clock size={13} className="text-primary" />
-            <span className="hidden sm:inline">{scheduledSlotLabel ? `Slot: ${scheduledSlotLabel}` : 'Set Slot'}</span>
-          </button>
-
-          <button
-            onClick={onSaveDraft}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-            title="Creates an incremental revision without overwriting history"
-          >
-            <GitCommit size={13} className="text-primary" />
-            <span>Save New Version</span>
-          </button>
-
-          <button
-            onClick={onSubmitReview}
-            disabled={!hasContent}
-            className="btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <Send size={13} />
-            <span>Submit Revision</span>
-          </button>
-        </>
-      ) : (
-        <>
-          <button
-            onClick={onSaveDraft}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-          >
-            <Save size={13} />
-            <span>Save Draft</span>
-          </button>
-
-          <button
-            onClick={onSchedule}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-            title="Select target publishing time window"
-          >
-            <Clock size={13} className="text-primary" />
-            <span>{scheduledSlotLabel ? `Slot: ${scheduledSlotLabel}` : 'Schedule'}</span>
-          </button>
-
-          <button
-            onClick={onSubmitReview}
-            disabled={!hasContent}
-            className="btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send size={13} />
-            <span>Submit for Review</span>
           </button>
         </>
       )}
+
+      <SlotChip date={scheduledDate} time={scheduledTime} onClick={onSchedule} />
+
+      <SaveButton
+        state={saveState}
+        onClick={onSaveDraft}
+        icon={isEditMode ? GitCommit : Save}
+        idleLabel={isEditMode ? 'Save version' : 'Save draft'}
+        savedLabel={isEditMode ? 'Version saved' : 'Draft saved'}
+      />
+
+      <SendButton
+        state={submitState}
+        disabled={!hasContent}
+        onClick={onSubmitReview}
+        idleLabel={isEditMode ? 'Send revision' : 'Send for review'}
+        sentLabel={isEditMode ? 'Revision sent' : 'Sent for review'}
+      />
     </div>
   );
 }

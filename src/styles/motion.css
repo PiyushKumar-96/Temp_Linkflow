@@ -1,0 +1,125 @@
+/* ==========================================================================
+   motion.css — shared motion language for the whole app
+   Import once (e.g. in your root layout or main.jsx). The composer and the
+   dashboard should both use these so every animation feels like one system.
+
+   Rules this file encodes:
+   - One easing curve for "settling" (--m-ease), one for loops (--m-ease-in-out)
+   - Small UI: 160–240ms. Larger reveals: 320–500ms.
+   - Prefer transform + opacity. Exceptions are one-off reveals, never loops.
+   - prefers-reduced-motion collapses everything to an instant state change.
+   ========================================================================== */
+
+:root {
+  --m-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --m-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --m-fast: 160ms;
+  --m-base: 240ms;
+  --m-slow: 420ms;
+  --m-stagger: 70ms;
+}
+
+/* ---------- Keyframes ---------- */
+
+@keyframes m-rise {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes m-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes m-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes m-swap {
+  from { opacity: 0; transform: translateY(4px); }
+}
+
+@keyframes m-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  60% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes m-pop-out {
+  to { opacity: 0; transform: scale(0.7); }
+}
+
+@keyframes m-pop-panel {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+}
+
+@keyframes m-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes m-ping {
+  0% { transform: scale(1); opacity: 0.55; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes m-ring-out {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes m-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes m-bar-fill {
+  from { transform: scaleX(0); }
+}
+
+@keyframes m-bar-grow {
+  from { transform: scaleY(0); }
+}
+
+/* ---------- Utilities ---------- */
+
+/* Page-load entrance. Set --m-i on each element for the stagger order. */
+.m-rise {
+  animation: m-rise var(--m-slow) var(--m-ease) both;
+  animation-delay: calc(var(--m-i, 0) * var(--m-stagger));
+}
+
+.m-fade-in {
+  animation: m-fade-in var(--m-base) var(--m-ease) both;
+}
+
+/* Re-key an element to replay: <span key={label} className="m-swap"> */
+.m-swap {
+  display: inline-block;
+  animation: m-swap 260ms var(--m-ease) both;
+}
+
+/* Dashboard-ready helpers (bars grow from the baseline, progress fills) */
+.m-bar-grow {
+  transform-origin: bottom;
+  animation: m-bar-grow 600ms var(--m-ease) both;
+  animation-delay: calc(var(--m-i, 0) * 45ms);
+}
+
+.m-bar-fill {
+  transform-origin: left;
+  animation: m-bar-fill 640ms var(--m-ease) both;
+  animation-delay: calc(var(--m-i, 0) * 60ms);
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

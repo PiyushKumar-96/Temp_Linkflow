@@ -1,56 +1,89 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  Sparkles,
-  Image as ImageIcon,
-  X,
-  MessageSquareQuote,
+  AlignLeft,
   Ban,
+  BookOpen,
+  Briefcase,
+  Building2,
+  ChevronDown,
+  Eraser,
+  Flame,
+  GraduationCap,
+  Hash,
+  Image as ImageIcon,
+  Laugh,
   Layers,
   LayoutGrid,
-  Smile,
-  Globe,
-  Undo2,
-  Redo2,
-  Eraser,
+  Link2,
   List,
   ListOrdered,
-  AlignLeft,
-  ChevronDown,
-  Hash,
+  MessageCircle,
+  MessageSquarePlus,
+  MessageSquareQuote,
+  Monitor,
+  PenLine,
+  Plus,
+  Redo2,
   RefreshCw,
-  Wand2,
-  Upload,
+  Rocket,
+  Scissors,
+  SlidersHorizontal,
+  Smartphone,
+  Smile,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Undo2,
+  User,
+  X,
 } from 'lucide-react';
-import { toast } from 'sonner';
-import {
-  CarouselVisual,
-  InfographicVisual,
-  MarketingImageVisual,
-  TextOnlyVisual,
-} from '@/components/visuals';
 import APP_CONFIG from '@/lib/config';
+import { CardHeader, ProgressRing, Segmented } from './ComposerUI';
+import ImageOptions from './ImageOptions';
+import CarouselOptions from './CarouselOptions';
+import InfographicOptions from './InfographicOptions';
+import { CarouselVisual, InfographicVisual, TextOnlyVisual } from '@/components/visuals';
+import { PILLARS, TARGETS, getPillar, prefersReducedMotion } from '../_model/composer-utils';
+
+
 
 const MAX_CHARS = APP_CONFIG.maxPostCharacters || 3000;
+const LINE_HEIGHT = 24; // keep in sync with .cmp-editor-text in composer.css
+const MIN_EDITOR_HEIGHT = 240;
 
-const tones = [
-  { value: 'professional', label: 'Professional', emoji: '💼' },
-  { value: 'conversational', label: 'Conversational', emoji: '💬' },
-  { value: 'inspirational', label: 'Inspirational', emoji: '🚀' },
-  { value: 'educational', label: 'Educational', emoji: '📚' },
-  { value: 'humorous', label: 'Humorous', emoji: '😄' },
+const TONES = [
+  { value: 'professional', label: 'Professional', icon: Briefcase },
+  { value: 'conversational', label: 'Conversational', icon: MessageCircle },
+  { value: 'inspirational', label: 'Inspirational', icon: Rocket },
+  { value: 'educational', label: 'Educational', icon: GraduationCap },
+  { value: 'humorous', label: 'Humorous', icon: Laugh },
 ];
 
-const categories = [
-  'Thought Leadership',
-  'Case Study',
-  'Product Update',
-  'Hiring',
-  'Event',
-  'Engagement',
-  'Company News',
-  'Industry Insight',
+const VISUAL_FORMATS = [
+  { value: 'image', label: 'Image', icon: ImageIcon },
+  { value: 'carousel', label: 'Carousel', icon: Layers },
+  { value: 'infographic', label: 'Infographic', icon: LayoutGrid },
+  { value: 'none', label: 'Text only', icon: Ban },
+];
+
+const VISUAL_QUALIFIER = {
+  image: 'One image under your post',
+  carousel: 'Swipeable slides',
+  infographic: 'One data-led graphic',
+  none: 'Text-only posts do well when the hook is strong',
+};
+
+const TARGET_OPTIONS = TARGETS.map((t) => ({
+  value: t.id,
+  label: t.label,
+  icon: t.id === 'company' ? Building2 : User,
+}));
+
+const DEVICE_OPTIONS = [
+  { value: 'desktop', label: 'Desktop feed', icon: Monitor, iconOnly: true },
+  { value: 'mobile', label: 'Mobile feed', icon: Smartphone, iconOnly: true },
 ];
 
 const LINKEDIN_EMOJIS = [
@@ -59,7 +92,7 @@ const LINKEDIN_EMOJIS = [
   '🤩', '😄', '🤔', '🧠', '🏆', '✨', '🌟', '📌',
 ];
 
-const hashtagSuggestionsList = [
+const HASHTAG_SUGGESTIONS = [
   '#LinkedInTips',
   '#ContentMarketing',
   '#B2BSaaS',
@@ -74,7 +107,7 @@ const hashtagSuggestionsList = [
   '#ContentCreation',
 ];
 
-const toneRewriteTemplates = [
+const TONE_REWRITES = [
   {
     tone: 'professional',
     preview: "We're pleased to share key insights from our recent growth strategy and quarterly performance benchmarks...",
@@ -93,7 +126,23 @@ const toneRewriteTemplates = [
   },
 ];
 
-// Helper: Convert text to Unicode Mathematical Bold Sans-Serif (renders bold on LinkedIn)
+const IMPROVE_OPTIONS = [
+  { label: 'Add a stronger hook', icon: Target },
+  { label: 'Make it more concise', icon: Scissors },
+  { label: 'Include a call to action', icon: MessageSquarePlus },
+  { label: 'Improve readability', icon: BookOpen },
+  { label: 'Add more data points', icon: TrendingUp },
+  { label: 'Make it more engaging', icon: Flame },
+];
+
+const AI_TABS = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'improve', label: 'Improve' },
+  { value: 'tone', label: 'Change tone' },
+];
+
+// ---------- Unicode formatting helpers (render as styled text on LinkedIn) ----------
+
 function toUnicodeBold(text) {
   return text
     .split('')
@@ -107,7 +156,6 @@ function toUnicodeBold(text) {
     .join('');
 }
 
-// Helper: Convert text to Unicode Mathematical Italic Sans-Serif
 function toUnicodeItalic(text) {
   return text
     .split('')
@@ -120,7 +168,6 @@ function toUnicodeItalic(text) {
     .join('');
 }
 
-// Helper: Convert text with combining underline
 function toUnicodeUnderline(text) {
   return text
     .split('')
@@ -128,7 +175,6 @@ function toUnicodeUnderline(text) {
     .join('');
 }
 
-// Helper: Convert text with combining strikethrough
 function toUnicodeStrikethrough(text) {
   return text
     .split('')
@@ -136,10 +182,234 @@ function toUnicodeStrikethrough(text) {
     .join('');
 }
 
-// Helper: Strip unicode formatting back to plain ASCII
 function clearUnicodeFormatting(text) {
   return text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
 }
+
+function improveText(content, instruction) {
+  if (instruction.includes('hook')) {
+    const hooks = [
+      'Most people get this completely backward in our industry:\n\n',
+      'Here is the single biggest lesson I learned the hard way:\n\n',
+      'Stop overcomplicating this. Here is the framework that actually works:\n\n',
+    ];
+    return hooks[Math.floor(Math.random() * hooks.length)] + content;
+  }
+  if (instruction.includes('concise')) {
+    return content
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => l.trim())
+      .join('\n\n');
+  }
+  if (instruction.includes('call to action')) {
+    return `${content}\n\nWhat's your take on this? Let me know your thoughts in the comments below 👇`;
+  }
+  if (instruction.includes('readability')) {
+    return content.split('. ').join('.\n\n');
+  }
+  if (instruction.includes('data points')) {
+    return `${content}\n\n📊 Benchmark insight: Teams adopting this workflow see a 3.4x lift in post impressions within 30 days.`;
+  }
+  return `${content}\n\n✨ Pro-tip: Consistency outperforms sporadic perfection every time.`;
+}
+
+function normalizeTag(raw) {
+  const cleaned = raw.trim().replace(/^#+/, '').replace(/[^\p{L}\p{N}_]/gu, '');
+  return cleaned ? `#${cleaned}` : '';
+}
+
+// ---------- Sub-components ----------
+
+function useDismiss(open, onClose, ref) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointer = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose, ref]);
+}
+
+function PillarPicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = getPillar(value);
+  useDismiss(open, () => setOpen(false), ref);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        className="cmp-select"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="min-w-0">
+          <span className="cmp-select-value truncate">{current.label}</span>
+          <span className="cmp-select-meta">
+            {current.planned} of {current.goal} planned this month
+          </span>
+        </span>
+        <ChevronDown size={16} className={`cmp-chevron ${open ? 'is-open' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="cmp-popover" role="listbox" aria-label="Content pillar">
+          {PILLARS.map((pillar, i) => (
+            <button
+              key={pillar.id}
+              type="button"
+              role="option"
+              aria-selected={pillar.id === value}
+              className="cmp-option"
+              onClick={() => {
+                onChange(pillar.id);
+                setOpen(false);
+              }}
+            >
+              <span className="flex items-center justify-between gap-3">
+                <span className="min-w-0">
+                  <span className="text-[14px] font-medium cmp-ink">{pillar.label}</span>{' '}
+                  <span className="cmp-qualifier">
+                    {pillar.target === 'company' ? 'Company page' : 'Personal profile'}
+                  </span>
+                </span>
+                <span className="text-[13px] tabular-nums cmp-ink">
+                  {pillar.planned} / {pillar.goal}
+                </span>
+              </span>
+              <span className="cmp-bar" aria-hidden="true">
+                <span
+                  className={`cmp-bar-fill tone-${pillar.tone}`}
+                  style={{ '--v': Math.min(pillar.planned / pillar.goal, 1), '--m-i': i }}
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HashtagsCard({ hashtags, onChange }) {
+  const [draft, setDraft] = useState('');
+  const [leaving, setLeaving] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const count = hashtags.length;
+  const countTone = count >= 3 && count <= 5 ? 'green' : 'amber';
+  const suggestions = HASHTAG_SUGGESTIONS.filter((t) => !hashtags.includes(t)).slice(0, 8);
+
+  const add = (raw) => {
+    const tag = normalizeTag(raw);
+    if (!tag) return;
+    if (hashtags.some((h) => h.toLowerCase() === tag.toLowerCase())) {
+      toast.info(`${tag} is already added`);
+      return;
+    }
+    onChange([...hashtags, tag]);
+  };
+
+  const remove = (tag) => {
+    if (prefersReducedMotion()) {
+      onChange(hashtags.filter((h) => h !== tag));
+      return;
+    }
+    setLeaving((l) => [...l, tag]);
+    setTimeout(() => {
+      setLeaving((l) => l.filter((t) => t !== tag));
+      onChange((current) => (Array.isArray(current) ? current : hashtags).filter((h) => h !== tag));
+    }, 150);
+  };
+
+  return (
+    <section className="cmp-card m-rise" style={{ '--m-i': 5 }} aria-labelledby="cmp-tags-title">
+      <CardHeader icon={Hash} tone="green" title="Hashtags" qualifier="3–5 works best" id="cmp-tags-title">
+        <span className={`cmp-pill tone-${countTone}`}>
+          <span className="cmp-dot" />
+          {count} of 5
+        </span>
+      </CardHeader>
+
+      <div className="cmp-card-body flex flex-col gap-4">
+        <div className="cmp-tagbox">
+          {hashtags.map((tag) => (
+            <span key={tag} className={`cmp-tag ${leaving.includes(tag) ? 'is-leaving' : ''}`}>
+              {tag}
+              <button type="button" className="cmp-tag-x" aria-label={`Remove ${tag}`} onClick={() => remove(tag)}>
+                <X size={13} />
+              </button>
+            </span>
+          ))}
+          <input
+            className="cmp-tag-input"
+            value={draft}
+            placeholder={count ? 'Add another' : 'Add a hashtag and press Enter'}
+            aria-label="Add a hashtag"
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+                if (draft.trim()) {
+                  e.preventDefault();
+                  add(draft);
+                  setDraft('');
+                }
+              } else if (e.key === 'Backspace' && !draft && hashtags.length) {
+                remove(hashtags[hashtags.length - 1]);
+              }
+            }}
+            onBlur={() => {
+              if (draft.trim()) {
+                add(draft);
+                setDraft('');
+              }
+            }}
+          />
+        </div>
+
+        <div className="flex items-start gap-3">
+          <div className="flex items-center gap-1 pt-1 shrink-0">
+            <span className="text-[13px] cmp-muted">Suggested</span>
+            <button
+              type="button"
+              className="cmp-icon-btn"
+              aria-label="Refresh suggestions"
+              disabled={isRefreshing}
+              onClick={async () => {
+                // BACKEND: POST /api/ai/hashtag-suggestions with { content, tone }
+                setIsRefreshing(true);
+                await new Promise((r) => setTimeout(r, 600));
+                setIsRefreshing(false);
+              }}
+            >
+              <RefreshCw size={14} className={isRefreshing ? 'cmp-spin' : ''} />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2" aria-live="polite">
+            {suggestions.map((tag) => (
+              <button key={tag} type="button" className="cmp-suggest" onClick={() => add(tag)}>
+                <Plus size={13} />
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------- Main ----------
 
 export default function ComposerEditor({
   content = '',
@@ -150,10 +420,13 @@ export default function ComposerEditor({
   onToneChange,
   hashtags = [],
   onHashtagsChange,
-  category = 'Thought Leadership',
-  onCategoryChange,
-  imageUrl,
-  onImageChange,
+  pillarId,
+  onPillarChange,
+  target = 'personal',
+  onTargetChange,
+  device = 'desktop',
+  onDeviceChange,
+  foldIndex = null,
   visualFormat = 'image',
   onVisualFormatChange,
   carouselSlides,
@@ -161,12 +434,17 @@ export default function ComposerEditor({
   infographicData,
   onChangeInfographicData,
   candidateImages = [],
-  selectedImageIndex = 0,
-  onSelectImageIndex,
-  onRemoveCandidates,
-  isGenerating,
+  imageUrl,
+  imageGeneration,
+  revealMode,
+  onSelectImage,
+  onRemoveImage,
+  onUploadImage,
+  onGenerateImages,
+  onCancelImages,
+  isGenerating = false,
   onAIGenerate,
-  showAIPanel = true,
+  showAIPanel = false,
   onToggleAIPanel,
 }) {
   const safeContent = content || '';
@@ -174,836 +452,585 @@ export default function ComposerEditor({
   const remaining = MAX_CHARS - safeContent.length;
   const isNearLimit = remaining < 300;
   const isAtLimit = remaining <= 0;
+  const pillar = getPillar(pillarId);
 
   const textareaRef = useRef(null);
+  const editorRef = useRef(null);
+  const anchorRef = useRef(null);
   const fileRef = useRef(null);
+  const emojiRef = useRef(null);
 
-  // Undo / Redo History Stack
   const [history, setHistory] = useState([safeContent]);
   const [historyIndex, setHistoryIndex] = useState(0);
-
-  // Emoji Popover state
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [aiTab, setAiTab] = useState('draft');
+  const [includeImages, setIncludeImages] = useState(true);
+  const [rewriting, setRewriting] = useState(false);
+  const [justRewritten, setJustRewritten] = useState(false);
+  const [foldY, setFoldY] = useState(null);
 
-  // AI Assistant Section open states inside Composer
-  const [isAIOpen, setIsAIOpen] = useState(showAIPanel);
-  const [activeAISection, setActiveAISection] = useState('hashtags'); // 'hashtags' | 'tone' | 'improve'
-  const [isRefreshingHashtags, setIsRefreshingHashtags] = useState(false);
+  useDismiss(showEmojiPicker, () => setShowEmojiPicker(false), emojiRef);
+
+  // Keep undo history in step with changes made outside the textarea
+  // (AI drafts, loading a post, the Undo action in a toast).
+  useEffect(() => {
+    if (safeContent === history[historyIndex]) return;
+    const next = [...history.slice(0, historyIndex + 1), safeContent].slice(-50);
+    setHistory(next);
+    setHistoryIndex(next.length - 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeContent]);
+
+  // Auto-grow the textarea and position the fold marker.
+  useLayoutEffect(() => {
+    const sync = () => {
+      const ta = textareaRef.current;
+      if (ta) {
+        ta.style.height = 'auto';
+        ta.style.height = `${Math.max(MIN_EDITOR_HEIGHT, ta.scrollHeight)}px`;
+      }
+      const anchor = anchorRef.current;
+      if (!anchor) {
+        setFoldY(null);
+        return;
+      }
+      const h = anchor.offsetHeight;
+      setFoldY(anchor.offsetTop + h + (LINE_HEIGHT - h) / 2);
+    };
+    sync();
+    if (typeof ResizeObserver === 'undefined' || !editorRef.current) return undefined;
+    const observer = new ResizeObserver(sync);
+    observer.observe(editorRef.current);
+    return () => observer.disconnect();
+  }, [safeContent, foldIndex]);
 
   const pushHistory = (newText) => {
-    const nextSlice = history.slice(0, historyIndex + 1);
-    nextSlice.push(newText);
-    if (nextSlice.length > 50) nextSlice.shift();
-    setHistory(nextSlice);
-    setHistoryIndex(nextSlice.length - 1);
+    const next = [...history.slice(0, historyIndex + 1), newText].slice(-50);
+    setHistory(next);
+    setHistoryIndex(next.length - 1);
     if (onChange) onChange(newText);
   };
 
   const handleUndo = () => {
     if (historyIndex > 0) {
-      const prevText = history[historyIndex - 1];
       setHistoryIndex(historyIndex - 1);
-      if (onChange) onChange(prevText);
-      toast.info('Undo applied');
+      if (onChange) onChange(history[historyIndex - 1]);
     }
   };
 
   const handleRedo = () => {
     if (historyIndex < history.length - 1) {
-      const nextText = history[historyIndex + 1];
       setHistoryIndex(historyIndex + 1);
-      if (onChange) onChange(nextText);
-      toast.info('Redo applied');
+      if (onChange) onChange(history[historyIndex + 1]);
     }
   };
 
-  // Text Selection Transform Helper
-  const applyTextTransform = (transformFn, defaultPlaceholder = '') => {
+  const withSelection = (fn) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = safeContent.substring(start, end);
-
-    const replacement = selectedText.length > 0 ? transformFn(selectedText) : transformFn(defaultPlaceholder);
-    const newContent = safeContent.substring(0, start) + replacement + safeContent.substring(end);
-    pushHistory(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      const newCursor = start + replacement.length;
-      textarea.setSelectionRange(newCursor, newCursor);
-    }, 0);
+    fn(textarea, textarea.selectionStart, textarea.selectionEnd);
   };
 
-  const insertAtCursor = (textToInsert) => {
+  const applyTextTransform = (transformFn, placeholder = '') =>
+    withSelection((textarea, start, end) => {
+      const selected = safeContent.substring(start, end);
+      const replacement = transformFn(selected.length > 0 ? selected : placeholder);
+      pushHistory(safeContent.substring(0, start) + replacement + safeContent.substring(end));
+      setTimeout(() => {
+        textarea.focus();
+        const cursor = start + replacement.length;
+        textarea.setSelectionRange(cursor, cursor);
+      }, 0);
+    });
+
+  const insertAtCursor = (text) => {
     const textarea = textareaRef.current;
     if (!textarea) {
-      pushHistory(safeContent + textToInsert);
+      pushHistory(safeContent + text);
       return;
     }
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const newContent = safeContent.substring(0, start) + textToInsert + safeContent.substring(end);
-    pushHistory(newContent);
-
+    pushHistory(safeContent.substring(0, start) + text + safeContent.substring(end));
     setTimeout(() => {
       textarea.focus();
-      const newCursor = start + textToInsert.length;
-      textarea.setSelectionRange(newCursor, newCursor);
+      const cursor = start + text.length;
+      textarea.setSelectionRange(cursor, cursor);
     }, 0);
   };
 
-  // Clear formatting
-  const handleClearFormatting = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = safeContent.substring(start, end);
+  const handleClearFormatting = () =>
+    withSelection((_, start, end) => {
+      const selected = safeContent.substring(start, end);
+      if (selected.length > 0) {
+        pushHistory(safeContent.substring(0, start) + clearUnicodeFormatting(selected) + safeContent.substring(end));
+        toast.success('Formatting cleared from the selection');
+      } else {
+        pushHistory(clearUnicodeFormatting(safeContent));
+        toast.success('Formatting cleared from the whole post');
+      }
+    });
 
-    if (selectedText.length > 0) {
-      const cleared = clearUnicodeFormatting(selectedText);
-      const newContent = safeContent.substring(0, start) + cleared + safeContent.substring(end);
-      pushHistory(newContent);
-      toast.success('Cleared formatting on selection');
-    } else {
-      const cleared = clearUnicodeFormatting(safeContent);
-      pushHistory(cleared);
-      toast.success('Cleared formatting across entire post');
-    }
-  };
+  const formatBulletList = () =>
+    withSelection((_, start, end) => {
+      const selected = safeContent.substring(start, end);
+      if (selected.length > 0) {
+        const replacement = selected
+          .split('\n')
+          .map((line) => (line.startsWith('• ') ? line : `• ${line}`))
+          .join('\n');
+        pushHistory(safeContent.substring(0, start) + replacement + safeContent.substring(end));
+      } else {
+        insertAtCursor('\n• Key point 1\n• Key point 2\n• Key point 3\n');
+      }
+    });
 
-  // List formatting
-  const formatBulletList = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = safeContent.substring(start, end);
+  const formatNumberedList = () =>
+    withSelection((_, start, end) => {
+      const selected = safeContent.substring(start, end);
+      if (selected.length > 0) {
+        const replacement = selected
+          .split('\n')
+          .map((line, i) => `${i + 1}. ${line.replace(/^\d+\.\s*/, '')}`)
+          .join('\n');
+        pushHistory(safeContent.substring(0, start) + replacement + safeContent.substring(end));
+      } else {
+        insertAtCursor('\n1. First step\n2. Second step\n3. Third step\n');
+      }
+    });
 
-    if (selectedText.length > 0) {
-      const lines = selectedText.split('\n').map((line) => (line.startsWith('• ') ? line : `• ${line}`));
-      const replacement = lines.join('\n');
-      const newContent = safeContent.substring(0, start) + replacement + safeContent.substring(end);
-      pushHistory(newContent);
-    } else {
-      insertAtCursor('\n• Key point 1\n• Key point 2\n• Key point 3\n');
-    }
-  };
-
-  const formatNumberedList = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = safeContent.substring(start, end);
-
-    if (selectedText.length > 0) {
-      const lines = selectedText.split('\n').map((line, idx) => {
-        const trimmed = line.replace(/^\d+\.\s*/, '');
-        return `${idx + 1}. ${trimmed}`;
-      });
-      const replacement = lines.join('\n');
-      const newContent = safeContent.substring(0, start) + replacement + safeContent.substring(end);
-      pushHistory(newContent);
-    } else {
-      insertAtCursor('\n1. First step\n2. Second step\n3. Third step\n');
-    }
-  };
-
-  // Spacing / line breaks helper for LinkedIn "broetry" readability
   const formatSpacing = () => {
     if (!safeContent.trim()) return;
-    const paragraphs = safeContent.split(/\n+/).map((p) => p.trim()).filter(Boolean);
-    if (paragraphs.length > 0) {
-      const spaced = paragraphs.join('\n\n');
-      pushHistory(spaced);
-      toast.success('Optimized paragraph spacing for LinkedIn feed');
-    }
+    const paragraphs = safeContent
+      .split(/\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    pushHistory(paragraphs.join('\n\n'));
+    toast.success('Added a blank line between paragraphs');
   };
 
-  // Hashtag toggle
-  const toggleHashtag = (tag) => {
-    const next = safeHashtags.includes(tag)
-      ? safeHashtags.filter((h) => h !== tag)
-      : [...safeHashtags, tag];
-    if (onHashtagsChange) onHashtagsChange(next);
+  // AI rewrite: shimmer while working, flash the field when done, offer undo.
+  const runRewrite = (successLabel, produce) => {
+    if (rewriting) return;
+    const before = safeContent;
+    setRewriting(true);
+    // BACKEND: POST /api/ai/improve-post with { content, instruction }
+    setTimeout(
+      () => {
+        pushHistory(produce(before));
+        setRewriting(false);
+        setJustRewritten(true);
+        setTimeout(() => setJustRewritten(false), 1000);
+        toast.success(successLabel, {
+          action: { label: 'Undo', onClick: () => onChange && onChange(before) },
+        });
+      },
+      prefersReducedMotion() ? 0 : 750
+    );
   };
 
-  const removeHashtag = (tag) => {
-    if (onHashtagsChange) onHashtagsChange(safeHashtags.filter((h) => h !== tag));
-  };
-
-  // AI Improve Post Actions
-  const handleAIImprove = (instruction) => {
+  const handleImprove = (instruction) => {
     if (!safeContent.trim()) {
-      toast.error('Please write some content first');
+      toast.error('Write something first, then choose an improvement.');
       return;
     }
-
-    let improved = safeContent;
-    if (instruction.includes('hook')) {
-      const hookOptions = [
-        'Most people get this completely backward in our industry:\n\n',
-        'Here is the single biggest lesson I learned the hard way:\n\n',
-        'Stop overcomplicating this. Here is the framework that actually works:\n\n',
-      ];
-      const chosenHook = hookOptions[Math.floor(Math.random() * hookOptions.length)];
-      improved = chosenHook + safeContent;
-    } else if (instruction.includes('concise')) {
-      improved = safeContent
-        .split('\n')
-        .filter(Boolean)
-        .map((l) => l.trim())
-        .join('\n\n');
-    } else if (instruction.includes('call to action')) {
-      const ctaPrompt = "\n\nWhat's your take on this? Let me know your thoughts in the comments below 👇";
-      improved = safeContent + ctaPrompt;
-    } else if (instruction.includes('readability')) {
-      improved = safeContent.split('. ').join('.\n\n');
-    } else if (instruction.includes('data points')) {
-      improved =
-        safeContent +
-        '\n\n📊 Benchmark insight: Teams adopting this workflow see a 3.4x lift in post impressions within 30 days.';
-    } else {
-      improved = safeContent + '\n\n✨ Pro-tip: Consistency outperforms sporadic perfection every time.';
-    }
-
-    pushHistory(improved);
-    toast.success(`Applied AI improvement: "${instruction}" ✨`);
+    runRewrite(`Applied: ${instruction.toLowerCase()}`, (text) => improveText(text, instruction));
   };
 
-  const handleFormatSelect = (fmt) => {
-    if (onVisualFormatChange) onVisualFormatChange(fmt);
-    if (fmt === 'none') {
-      if (onImageChange) onImageChange('');
-      if (onRemoveCandidates) onRemoveCandidates();
-    }
+  const handleToneRewrite = (tone, preview) => {
+    if (onToneChange) onToneChange(tone);
+    runRewrite(`Rewritten in a ${tone} tone`, () => `${preview}\n\n[Continue your insights here...]`);
   };
+
+  const showFold = foldY != null && foldIndex != null && !isGenerating;
+  const busy = isGenerating || rewriting;
 
   return (
-    <div className="card p-0 flex flex-col gap-0 overflow-hidden border border-border shadow-xs bg-card">
-      {/* 1. Tone & Category Row */}
-      <div className="px-4 py-3 border-b border-border bg-white flex flex-wrap items-center justify-between gap-3">
-        {/* Tone Selector */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tone:</span>
-          <div className="flex gap-1 flex-wrap">
-            {tones.map((t) => (
-              <button
-                key={`tone-${t.value}`}
-                type="button"
-                onClick={() => onToneChange && onToneChange(t.value)}
-                className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
-                  selectedTone === t.value
-                    ? 'bg-[#0a66c2]/10 border-[#0a66c2]/40 text-[#0a66c2] font-semibold shadow-2xs'
-                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <span className="mr-1">{t.emoji}</span>
-                {t.label}
-              </button>
-            ))}
+    <div className="flex flex-col gap-5">
+      {/* ---------- Setup ---------- */}
+      <section className="cmp-card m-rise" style={{ '--m-i': 2 }} aria-labelledby="cmp-setup-title">
+        <CardHeader icon={SlidersHorizontal} tone="blue" title="Post setup" id="cmp-setup-title" />
+        <div className="cmp-card-body grid gap-5 sm:grid-cols-2">
+          <div>
+            <span className="cmp-label">Publish to</span>
+            <Segmented
+              label="Publish to"
+              options={TARGET_OPTIONS}
+              value={target}
+              onChange={(v) => onTargetChange && onTargetChange(v)}
+              size="lg"
+            />
           </div>
-        </div>
-
-        {/* Category Dropdown */}
-        <div className="flex items-center gap-2 ml-auto">
-          <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category:</span>
-          <select
-            value={category}
-            onChange={(e) => onCategoryChange && onCategoryChange(e.target.value)}
-            className="input-base text-xs py-1 px-2.5 h-8 bg-white border-gray-200 rounded-md shadow-2xs"
-            style={{ minWidth: 155 }}
-          >
-            {categories.map((c) => (
-              <option key={`cat-${c}`} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* 2. Rich Formatting Toolbar (exact toolset from user screenshot) */}
-      <div className="px-3 py-1.5 bg-gray-50/90 border-b border-gray-200 flex items-center gap-1 flex-wrap text-gray-700 select-none">
-        {/* Group 1: Typography (B, I, U, S) */}
-        <div className="flex items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => applyTextTransform(toUnicodeBold, 'Bold Text')}
-            className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold text-gray-800 hover:bg-gray-200/80 active:bg-gray-300 transition-colors"
-            title="Bold (LinkedIn Unicode 𝗕𝗼𝗹𝗱)"
-            aria-label="Bold"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            onClick={() => applyTextTransform(toUnicodeItalic, 'Italic Text')}
-            className="w-7 h-7 flex items-center justify-center rounded text-sm italic font-serif text-gray-800 hover:bg-gray-200/80 active:bg-gray-300 transition-colors"
-            title="Italic (LinkedIn Unicode 𝘐𝘵𝘢𝘭𝘪𝘤)"
-            aria-label="Italic"
-          >
-            I
-          </button>
-          <button
-            type="button"
-            onClick={() => applyTextTransform(toUnicodeUnderline, 'Underlined')}
-            className="w-7 h-7 flex items-center justify-center rounded text-sm underline font-serif text-gray-800 hover:bg-gray-200/80 active:bg-gray-300 transition-colors"
-            title="Underline (LinkedIn Unicode U̲n̲d̲e̲r̲l̲i̲n̲e̲)"
-            aria-label="Underline"
-          >
-            U
-          </button>
-          <button
-            type="button"
-            onClick={() => applyTextTransform(toUnicodeStrikethrough, 'Strikethrough')}
-            className="w-7 h-7 flex items-center justify-center rounded text-sm line-through font-serif text-gray-800 hover:bg-gray-200/80 active:bg-gray-300 transition-colors"
-            title="Strikethrough (LinkedIn Unicode S̶t̶r̶i̶k̶e̶)"
-            aria-label="Strikethrough"
-          >
-            S
-          </button>
-        </div>
-
-        {/* Separator */}
-        <div className="h-4 w-px bg-gray-300 mx-1" />
-
-        {/* Group 2: Insertions (Emoji, Image, Link) */}
-        <div className="flex items-center gap-0.5 relative">
-          <button
-            type="button"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className={`w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors ${
-              showEmojiPicker ? 'bg-gray-200' : ''
-            }`}
-            title="Insert LinkedIn Emojis"
-            aria-label="Insert Emoji"
-          >
-            <Smile className="w-4 h-4" />
-          </button>
-
-          {/* Emoji Popover */}
-          {showEmojiPicker && (
-            <div className="absolute top-9 left-0 z-50 p-2 bg-white rounded-lg border border-gray-200 shadow-lg grid grid-cols-6 gap-1 w-52">
-              {LINKEDIN_EMOJIS.map((emoji) => (
+          <div>
+            <span className="cmp-label">Content pillar</span>
+            <PillarPicker value={pillar.id} onChange={(id) => onPillarChange && onPillarChange(id)} />
+          </div>
+          <div className="sm:col-span-2">
+            <span className="cmp-label" id="cmp-tone-label">
+              Tone
+            </span>
+            <div className="flex flex-wrap gap-2" role="group" aria-labelledby="cmp-tone-label">
+              {TONES.map(({ value, label, icon: Icon }) => (
                 <button
-                  key={emoji}
+                  key={value}
                   type="button"
-                  onClick={() => {
-                    insertAtCursor(emoji);
-                    setShowEmojiPicker(false);
-                  }}
-                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-base"
+                  className="cmp-chip"
+                  aria-pressed={selectedTone === value}
+                  onClick={() => onToneChange && onToneChange(value)}
                 >
-                  {emoji}
+                  <Icon size={14} aria-hidden="true" />
+                  {label}
                 </button>
               ))}
             </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => {
-              handleFormatSelect('image');
-              fileRef.current?.click();
-            }}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Attach Image"
-            aria-label="Attach Image"
-          >
-            <ImageIcon className="w-4 h-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => insertAtCursor(' https://linkedin.com ')}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Insert URL Link"
-            aria-label="Insert Link"
-          >
-            <Globe className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Separator */}
-        <div className="h-4 w-px bg-gray-300 mx-1" />
-
-        {/* Group 3: History & Formatting (Undo, Redo, Clear) */}
-        <div className="flex items-center gap-0.5">
-          <button
-            type="button"
-            onClick={handleUndo}
-            disabled={historyIndex <= 0}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            title="Undo"
-            aria-label="Undo"
-          >
-            <Undo2 className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={handleRedo}
-            disabled={historyIndex >= history.length - 1}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            title="Redo"
-            aria-label="Redo"
-          >
-            <Redo2 className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={handleClearFormatting}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Clear Formatting (Remove Bold/Italic/Underline)"
-            aria-label="Clear Formatting"
-          >
-            <Eraser className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Separator */}
-        <div className="h-4 w-px bg-gray-300 mx-1" />
-
-        {/* Group 4: Lists & Spacing */}
-        <div className="flex items-center gap-0.5">
-          <button
-            type="button"
-            onClick={formatBulletList}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Bullet List (•)"
-            aria-label="Bullet List"
-          >
-            <List className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={formatNumberedList}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Numbered List (1., 2.)"
-            aria-label="Numbered List"
-          >
-            <ListOrdered className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={formatSpacing}
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-700 hover:bg-gray-200/80 transition-colors"
-            title="Optimize Paragraph Spacing"
-            aria-label="Optimize Paragraph Spacing"
-          >
-            <AlignLeft className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Quick Draft with AI button on right */}
-        <div className="ml-auto">
-          <button
-            type="button"
-            onClick={onAIGenerate}
-            disabled={isGenerating}
-            className="px-2.5 py-1 text-xs font-semibold rounded-md text-[#0a66c2] bg-sky-50 hover:bg-sky-100 border border-[#0a66c2]/30 flex items-center gap-1.5 transition-all shadow-2xs"
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-            <span>{isGenerating ? 'Drafting...' : 'AI Draft'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 3. Textarea Main Editor */}
-      <div className="relative bg-white">
-        {isGenerating && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-            <div className="flex items-center gap-2 text-[#0a66c2] font-semibold text-sm">
-              <Sparkles className="w-5 h-5 animate-spin" />
-              <span>Generating post copy & visual candidates...</span>
-            </div>
           </div>
-        )}
-        <textarea
-          ref={textareaRef}
-          value={safeContent}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (!isAtLimit || val.length < safeContent.length) {
-              pushHistory(val.slice(0, MAX_CHARS));
-            }
-          }}
-          placeholder="Start writing your LinkedIn post, or use the formatting tools and AI assistant..."
-          className="w-full px-4 py-3.5 text-sm text-[#191919] bg-transparent outline-none resize-none leading-relaxed placeholder:text-gray-400 font-normal"
-          style={{ minHeight: 220 }}
-        />
-      </div>
-
-      {/* 4. Call to Action (CTA) Input */}
-      <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50 flex items-center gap-2">
-        <MessageSquareQuote className="w-4 h-4 text-[#0a66c2] shrink-0" />
-        <div className="flex-1">
-          <input
-            type="text"
-            value={cta}
-            onChange={(e) => onCtaChange && onCtaChange(e.target.value)}
-            placeholder="Call to action (e.g. What's your biggest challenge with LinkedIn growth? Drop a comment below 👇)"
-            className="input-base text-xs py-1.5 px-3 w-full bg-white border-gray-200 rounded-md"
-          />
         </div>
-      </div>
+      </section>
 
-      {/* 5. Selected Hashtags Display */}
-      {safeHashtags.length > 0 && (
-        <div className="px-4 py-2 border-t border-gray-100 bg-white flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mr-1">Tags:</span>
-          {safeHashtags.map((tag) => (
-            <span
-              key={`hashtag-${tag}`}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#0a66c2]/10 text-[#0a66c2] text-xs font-medium rounded-full"
+      {/* ---------- Write ---------- */}
+      <section className="cmp-card m-rise" style={{ '--m-i': 3 }} aria-labelledby="cmp-write-title">
+        <CardHeader icon={PenLine} tone="blue" title="Write" id="cmp-write-title">
+          <button
+            type="button"
+            className="cmp-btn cmp-btn-soft tone-violet is-sm"
+            aria-expanded={showAIPanel}
+            aria-controls="cmp-ai-panel"
+            onClick={onToggleAIPanel}
+          >
+            <Sparkles size={15} />
+            Write with AI
+          </button>
+        </CardHeader>
+
+        <div className="cmp-toolbar" role="toolbar" aria-label="Formatting">
+          <button type="button" className="cmp-tool font-bold" onClick={() => applyTextTransform(toUnicodeBold, 'Bold text')} title="Bold" aria-label="Bold">
+            B
+          </button>
+          <button type="button" className="cmp-tool italic font-serif" onClick={() => applyTextTransform(toUnicodeItalic, 'Italic text')} title="Italic" aria-label="Italic">
+            I
+          </button>
+          <button type="button" className="cmp-tool underline" onClick={() => applyTextTransform(toUnicodeUnderline, 'Underlined')} title="Underline" aria-label="Underline">
+            U
+          </button>
+          <button type="button" className="cmp-tool line-through" onClick={() => applyTextTransform(toUnicodeStrikethrough, 'Strikethrough')} title="Strikethrough" aria-label="Strikethrough">
+            S
+          </button>
+
+          <span className="cmp-tool-sep" aria-hidden="true" />
+
+          <div ref={emojiRef} className="relative">
+            <button
+              type="button"
+              className="cmp-tool"
+              aria-expanded={showEmojiPicker}
+              aria-label="Insert emoji"
+              title="Insert emoji"
+              onClick={() => setShowEmojiPicker((s) => !s)}
             >
-              {tag}
-              <button
-                type="button"
-                onClick={() => removeHashtag(tag)}
-                className="hover:text-red-500 transition-colors"
-                aria-label={`Remove ${tag}`}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* 6. Visual Format Selector */}
-      <div className="px-4 py-2.5 border-t border-gray-200 bg-gray-50/70 flex items-center justify-between gap-2 flex-wrap">
-        <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-          Visual Format:
-        </span>
-        <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-gray-200 flex-wrap">
-          <button
-            type="button"
-            onClick={() => handleFormatSelect('image')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
-              visualFormat === 'image'
-                ? 'bg-[#0a66c2] text-white shadow-2xs font-semibold'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>Image</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFormatSelect('carousel')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
-              visualFormat === 'carousel'
-                ? 'bg-[#0a66c2] text-white shadow-2xs font-semibold'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Carousel</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFormatSelect('infographic')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
-              visualFormat === 'infographic'
-                ? 'bg-[#0a66c2] text-white shadow-2xs font-semibold'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Infographic</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFormatSelect('none')}
-            className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
-              visualFormat === 'none'
-                ? 'bg-[#0a66c2] text-white shadow-2xs font-semibold'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Ban className="w-3.5 h-3.5" />
-            <span>Text-Only</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 7. Active Visual Format Attachment Content */}
-      <div className="p-3 border-t border-gray-100 bg-white">
-        {visualFormat === 'carousel' && (
-          <CarouselVisual
-            slides={carouselSlides}
-            onChangeSlides={onChangeCarouselSlides}
-            isEditable={true}
-          />
-        )}
-
-        {visualFormat === 'infographic' && (
-          <InfographicVisual
-            data={infographicData}
-            onChangeData={onChangeInfographicData}
-            isEditable={true}
-          />
-        )}
-
-        {visualFormat === 'image' && (
-          <MarketingImageVisual
-            imageUrl={imageUrl}
-            onSelectImage={onImageChange}
-            candidateImages={candidateImages}
-            onUpdateCandidates={() => {
-              if (onSelectImageIndex) onSelectImageIndex(0);
-            }}
-            isEditable={true}
-          />
-        )}
-
-        {visualFormat === 'none' && <TextOnlyVisual content={content} />}
-      </div>
-
-      {/* 8. Merged AI Assistant (Smart hashtags, tone rewriting, and one-click improvements) */}
-      <div className="border-t border-gray-200 bg-white">
-        {/* Header Toggle */}
-        <div className="px-4 py-3 bg-gradient-to-r from-purple-50/70 via-sky-50/50 to-white border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-[#0a66c2] flex items-center justify-center text-white shadow-2xs">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-xs sm:text-sm font-semibold text-gray-900">AI Assistant</h4>
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
-                  Powered by GPT-4o
-                </span>
-              </div>
-              <p className="text-[11px] text-gray-500">Instant hashtags, tone rewrites, and post enhancements</p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsAIOpen(!isAIOpen);
-              if (onToggleAIPanel) onToggleAIPanel();
-            }}
-            className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-white/80 transition-colors border border-gray-200/80"
-          >
-            <span>{isAIOpen ? 'Hide' : 'Open'}</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform duration-200 ${isAIOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
-
-        {/* Collapsible Content */}
-        {isAIOpen && (
-          <div className="p-4 bg-gray-50/40 space-y-3">
-            {/* Nav Tabs inside AI Assistant */}
-            <div className="flex items-center gap-1.5 p-1 bg-gray-200/60 rounded-lg w-fit">
-              <button
-                type="button"
-                onClick={() => setActiveAISection('hashtags')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
-                  activeAISection === 'hashtags'
-                    ? 'bg-white text-[#0a66c2] shadow-2xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Hash className="w-3.5 h-3.5" />
-                <span>Hashtag Suggestions</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveAISection('tone')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
-                  activeAISection === 'tone'
-                    ? 'bg-white text-[#0a66c2] shadow-2xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Wand2 className="w-3.5 h-3.5" />
-                <span>Rewrite by Tone</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveAISection('improve')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
-                  activeAISection === 'improve'
-                    ? 'bg-white text-[#0a66c2] shadow-2xs'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Improve Post</span>
-              </button>
-            </div>
-
-            {/* Tab 1: Hashtag Suggestions */}
-            {activeAISection === 'hashtags' && (
-              <div className="p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-xs text-gray-500 font-medium">
-                    {safeHashtags.length} hashtags selected (click to toggle)
-                  </span>
+              <Smile size={16} />
+            </button>
+            {showEmojiPicker && (
+              <div className="cmp-emoji-pop">
+                {LINKEDIN_EMOJIS.map((emoji) => (
                   <button
+                    key={emoji}
                     type="button"
-                    onClick={async () => {
-                      setIsRefreshingHashtags(true);
-                      await new Promise((r) => setTimeout(r, 600));
-                      setIsRefreshingHashtags(false);
-                      toast.success('Hashtags refreshed with latest trends');
-                    }}
-                    disabled={isRefreshingHashtags}
-                    className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-                    title="Refresh hashtags"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingHashtags ? 'animate-spin' : ''}`} />
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {hashtagSuggestionsList.map((tag) => (
-                    <button
-                      key={`ai-tag-${tag}`}
-                      type="button"
-                      onClick={() => toggleHashtag(tag)}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
-                        safeHashtags.includes(tag)
-                          ? 'bg-[#0a66c2] text-white border-[#0a66c2] shadow-2xs'
-                          : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300'
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tab 2: Rewrite by Tone */}
-            {activeAISection === 'tone' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {toneRewriteTemplates.map(({ tone: t, preview }) => (
-                  <button
-                    key={`tone-sug-${t}`}
-                    type="button"
+                    className="cmp-tool text-base"
                     onClick={() => {
-                      if (onToneChange) onToneChange(t);
-                      pushHistory(preview + '\n\n[Continue your insights here...]');
-                      toast.success(`Switched tone to ${t} & applied preview draft`);
+                      insertAtCursor(emoji);
+                      setShowEmojiPicker(false);
                     }}
-                    className={`text-left p-3 rounded-xl border text-xs transition-all ${
-                      selectedTone === t
-                        ? 'border-[#0a66c2] bg-sky-50/60 text-gray-900 shadow-2xs'
-                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold capitalize text-gray-900">{t}</span>
-                      <span className="text-[10px] text-[#0a66c2] font-semibold uppercase">Apply</span>
-                    </div>
-                    <p className="line-clamp-2 leading-relaxed text-gray-600">{preview}</p>
+                    {emoji}
                   </button>
                 ))}
               </div>
             )}
-
-            {/* Tab 3: Improve Post */}
-            {activeAISection === 'improve' && (
-              <div className="p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2">
-                <p className="text-xs text-gray-500 font-medium">One-click copy refinements:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {[
-                    { label: 'Add a stronger hook', icon: '🎯' },
-                    { label: 'Make it more concise', icon: '✂️' },
-                    { label: 'Include a call to action', icon: '👇' },
-                    { label: 'Improve readability', icon: '📖' },
-                    { label: 'Add more data points', icon: '📊' },
-                    { label: 'Make it more engaging', icon: '🔥' },
-                  ].map(({ label, icon }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      onClick={() => handleAIImprove(label)}
-                      disabled={!safeContent.trim()}
-                      className="text-left px-3 py-2 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50/60 text-gray-700 hover:text-gray-900 hover:bg-gray-100 hover:border-gray-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      <span>{icon}</span>
-                      <span>{label}</span>
-                    </button>
-                  ))}
-                </div>
-                {!safeContent.trim() && (
-                  <p className="text-[11px] text-gray-400 text-center pt-1">
-                    Start writing copy first to run AI improvements
-                  </p>
-                )}
-              </div>
-            )}
           </div>
-        )}
-      </div>
-
-      {/* 9. Footer with Upload & Character Limit Bar */}
-      <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between bg-gray-50/60">
-        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
+            className="cmp-tool"
+            title="Attach image"
+            aria-label="Attach image"
             onClick={() => {
               if (onVisualFormatChange) onVisualFormatChange('image');
               fileRef.current?.click();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs"
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Upload Image</span>
+            <ImageIcon size={16} />
           </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
+          <button type="button" className="cmp-tool" title="Insert link" aria-label="Insert link" onClick={() => insertAtCursor(' https://linkedin.com ')}>
+            <Link2 size={16} />
+          </button>
+
+          <span className="cmp-tool-sep" aria-hidden="true" />
+
+          <button type="button" className="cmp-tool" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo" aria-label="Undo">
+            <Undo2 size={16} />
+          </button>
+          <button type="button" className="cmp-tool" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo" aria-label="Redo">
+            <Redo2 size={16} />
+          </button>
+          <button type="button" className="cmp-tool" onClick={handleClearFormatting} title="Clear formatting" aria-label="Clear formatting">
+            <Eraser size={16} />
+          </button>
+
+          <span className="cmp-tool-sep" aria-hidden="true" />
+
+          <button type="button" className="cmp-tool" onClick={formatBulletList} title="Bullet list" aria-label="Bullet list">
+            <List size={16} />
+          </button>
+          <button type="button" className="cmp-tool" onClick={formatNumberedList} title="Numbered list" aria-label="Numbered list">
+            <ListOrdered size={16} />
+          </button>
+          <button type="button" className="cmp-tool" onClick={formatSpacing} title="Space out paragraphs" aria-label="Space out paragraphs">
+            <AlignLeft size={16} />
+          </button>
+        </div>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file && onUploadImage) onUploadImage(file);
+            e.target.value = '';
+          }}
+        />
+
+        {showAIPanel && (
+          <div id="cmp-ai-panel" className="cmp-ai">
+            <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+              <Segmented label="AI tools" options={AI_TABS} value={aiTab} onChange={setAiTab} size="sm" inline />
+              <span className="text-[12.5px] cmp-muted">
+                Uses {pillar.label.toLowerCase()} and a {selectedTone} tone
+              </span>
+            </div>
+
+            <div key={aiTab} className="m-fade-in">
+              {aiTab === 'draft' && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                  <div>
+                    <p className="text-[14px] font-medium cmp-ink">Write a full draft</p>
+                    <p className="text-[13px] cmp-muted mt-0.5">
+                      {safeContent.trim()
+                        ? 'Replaces what you have written. You can undo it.'
+                        : 'A hook, body and call to action you can edit.'}
+                    </p>
+                    <label className="mt-2 inline-flex items-center gap-2 text-[13px] cmp-ink cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="accent-violet-600 w-4 h-4"
+                        checked={includeImages}
+                        onChange={(e) => setIncludeImages(e.target.checked)}
+                      />
+                      Also create 3 image options
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    className="cmp-btn cmp-btn-primary is-sm shrink-0"
+                    disabled={busy || Boolean(imageGeneration)}
+                    onClick={() => onAIGenerate && onAIGenerate({ withImages: includeImages })}
+                  >
+                    <Sparkles size={15} />
+                    {isGenerating ? 'Drafting…' : 'Draft post'}
+                  </button>
+                </div>
+              )}
+
+              {aiTab === 'improve' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {IMPROVE_OPTIONS.map(({ label, icon: Icon }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      className="cmp-ai-opt"
+                      disabled={!safeContent.trim() || busy}
+                      onClick={() => handleImprove(label)}
+                    >
+                      <Icon size={15} />
+                      {label}
+                    </button>
+                  ))}
+                  {!safeContent.trim() && (
+                    <p className="sm:col-span-2 text-[12.5px] cmp-muted">Write something first to use these.</p>
+                  )}
+                </div>
+              )}
+
+              {aiTab === 'tone' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {TONE_REWRITES.map(({ tone, preview }) => (
+                    <button
+                      key={tone}
+                      type="button"
+                      className="cmp-ai-opt cmp-ai-tone"
+                      disabled={busy}
+                      onClick={() => handleToneRewrite(tone, preview)}
+                    >
+                      <span className="capitalize cmp-ink">{tone}</span>
+                      <p className="line-clamp-2">{preview}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div
+          ref={editorRef}
+          className={`cmp-editor ${rewriting ? 'is-rewriting' : ''} ${justRewritten ? 'is-rewritten' : ''}`}
+          style={{ '--fold-y': `${foldY ?? 0}px` }}
+        >
+          <div className="cmp-fold-tint" data-hidden={!showFold} aria-hidden="true" />
+
+          <div className="cmp-editor-text cmp-editor-mirror" aria-hidden="true">
+            {foldIndex != null ? (
+              <>
+                {safeContent.slice(0, foldIndex)}
+                <span ref={anchorRef}>{'\u2060'}</span>
+                {safeContent.slice(foldIndex)}
+              </>
+            ) : (
+              safeContent
+            )}
+          </div>
+
+          <textarea
+            ref={textareaRef}
+            value={safeContent}
+            readOnly={busy}
+            aria-label="Post text"
+            aria-describedby="cmp-char-count"
+            placeholder="Write your post. The first line is your hook, so make it count."
+            className="cmp-editor-text"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                const url = URL.createObjectURL(file);
-                if (onImageChange) onImageChange(url);
-                if (onVisualFormatChange) onVisualFormatChange('image');
-                if (onRemoveCandidates) onRemoveCandidates();
-                toast.success('Attached custom image');
-              }
+              const val = e.target.value;
+              if (!isAtLimit || val.length < safeContent.length) pushHistory(val.slice(0, MAX_CHARS));
             }}
           />
 
-          <button
-            type="button"
-            onClick={() => {
-              if (onVisualFormatChange) onVisualFormatChange('image');
-              if (onAIGenerate) onAIGenerate();
-            }}
-            disabled={isGenerating}
-            className="btn-accent text-xs py-1.5 px-3.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs flex items-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{isGenerating ? 'Generating...' : 'Generate with AI (Text + 3 Images)'}</span>
-          </button>
+          <div className="cmp-fold-line" data-hidden={!showFold} aria-hidden="true">
+            <span className="cmp-fold-label">
+              {device === 'mobile' ? <Smartphone size={12} /> : <Monitor size={12} />}
+              …more cuts here
+            </span>
+          </div>
+
+          {isGenerating && (
+            <div className="cmp-drafting" role="status">
+              <p className="cmp-drafting-status">
+                <Sparkles size={15} className="cmp-spin" style={{ animationDuration: '2.4s' }} />
+                Drafting a {selectedTone} post for {pillar.label.toLowerCase()}
+              </p>
+              {[92, 100, 84, 0, 96, 78, 88].map((w, i) =>
+                w === 0 ? (
+                  <span key={`gap-${i}`} className="h-2" />
+                ) : (
+                  <span key={`skel-${i}`} className="cmp-skel" style={{ width: `${w}%`, '--m-i': i }} />
+                )
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Real-time Character Counter */}
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-xs font-semibold tabular-nums ${
-              isAtLimit ? 'text-red-500' : isNearLimit ? 'text-amber-500' : 'text-gray-500'
-            }`}
-          >
-            {remaining.toLocaleString()} / {MAX_CHARS.toLocaleString()} chars left
-          </span>
+        <div className="px-5 pt-3">
+          <div className="cmp-field">
+            <MessageSquareQuote size={16} className="cmp-field-icon" aria-hidden="true" />
+            <input
+              type="text"
+              className="cmp-input"
+              value={cta}
+              aria-label="Call to action"
+              placeholder="Call to action, e.g. What's your biggest challenge with LinkedIn growth?"
+              onChange={(e) => onCtaChange && onCtaChange(e.target.value)}
+            />
+          </div>
         </div>
-      </div>
+
+        <div className="cmp-card-foot mt-4">
+          <div className="flex items-center gap-2.5">
+            <ProgressRing
+              value={safeContent.length / MAX_CHARS}
+              tone={isAtLimit ? 'red' : isNearLimit ? 'amber' : 'blue'}
+            />
+            <span
+              id="cmp-char-count"
+              className={`text-[13px] tabular-nums ${isAtLimit ? 'text-rose-600' : isNearLimit ? 'text-amber-700' : 'cmp-muted'}`}
+            >
+              {remaining.toLocaleString()} characters left
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] cmp-muted">Show fold for</span>
+            <Segmented
+              label="Show fold for"
+              options={DEVICE_OPTIONS}
+              value={device}
+              onChange={(v) => onDeviceChange && onDeviceChange(v)}
+              size="sm"
+              inline
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Visual ---------- */}
+      <section className="cmp-card m-rise" style={{ '--m-i': 4 }} aria-labelledby="cmp-visual-title">
+        <CardHeader icon={ImageIcon} tone="amber" title="Visual" qualifier={VISUAL_QUALIFIER[visualFormat]} id="cmp-visual-title" />
+        <div className="cmp-card-body flex flex-col gap-4">
+          <Segmented
+            label="Visual format"
+            options={VISUAL_FORMATS}
+            value={visualFormat}
+            onChange={(v) => onVisualFormatChange && onVisualFormatChange(v)}
+            className="is-collapsible"
+          />
+
+          <div key={visualFormat} className="m-fade-in">
+            {visualFormat === 'image' && (
+              <ImageOptions
+                images={candidateImages}
+                imageUrl={imageUrl}
+                generation={imageGeneration}
+                revealMode={revealMode}
+                canGenerate={!isGenerating && !imageGeneration}
+                onSelect={onSelectImage}
+                onRemove={onRemoveImage}
+                onUpload={onUploadImage}
+                onGenerate={onGenerateImages}
+                onCancel={onCancelImages}
+              />
+            )}
+            {visualFormat === 'carousel' && (
+              <CarouselOptions
+                slides={carouselSlides}
+                onChangeSlides={onChangeCarouselSlides}
+                canGenerate={!isGenerating}
+                isGenerating={isGenerating}
+                content={safeContent}
+              />
+            )}
+            {visualFormat === 'infographic' && (
+              <InfographicOptions
+                data={infographicData}
+                onChangeData={onChangeInfographicData}
+                canGenerate={!isGenerating}
+                isGenerating={isGenerating}
+                content={safeContent}
+              />
+            )}
+            {visualFormat === 'none' && <TextOnlyVisual content={content} />}
+
+          </div>
+        </div>
+      </section>
+
+      <HashtagsCard hashtags={safeHashtags} onChange={onHashtagsChange} />
     </div>
   );
 }
-
