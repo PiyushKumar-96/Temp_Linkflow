@@ -7,6 +7,7 @@ import ComposerEditor from './ComposerEditor';
 import ComposerPreview from './ComposerPreview';
 import ComposerAIPanel from './ComposerAIPanel';
 import ComposerToolbar from './ComposerToolbar';
+import ComposerHeader from './ComposerHeader';
 import ScheduleControl from '@/components/ScheduleControl';
 import PipelineStageStepper from '@/components/PipelineStageStepper';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -329,22 +330,37 @@ export default function ComposerShell() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Wayfinding Breadcrumbs */}
-      {isEditMode ? (
-        <Breadcrumbs
-          items={[
-            { label: 'Approval Queue', href: '/approval-workflow' },
-            { label: `Edit Draft: ${activePost?.title || 'Review Item'}` },
-          ]}
+      {/* Editorial Hero Header matching Dashboard Theme & Reference Image 2 */}
+      <ComposerHeader
+        isEditMode={isEditMode}
+        activePost={activePost}
+      />
+
+      {/* Top Action Bar */}
+      <div className="flex items-center justify-between gap-3 px-3 py-2 bg-card/70 backdrop-blur-sm border border-border/70 rounded-xl shadow-sm flex-wrap">
+        <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold text-foreground">Post Composer</span>
+          <span className="text-slate-300 dark:text-slate-700">|</span>
+          <span>Target slot: <strong className="text-foreground font-medium">{scheduledDate} {scheduledTime}</strong></span>
+        </div>
+
+        <ComposerToolbar
+          showAIPanel={showAIPanel}
+          onToggleAI={() => setShowAIPanel((s) => !s)}
+          onSaveDraft={handleSaveDraftOrRevision}
+          onSubmitReview={handleSubmitForReview}
+          onSchedule={() => setShowScheduleDrawer(true)}
+          onOpenHistory={() => setShowHistoryModal(true)}
+          hasContent={(content || '').length > 0}
+          isEditMode={isEditMode}
+          returnUrl="/approval-workflow"
+          scheduledSlotLabel={`${scheduledDate} ${scheduledTime}`}
         />
-      ) : (
-        <Breadcrumbs
-          items={[
-            { label: 'Content Operations', href: '/dashboard' },
-            { label: 'Post Composer' },
-          ]}
-        />
-      )}
+      </div>
 
       {/* Mode Alert Banner if opened from Approval Queue */}
       {isEditMode && activePost && (
@@ -380,33 +396,6 @@ export default function ComposerShell() {
           post={{ ...activePost, scheduledDate, scheduledTime }}
         />
       )}
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {isEditMode ? 'Edit Draft (New Revision)' : 'Post Composer'}
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isEditMode
-              ? 'Refine draft copy and visual selection before resubmitting for owner sign-off'
-              : 'Create, refine, and attach visual candidates for your LinkedIn post'}
-          </p>
-        </div>
-
-        <ComposerToolbar
-          showAIPanel={showAIPanel}
-          onToggleAI={() => setShowAIPanel((s) => !s)}
-          onSaveDraft={handleSaveDraftOrRevision}
-          onSubmitReview={handleSubmitForReview}
-          onSchedule={() => setShowScheduleDrawer(true)}
-          onOpenHistory={() => setShowHistoryModal(true)}
-          hasContent={(content || '').length > 0}
-          isEditMode={isEditMode}
-          returnUrl="/approval-workflow"
-          scheduledSlotLabel={`${scheduledDate} ${scheduledTime}`}
-        />
-      </div>
 
       {/* Main Grid: 2-column side-by-side layout for real-time preview without scrolling */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
