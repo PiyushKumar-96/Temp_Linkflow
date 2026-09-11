@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { CheckSquare, RotateCcw, AlertCircle } from 'lucide-react';
+import { CheckSquare, RotateCcw, AlertCircle, XCircle, ArrowLeft } from 'lucide-react';
 import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalSourceTabs from './ApprovalSourceTabs';
@@ -34,35 +34,45 @@ export default function ApprovalShell() {
 
   const postList = useMemo(() => (Array.isArray(posts) ? posts : []), [posts]);
 
-  // Exclude approved, scheduled, and published posts — they live in Calendar and Content Library
-  const queuePosts = useMemo(() => {
+  // Unreviewed queue: exclude approved, scheduled, published, AND rejected
+  const unreviewedPosts = useMemo(() => {
     return postList.filter((p) => {
       const canonical = normalizeStatus(p.status);
       return (
         canonical !== POST_STATUS.APPROVED &&
         canonical !== POST_STATUS.SCHEDULED &&
-        canonical !== POST_STATUS.PUBLISHED
+        canonical !== POST_STATUS.PUBLISHED &&
+        canonical !== POST_STATUS.REJECTED
       );
     });
   }, [postList]);
 
+  // Rejected posts archive
+  const rejectedPosts = useMemo(() => {
+    return postList.filter((p) => normalizeStatus(p.status) === POST_STATUS.REJECTED);
+  }, [postList]);
+
   // URL state synchronization
+  const viewMode = searchParams.get('view') || 'unreviewed';
+  const isRejectedView = viewMode === 'rejected';
+
+  const activeQueuePosts = isRejectedView ? rejectedPosts : unreviewedPosts;
   const sourceFilter = searchParams.get('source') || 'all';
   const selectedParamId = searchParams.get('post');
 
   const sourceCounts = useMemo(() => {
     return {
-      all: queuePosts.length,
-      composer: queuePosts.filter((p) => (p.source || 'ai_generator') === 'composer').length,
-      ai_generator: queuePosts.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
-      bulk_upload: queuePosts.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
+      all: activeQueuePosts.length,
+      composer: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'composer').length,
+      ai_generator: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
+      bulk_upload: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
     };
-  }, [queuePosts]);
+  }, [activeQueuePosts]);
 
   const filtered = useMemo(() => {
-    if (sourceFilter === 'all') return queuePosts;
-    return queuePosts.filter((p) => (p.source || 'ai_generator') === sourceFilter);
-  }, [queuePosts, sourceFilter]);
+    if (sourceFilter === 'all') return activeQueuePosts;
+    return activeQueuePosts.filter((p) => (p.source || 'ai_generator') === sourceFilter);
+  }, [activeQueuePosts, sourceFilter]);
 
   const selectedId = useMemo(() => {
     if (selectedParamId && filtered.some((p) => p.id === selectedParamId)) {
@@ -72,8 +82,19 @@ export default function ApprovalShell() {
   }, [selectedParamId, filtered]);
 
   const selected = useMemo(() => {
-    return queuePosts.find((p) => p.id === selectedId) || null;
-  }, [queuePosts, selectedId]);
+    return activeQueuePosts.find((p) => p.id === selectedId) || null;
+  }, [activeQueuePosts, selectedId]);
+
+  const handleToggleRejected = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (isRejectedView) {
+      nextParams.delete('view');
+    } else {
+      nextParams.set('view', 'rejected');
+    }
+    nextParams.delete('post');
+    setSearchParams(nextParams, { replace: true });
+  };
 
   const handleSelect = (id) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -160,7 +181,8 @@ export default function ApprovalShell() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [filtered, selectedId, selected, isOwner, navigate]);
 
-  const pendingCount = queuePosts.length;
+  const pendingCount = unreviewedPosts.length;
+  const rejectedCount = rejectedPosts.length;
 
   if (isLoading) {
     return (
@@ -207,26 +229,40 @@ export default function ApprovalShell() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-[42px] h-[42px] rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#0a66c2] dark:text-blue-400 flex items-center justify-center border border-blue-100/80 dark:border-blue-900/50 shadow-2xs shrink-0">
-            <CheckSquare size={20} />
+          <div className={`w-[42px] h-[42px] rounded-xl flex items-center justify-center border shadow-2xs shrink-0 ${
+            isRejectedView
+              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border-rose-200/80 dark:border-rose-900/50'
+              : 'bg-blue-50 dark:bg-blue-950/50 text-[#0a66c2] dark:text-blue-400 border-blue-100/80 dark:border-blue-900/50'
+          }`}>
+            {isRejectedView ? <XCircle size={20} /> : <CheckSquare size={20} />}
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Approval Queue</h1>
-              {pendingCount > 0 && (
-                <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800">
-                  {pendingCount} pending
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                {isRejectedView ? 'Rejected Posts' : 'Approval Queue'}
+              </h1>
+              {isRejectedView ? (
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
+                  {rejectedPosts.length} rejected
                 </span>
+              ) : (
+                pendingCount > 0 && (
+                  <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800">
+                    {pendingCount} pending
+                  </span>
+                )
               )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Review, quality check, and schedule LinkedIn posts before publishing.
+              {isRejectedView
+                ? 'Review previously declined drafts, revise briefs, or restore to the publishing schedule.'
+                : 'Review, quality check, and schedule LinkedIn posts before publishing.'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center shrink-0">
-          {/* Source Tabs in Header */}
+          {/* Source Tabs */}
           <ApprovalSourceTabs
             activeSource={sourceFilter}
             onSelectSource={handleSourceChange}
@@ -242,6 +278,10 @@ export default function ApprovalShell() {
             posts={filtered}
             selectedId={selectedId}
             onSelect={handleSelect}
+            isRejected={isRejectedView}
+            onToggleRejected={handleToggleRejected}
+            unreviewedCount={unreviewedPosts.length}
+            rejectedCount={rejectedPosts.length}
           />
         </div>
         <div className="xl:col-span-7 h-full">

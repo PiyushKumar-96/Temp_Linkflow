@@ -140,7 +140,6 @@ export default function ApprovalDetail({
       {/* Header bar */}
       <ApprovalDetailHeader
         post={post}
-        authorAvatar={authorAvatar}
         targetSlotText={targetSlotText}
         revisionsCount={revisionsCount}
         isOwner={isOwner}

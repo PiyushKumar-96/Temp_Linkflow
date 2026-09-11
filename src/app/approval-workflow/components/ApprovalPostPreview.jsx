@@ -14,7 +14,6 @@ import ProgressRing from '@/components/ui/ProgressRing';
 import {
   CarouselVisual,
   InfographicVisual,
-  MarketingImageVisual,
 } from '@/components/visuals';
 
 export default function ApprovalPostPreview({
@@ -27,7 +26,6 @@ export default function ApprovalPostPreview({
   setComment,
   onSendComment,
 }) {
-  const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   return (
@@ -175,14 +173,11 @@ export default function ApprovalPostPreview({
             ) : post.visualFormat === 'infographic' ? (
               <InfographicVisual data={post.infographicData} isEditable={false} />
             ) : (
-              <MarketingImageVisual
-                candidateImages={candidateImages}
-                imageUrl={post.imageUrl || candidateImages[selectedImageIdx]?.url}
-                onSelectImage={(url) => {
-                  const idx = candidateImages.findIndex((c) => c.url === url);
-                  if (idx !== -1) setSelectedImageIdx(idx);
-                }}
-                isEditable={false}
+              <img
+                src={post.imageUrl || candidateImages?.[0]?.url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80'}
+                alt={post.title || 'Post attachment'}
+                className="w-full max-h-[460px] object-cover bg-slate-100 dark:bg-slate-800 select-none"
+                loading="lazy"
               />
             )}
           </div>

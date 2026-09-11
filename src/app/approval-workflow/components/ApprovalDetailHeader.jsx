@@ -11,6 +11,7 @@ import {
   Edit3,
   ShieldAlert,
   History,
+  Clock,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { POST_STATUS, normalizeStatus, canReview } from '@/lib/post-status';
@@ -18,7 +19,6 @@ import Segmented from '@/components/ui/Segmented';
 
 export default function ApprovalDetailHeader({
   post,
-  authorAvatar,
   targetSlotText,
   revisionsCount,
   isOwner,
@@ -36,32 +36,34 @@ export default function ApprovalDetailHeader({
   return (
     <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
       <div className="flex flex-col gap-3">
-        {/* Row 1: Author, Status, and Primary Review Decisions */}
+        {/* Row 1: Workflow Tags, Target Slot, and Review Actions */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          {/* Author Profile & Schedule Info */}
-          <div className="flex items-center gap-3">
-            <img
-              src={authorAvatar}
-              alt={post.author}
-              className="w-10 h-10 rounded-full object-cover border border-slate-200/80 dark:border-slate-700 shadow-2xs shrink-0"
-            />
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  {post.author}
-                </h3>
-                <span className="text-xs text-slate-400">·</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  {post.authorRole || 'Content Strategist'}
-                </span>
-                <StatusBadge status={post.status} size="sm" />
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5 flex-wrap">
-                <span>Due {post.dueDate || 'Soon'}</span>
-                <span>·</span>
-                <span>Target: {targetSlotText}</span>
-              </div>
-            </div>
+          {/* Post Meta Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <StatusBadge status={post.status} size="sm" />
+            <span className="text-xs px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 font-medium">
+              {post.series || post.category || 'General'}
+            </span>
+            {post.source === 'composer' && (
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800">
+                ✍️ Post Composer
+              </span>
+            )}
+            {post.source === 'bulk_upload' && (
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800">
+                📁 Bulk Upload
+              </span>
+            )}
+            {(!post.source || post.source === 'ai_generator') && (
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200/80 dark:border-violet-800">
+                🤖 AI Generator
+              </span>
+            )}
+            <span className="text-xs text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+              <Clock size={12} className="text-slate-400" />
+              <span>Target: <strong className="font-medium text-slate-700 dark:text-slate-300">{targetSlotText}</strong></span>
+            </span>
           </div>
 
           {/* Actions: Utilities + Reject + Approve */}
@@ -103,7 +105,25 @@ export default function ApprovalDetailHeader({
             </div>
 
             {/* Primary Decision Buttons */}
-            {(canReview(post.status) || normalizeStatus(post.status) === POST_STATUS.AWAITING_REVIEW) && (
+            {normalizeStatus(post.status) === POST_STATUS.REJECTED ? (
+              <button
+                onClick={onApprove}
+                disabled={!isOwner || isApproving}
+                className={`text-xs px-4 py-1.5 rounded-full font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
+                  isOwner
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                    : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
+                }`}
+                title={`Restore post and schedule for ${targetSlotText}`}
+              >
+                {isApproving ? (
+                  <RefreshCw size={13} className="animate-spin" />
+                ) : (
+                  <Check size={13} strokeWidth={2.5} />
+                )}
+                <span>Restore & Approve</span>
+              </button>
+            ) : (canReview(post.status) || normalizeStatus(post.status) === POST_STATUS.AWAITING_REVIEW) && (
               <>
                 <button
                   onClick={onOpenReject}
@@ -153,26 +173,15 @@ export default function ApprovalDetailHeader({
           </div>
         </div>
 
-        {/* Row 2: Series/Source Tags + Sub-Tabs */}
+        {/* Row 2: Due date / Revisions + Sub-Tabs */}
         <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 font-medium">
-              {post.series || post.category || 'General'}
-            </span>
-            {post.source === 'composer' && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800">
-                ✍️ Post Composer
-              </span>
-            )}
-            {post.source === 'bulk_upload' && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800">
-                📁 Bulk Upload
-              </span>
-            )}
-            {(!post.source || post.source === 'ai_generator') && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200/80 dark:border-violet-800">
-                🤖 AI Generator
-              </span>
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span>Due {post.dueDate || 'Soon'}</span>
+            {revisionsCount > 0 && (
+              <>
+                <span>·</span>
+                <span>{revisionsCount} revision{revisionsCount !== 1 ? 's' : ''}</span>
+              </>
             )}
           </div>
 
