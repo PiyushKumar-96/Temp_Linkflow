@@ -37,7 +37,7 @@ export default function GeneratedPostCard({
   const isAutoReview = post.status === POST_STATUS.AUTO_REVIEW;
 
   return (
-    <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all overflow-hidden">
+    <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all overflow-hidden shadow-xs animate-in fade-in slide-in-from-bottom-3 duration-300">
       <div className="p-4 sm:p-5 flex flex-col gap-3">
         {/* Author / Slot / Status Header */}
         <div className="flex items-center justify-between gap-3 flex-wrap">

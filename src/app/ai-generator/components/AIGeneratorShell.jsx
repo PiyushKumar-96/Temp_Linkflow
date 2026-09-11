@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CheckSquare, PenTool } from 'lucide-react';
+import { CheckSquare, PenTool, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import AIGeneratorForm from './AIGeneratorForm';
 import GeneratedPostCard from './GeneratedPostCard';
 import LinkedInPreviewModal from './LinkedInPreviewModal';
 import AIGeneratorEmptyState from './AIGeneratorEmptyState';
+import AIGeneratorLoadingState from './AIGeneratorLoadingState';
 
 import { POST_STATUS } from '@/lib/post-status';
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
@@ -174,7 +175,7 @@ export default function AIGeneratorShell() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [topic, setTopic] = useState('5 Async communication rules for distributed engineering');
+  const [topic, setTopic] = useState('');
   const [theme, setTheme] = useState('Thought Leadership');
   const [reference, setReference] = useState('');
   const [visualFormat, setVisualFormat] = useState('image');
@@ -187,6 +188,7 @@ export default function AIGeneratorShell() {
   const [newTopic, setNewTopic] = useState('');
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentDraftIndex, setCurrentDraftIndex] = useState(0);
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [expandedPost, setExpandedPost] = useState(null);
   const [previewPost, setPreviewPost] = useState(null);
@@ -217,16 +219,18 @@ export default function AIGeneratorShell() {
       return;
     }
     setIsGenerating(true);
+    setCurrentDraftIndex(0);
     setGeneratedPosts([]);
-
-    await new Promise((r) => setTimeout(r, 800));
 
     const sequentialSlots = useScheduleRules
       ? getSequentialScheduleSlots(postCount, startDate)
       : [];
 
-    const posts = [];
     for (let i = 0; i < postCount; i++) {
+      setCurrentDraftIndex(i);
+      // Wait for each individual post to draft and synthesize
+      await new Promise((r) => setTimeout(r, 1300));
+
       const postTopic =
         customTopics.length > 0
           ? customTopics[i % customTopics.length]
@@ -235,12 +239,11 @@ export default function AIGeneratorShell() {
         ? sequentialSlots[i]
         : { date: addDays(startDate, i), time: defaultTime, isSettingsSlot: false };
 
-      posts.push(
-        generateMockPost(postTopic, theme, reference, visualFormat, i, slot.date, slot.time)
-      );
+      const newPost = generateMockPost(postTopic, theme, reference, visualFormat, i, slot.date, slot.time);
+
+      setGeneratedPosts((prev) => [...prev, newPost]);
     }
 
-    setGeneratedPosts(posts);
     setIsGenerating(false);
     toast.success(`Generated ${postCount} posts`);
   };
@@ -409,40 +412,57 @@ export default function AIGeneratorShell() {
             />
           )}
 
-          {isGenerating && (
-            <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 flex flex-col items-center justify-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-700 border-t-slate-900 dark:border-t-white animate-spin" />
-              <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Drafting {postCount} posts...
-              </p>
-            </div>
+          {/* Initial generation: show full loading state with header while post #1 is being synthesized */}
+          {isGenerating && generatedPosts.length === 0 && (
+            <AIGeneratorLoadingState
+              currentPostIndex={currentDraftIndex}
+              totalPosts={postCount}
+              theme={theme}
+              visualFormat={visualFormat}
+              topic={topic}
+              showHeader={true}
+            />
           )}
 
+          {/* Stream of posts: completed cards + active drafting card below them */}
           {generatedPosts.length > 0 && (
             <div className="flex flex-col gap-4">
               {/* Batch Action Bar */}
               <div className="flex items-center justify-between flex-wrap gap-2 px-1">
                 <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
                   <span className="font-semibold text-slate-900 dark:text-white">
-                    {generatedPosts.length} posts generated
+                    {isGenerating ? (
+                      <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">
+                        <Loader2 size={13} className="animate-spin" />
+                        Generating post {currentDraftIndex + 1} of {postCount}…
+                      </span>
+                    ) : (
+                      `${generatedPosts.length} posts generated`
+                    )}
                   </span>
-                  <span>&bull;</span>
-                  <span>
-                    {completedCount} ready for review
-                  </span>
+                  {!isGenerating && (
+                    <>
+                      <span>&bull;</span>
+                      <span>
+                        {completedCount} ready for review
+                      </span>
+                    </>
+                  )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleSendAllToApprovalQueue}
-                  className="h-8 px-3 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
-                >
-                  <CheckSquare size={13} />
-                  <span>Send all to approval queue ({generatedPosts.length})</span>
-                </button>
+                {!isGenerating && (
+                  <button
+                    type="button"
+                    onClick={handleSendAllToApprovalQueue}
+                    className="h-8 px-3 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                  >
+                    <CheckSquare size={13} />
+                    <span>Send all to approval queue ({generatedPosts.length})</span>
+                  </button>
+                )}
               </div>
 
-              {/* Cards List */}
+              {/* Cards List: finished posts + active drafting card beneath */}
               <div className="flex flex-col gap-4">
                 {generatedPosts.map((post, idx) => (
                   <GeneratedPostCard
@@ -457,6 +477,18 @@ export default function AIGeneratorShell() {
                     onOpenPreview={(p) => setPreviewPost(p)}
                   />
                 ))}
+
+                {/* Show active drafting card below completed posts while still generating */}
+                {isGenerating && (
+                  <AIGeneratorLoadingState
+                    currentPostIndex={currentDraftIndex}
+                    totalPosts={postCount}
+                    theme={theme}
+                    visualFormat={visualFormat}
+                    topic={topic}
+                    showHeader={false}
+                  />
+                )}
               </div>
             </div>
           )}

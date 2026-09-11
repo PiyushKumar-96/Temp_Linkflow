@@ -1,7 +1,16 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import {
+  ArrowRight,
+  PenLine,
+  Image as ImageIcon,
+  Layers,
+  BarChart2,
+  FileText,
+  ShieldCheck,
+  CheckCircle2,
+} from 'lucide-react';
 
 const HOOK_EXAMPLES = [
   {
@@ -38,23 +47,40 @@ export default function AIGeneratorEmptyState({
     none: 'Plain narrative layout',
   }[visualFormat] || 'Visual options';
 
+  const VisualIcon = {
+    image: ImageIcon,
+    carousel: Layers,
+    infographic: BarChart2,
+    none: FileText,
+  }[visualFormat] || ImageIcon;
+
   return (
     <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 flex flex-col gap-7 transition-all">
       {/* 1. Hero Content Preview: Boldest item on the page */}
       <div>
         <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-2">
-          Preview headline
+          {topic?.trim() ? 'Preview headline' : 'General overview'}
         </p>
 
         <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-white leading-tight">
-          {topic || '5 Async communication rules for distributed engineering'}
+          {topic?.trim() || 'Turn your core insights into high-performing LinkedIn posts'}
         </h3>
 
         <div className="flex items-center gap-2 mt-2.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-          <span>Pillar: <strong className="font-medium text-slate-700 dark:text-slate-200">{theme || 'Thought Leadership'}</strong></span>
+          <span>
+            Pillar:{' '}
+            <strong className="font-medium text-slate-700 dark:text-slate-200">
+              {topic?.trim() ? (theme || 'General') : 'General'}
+            </strong>
+          </span>
           <span>&bull;</span>
-          <span>Format: <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">{visualFormat}</strong></span>
-          {reference && (
+          <span>
+            Format:{' '}
+            <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">
+              {topic?.trim() ? visualFormat : 'General'}
+            </strong>
+          </span>
+          {topic?.trim() && reference && (
             <>
               <span>&bull;</span>
               <span className="truncate max-w-[260px]">Source: {reference}</span>
@@ -63,62 +89,91 @@ export default function AIGeneratorEmptyState({
         </div>
       </div>
 
-      {/* 2. Connected 3-Step Sequence */}
+      {/* 2. Modern Connected Generation Pipeline */}
       <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5">
-        <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3">
-          Generation pipeline
-        </h4>
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-blue-600" />
+            <h4 className="text-xs font-semibold text-slate-900 dark:text-white">
+              Generation pipeline
+            </h4>
+          </div>
+          <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+            3-stage editorial flow
+          </span>
+        </div>
 
-        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
-          {/* Subtle connecting rail */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:block absolute top-3.5 left-4 right-4 h-px bg-slate-200 dark:bg-slate-800 -z-0"
-          />
-
-          {/* Step 1 */}
-          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                1
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Step 1: Opening line */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-3.5 flex flex-col justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="size-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100/80 dark:border-blue-900/50">
+                <PenLine size={14} />
               </span>
-              <span className="text-xs font-semibold text-slate-900 dark:text-white">
-                Opening line
+              <span className="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 px-2 py-0.5 rounded-md">
+                Step 01
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
-              Drafts a concise opening hook spaced for the mobile feed fold.
-            </p>
+            <div>
+              <h5 className="text-xs font-semibold text-slate-900 dark:text-white mb-1">
+                Opening hook
+              </h5>
+              <p className="text-[11.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                Drafts a concise opening hook formatted for the mobile feed fold to maximize engagement.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span>Mobile fold optimized</span>
+            </div>
           </div>
 
-          {/* Step 2 */}
-          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                2
+          {/* Step 2: Visuals */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-3.5 flex flex-col justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="size-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-100/80 dark:border-indigo-900/50">
+                <VisualIcon size={14} />
               </span>
-              <span className="text-xs font-semibold text-slate-900 dark:text-white">
-                Visuals
+              <span className="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 px-2 py-0.5 rounded-md">
+                Step 02
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
-              {formatLabel}.
-            </p>
+            <div>
+              <h5 className="text-xs font-semibold text-slate-900 dark:text-white mb-1">
+                Visual synthesis
+              </h5>
+              <p className="text-[11.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                {formatLabel}. Custom styled to reinforce the core narrative topic.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">
+              <span className="size-1.5 rounded-full bg-blue-500" />
+              <span className="capitalize">{visualFormat} asset</span>
+            </div>
           </div>
 
-          {/* Step 3 */}
-          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                3
+          {/* Step 3: Quality check */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-3.5 flex flex-col justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between">
+              <span className="size-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100/80 dark:border-emerald-900/50">
+                <ShieldCheck size={14} />
               </span>
-              <span className="text-xs font-semibold text-slate-900 dark:text-white">
-                Quality check
+              <span className="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 px-2 py-0.5 rounded-md">
+                Step 03
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
-              Scores the draft and slots it into your next open publishing time.
-            </p>
+            <div>
+              <h5 className="text-xs font-semibold text-slate-900 dark:text-white mb-1">
+                Quality & Scheduling
+              </h5>
+              <p className="text-[11.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                Scores clarity and readability, then queues into your next calendar publishing slot.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">
+              <span className="size-1.5 rounded-full bg-amber-500" />
+              <span>Automated schedule</span>
+            </div>
           </div>
         </div>
       </div>
