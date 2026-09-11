@@ -193,6 +193,11 @@ export default function AIGeneratorShell() {
   const [expandedPost, setExpandedPost] = useState(null);
   const [previewPost, setPreviewPost] = useState(null);
 
+  const activeDraftTopic =
+    customTopics.length > 0
+      ? customTopics[currentDraftIndex % customTopics.length]
+      : topic || MOCK_TOPICS[currentDraftIndex % MOCK_TOPICS.length];
+
   useEffect(() => {
     if (generatedPosts.length === 0) return;
 
@@ -229,7 +234,7 @@ export default function AIGeneratorShell() {
     for (let i = 0; i < postCount; i++) {
       setCurrentDraftIndex(i);
       // Wait for each individual post to draft and synthesize
-      await new Promise((r) => setTimeout(r, 1300));
+      await new Promise((r) => setTimeout(r, 1600));
 
       const postTopic =
         customTopics.length > 0
@@ -419,7 +424,7 @@ export default function AIGeneratorShell() {
               totalPosts={postCount}
               theme={theme}
               visualFormat={visualFormat}
-              topic={topic}
+              topic={activeDraftTopic}
               showHeader={true}
             />
           )}
@@ -485,7 +490,7 @@ export default function AIGeneratorShell() {
                     totalPosts={postCount}
                     theme={theme}
                     visualFormat={visualFormat}
-                    topic={topic}
+                    topic={activeDraftTopic}
                     showHeader={false}
                   />
                 )}

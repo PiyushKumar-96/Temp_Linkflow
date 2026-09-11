@@ -25,7 +25,7 @@ import { ModalShell, TONES, buttonStyles } from './DashboardPrimitives';
 /* ------------------------------------------------------------------ */
 /* Config                                                               */
 /* ------------------------------------------------------------------ */
-const STEP_MS = 4400;
+const STEP_MS = 3600;
 
 const STEPS = [
   {
@@ -639,14 +639,12 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
 
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [finished, setFinished] = useState(false);
   const [run, setRun] = useState(0); // bump to remount (replay) scene animations
 
   // Restart the tour every time the modal opens
   useEffect(() => {
     if (!isOpen) return;
     setActive(0);
-    setFinished(false);
     setPlaying(true);
     setRun((r) => r + 1);
   }, [isOpen]);
@@ -654,33 +652,23 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
   const goTo = useCallback((idx) => {
     const next = Math.max(0, Math.min(STEPS.length - 1, idx));
     setActive(next);
-    setFinished(false);
     setPlaying(true);
     setRun((r) => r + 1);
   }, []);
 
-  // Auto-advance step timer (JavaScript-driven for rock solid reliability)
+  // Auto-advance step timer (cycles continuously through all 4 steps)
   useEffect(() => {
-    if (!isOpen || !playing || finished) return;
+    if (!isOpen || !playing) return;
 
     const timer = setTimeout(() => {
-      if (active < STEPS.length - 1) {
-        setActive((a) => a + 1);
-        setRun((r) => r + 1);
-      } else {
-        setFinished(true);
-        setPlaying(false);
-      }
+      setActive((prev) => (prev + 1) % STEPS.length);
+      setRun((r) => r + 1);
     }, STEP_MS);
 
     return () => clearTimeout(timer);
-  }, [isOpen, playing, finished, active, run]);
+  }, [isOpen, playing, active, run]);
 
   const handlePlayback = () => {
-    if (finished) {
-      goTo(0);
-      return;
-    }
     setPlaying((p) => !p);
   };
 
@@ -697,7 +685,14 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
   }, [isOpen, active, goTo]);
 
   const Scene = SCENES[active];
-  const paused = !playing && !finished;
+  const paused = !playing;
+
+  const TONE_RINGS = {
+    blue: 'ring-2 ring-inset ring-blue-500 dark:ring-blue-400 shadow-sm',
+    violet: 'ring-2 ring-inset ring-violet-500 dark:ring-violet-400 shadow-sm',
+    amber: 'ring-2 ring-inset ring-amber-500 dark:ring-amber-400 shadow-sm',
+    emerald: 'ring-2 ring-inset ring-emerald-500 dark:ring-emerald-400 shadow-sm',
+  };
 
   return (
     <ModalShell
@@ -716,8 +711,8 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
               onClick={handlePlayback}
               className={`${buttonStyles.ghost} h-9 min-w-[88px] justify-start cursor-pointer`}
             >
-              {finished ? <RotateCcw size={15} /> : playing ? <Pause size={15} /> : <Play size={15} />}
-              {finished ? 'Replay' : playing ? 'Pause' : 'Play'}
+              {playing ? <Pause size={15} /> : <Play size={15} />}
+              {playing ? 'Pause' : 'Play'}
             </button>
             <span className="text-xs text-muted-foreground tabular-nums" aria-live="polite">
               Step {active + 1} of {STEPS.length}
@@ -729,9 +724,9 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
         </>
       }
     >
-      <style>{KEYFRAMES}</style>
+      <style precedence="hiw-keyframes">{KEYFRAMES}</style>
 
-      <div className="hiw-root grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div className="hiw-root allow-motion grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         {/* Stage */}
         <div
           aria-hidden="true"
@@ -755,27 +750,28 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
         </div>
 
         {/* Step list */}
-        <ol className="flex flex-col gap-1.5">
+        <ol className="flex flex-col gap-1.5 p-1">
           {STEPS.map((step, idx) => {
             const Icon = step.icon;
             const isActive = idx === active;
-            const isDone = idx < active || (finished && idx === active);
+            const isDone = idx < active;
+            const activeRing = TONE_RINGS[step.tone] || 'ring-2 ring-inset ring-primary';
 
             return (
               <li
                 key={step.title}
-                className={`relative overflow-hidden rounded-xl transition-[background-color,box-shadow] duration-300 ${
-                  isActive ? 'bg-card shadow-[0_6px_20px_-10px_rgba(15,23,42,0.18)] ring-1 ring-inset ring-border/80' : ''
+                className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
+                  isActive ? `bg-card ${activeRing}` : 'ring-1 ring-inset ring-border/50 hover:bg-muted/40'
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => goTo(idx)}
                   aria-current={isActive ? 'step' : undefined}
-                  className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer"
+                  className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer"
                 >
                   <span className="relative grid size-9 shrink-0 place-items-center">
-                    {isActive && !finished && (
+                    {isActive && (
                       <span
                         className={`absolute inset-0 rounded-xl ${TONES[step.tone].chip}`}
                         style={{ animation: 'hiw-ping 1.8s cubic-bezier(0,0,.2,1) infinite' }}
@@ -835,14 +831,15 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
                 </div>
 
                 {/* Step timer */}
-                {isActive && !finished && (
-                  <span className="absolute inset-x-0 bottom-0 h-[3px] bg-muted/60 overflow-hidden">
+                {isActive && (
+                  <span className="absolute inset-x-0 bottom-0 h-[3.5px] bg-slate-100 dark:bg-slate-800 overflow-hidden">
                     <span
                       key={`${active}-${run}`}
-                      className={`block h-full w-full origin-left ${PROGRESS_BAR[step.tone]}`}
+                      className={`block h-full w-full ${PROGRESS_BAR[step.tone]}`}
                       style={{
-                        animation: `hiw-progress ${STEP_MS}ms linear forwards`,
-                        animationPlayState: playing ? 'running' : 'paused',
+                        transformOrigin: 'left',
+                        animation: playing ? `hiw-progress ${STEP_MS}ms linear forwards` : 'none',
+                        transform: playing ? undefined : 'scaleX(1)',
                       }}
                     />
                   </span>
