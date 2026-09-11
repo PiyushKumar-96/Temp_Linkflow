@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, CheckSquare } from 'lucide-react';
+import { CheckSquare, PenTool } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import AIGeneratorHeader from './AIGeneratorHeader';
 import AIGeneratorForm from './AIGeneratorForm';
 import GeneratedPostCard from './GeneratedPostCard';
 import LinkedInPreviewModal from './LinkedInPreviewModal';
@@ -31,7 +32,6 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
   const content = MOCK_CONTENTS[index % MOCK_CONTENTS.length];
   const postCategory = theme || 'Thought Leadership';
 
-  // Format-specific assets
   let imageUrl = null;
   let candidateImages = [];
   let carouselSlides = null;
@@ -96,10 +96,10 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
     ? [
         {
           id: `cite-${Date.now()}-${index}`,
-          sourceName: reference.startsWith('http') ? 'External Document Reference' : 'Context Directive',
-          domain: reference.startsWith('http') ? new URL(reference.startsWith('http://') || reference.startsWith('https://') ? reference : `https://${reference}`).hostname : 'internal-ref',
+          sourceName: reference.startsWith('http') ? 'Source document' : 'Context note',
+          domain: reference.startsWith('http') ? new URL(reference.startsWith('http://') || reference.startsWith('https://') ? reference : `https://${reference}`).hostname : 'internal',
           url: reference.startsWith('http') ? reference : '#',
-          claim: `AI synthesis incorporated reference: "${reference}"`,
+          claim: `Incorporated reference: "${reference}"`,
           verifiedDate: '2026',
           confidence: 96,
         },
@@ -136,15 +136,15 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
         id: `rev-ai-${Date.now()}-${index}`,
         versionNumber: 1,
         createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
-        author: 'AI Workflow',
+        author: 'Batch generator',
         authorType: 'ai',
-        summary: `AI synthesis from theme: "${postCategory}" and topic: "${topicTitle}"`,
+        summary: `Drafted from topic "${topicTitle}"`,
       },
     ],
     qualityAudit: {
       score: 94,
       grade: 'A',
-      verdict: 'High Virality Potential',
+      verdict: 'Ready for Review',
       hookScore: 95,
       clarityScore: 93,
       voiceScore: 94,
@@ -155,8 +155,8 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
     activityLog: [
       {
         id: `act-ai-${Date.now()}-${index}`,
-        actor: 'AI Generator',
-        action: `Synthesized post from topic "${topicTitle}" (Format: ${visualFormat})`,
+        actor: 'Batch generator',
+        action: `Generated draft from topic "${topicTitle}"`,
         timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
       },
     ],
@@ -174,10 +174,10 @@ export default function AIGeneratorShell() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [topic, setTopic] = useState('5 Async Communication Rules That Saved Our Remote Engineering Team');
+  const [topic, setTopic] = useState('5 Async communication rules for distributed engineering');
   const [theme, setTheme] = useState('Thought Leadership');
   const [reference, setReference] = useState('');
-  const [visualFormat, setVisualFormat] = useState('image'); // 'image' | 'carousel' | 'infographic' | 'none'
+  const [visualFormat, setVisualFormat] = useState('image');
   const [postCount, setPostCount] = useState(3);
   const [useScheduleRules, setUseScheduleRules] = useState(true);
   const [startDate, setStartDate] = useState('2026-09-15');
@@ -191,7 +191,6 @@ export default function AIGeneratorShell() {
   const [expandedPost, setExpandedPost] = useState(null);
   const [previewPost, setPreviewPost] = useState(null);
 
-  // Progressive simulation: generating -> auto_review -> awaiting_review
   useEffect(() => {
     if (generatedPosts.length === 0) return;
 
@@ -214,13 +213,13 @@ export default function AIGeneratorShell() {
 
   const handleGenerate = async () => {
     if (!topic && customTopics.length === 0) {
-      toast.error('Please enter a topic or add custom topics');
+      toast.error('Please enter a topic or add notes for this batch');
       return;
     }
     setIsGenerating(true);
     setGeneratedPosts([]);
 
-    await new Promise((r) => setTimeout(r, 900));
+    await new Promise((r) => setTimeout(r, 800));
 
     const sequentialSlots = useScheduleRules
       ? getSequentialScheduleSlots(postCount, startDate)
@@ -243,7 +242,7 @@ export default function AIGeneratorShell() {
 
     setGeneratedPosts(posts);
     setIsGenerating(false);
-    toast.success(`Generated ${postCount} posts (${visualFormat} format)!`);
+    toast.success(`Generated ${postCount} posts`);
   };
 
   const handleSendAllToApprovalQueue = () => {
@@ -269,10 +268,10 @@ export default function AIGeneratorShell() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
 
-      toast.success(`${generatedPosts.length} posts dispatched to Approval Queue!`);
+      toast.success(`${generatedPosts.length} posts sent to approval queue`);
       navigate('/approval-workflow?source=ai_generator');
     } catch {
-      toast.error('Failed to dispatch posts to approval queue');
+      toast.error('Could not send posts to approval queue');
     }
   };
 
@@ -299,14 +298,14 @@ export default function AIGeneratorShell() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
 
-      toast.success('Post sent to Approval Queue!', {
+      toast.success('Post sent to approval queue', {
         action: {
-          label: 'View Queue',
+          label: 'View queue',
           onClick: () => navigate('/approval-workflow?source=ai_generator'),
         },
       });
     } catch {
-      toast.error('Failed to send post to queue');
+      toast.error('Could not send post to queue');
     }
   };
 
@@ -331,33 +330,42 @@ export default function AIGeneratorShell() {
   const completedCount = generatedPosts.filter((p) => p.status === POST_STATUS.AWAITING_REVIEW).length;
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <Sparkles size={22} className="text-primary" />
-          <div>
-            <h1 className="text-2xl font-700 text-foreground">AI Post Generator</h1>
-            <span className="text-xs text-muted-foreground">
-              Synthesize high-performing LinkedIn posts and visual candidate sets directly into the review pipeline
-            </span>
-          </div>
+    <div className="flex flex-col gap-5 max-w-[1360px] mx-auto pb-14 px-2 sm:px-4">
+      {/* Header Banner */}
+      <AIGeneratorHeader />
+
+      {/* Cockpit Context Bar */}
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl flex-wrap">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-medium text-slate-800 dark:text-slate-200">Batch post generator</span>
+          <span>&bull;</span>
+          <span>Format: <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">{visualFormat}</strong></span>
+          <span>&bull;</span>
+          <span>Auto-scheduling enabled</span>
         </div>
 
-        {generatedPosts.length > 0 && (
+        <div className="flex items-center gap-2">
+          <Link
+            to="/post-creation-composer"
+            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
+          >
+            <PenTool size={13} />
+            <span>Open composer</span>
+          </Link>
           <Link
             to="/approval-workflow?source=ai_generator"
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
           >
-            <CheckSquare size={13} className="text-primary" />
-            <span>Open Approval Queue</span>
+            <CheckSquare size={13} className="text-blue-600 dark:text-blue-400" />
+            <span>Approval queue</span>
           </Link>
-        )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        {/* Config Form Panel */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
+      {/* Main Grid: Settings on Left, Preview/Results on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Post Settings Panel */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
           <AIGeneratorForm
             topic={topic}
             onTopicChange={setTopic}
@@ -389,47 +397,53 @@ export default function AIGeneratorShell() {
           />
         </div>
 
-        {/* Generated Posts Panel */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+        {/* Right Column: Preview / Stream Panel */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
           {generatedPosts.length === 0 && !isGenerating && (
             <AIGeneratorEmptyState
               topic={topic}
               theme={theme}
               reference={reference}
               visualFormat={visualFormat}
-              postCount={postCount}
               onSelectTopic={(newTopicText) => setTopic(newTopicText)}
-              onGenerate={handleGenerate}
             />
           )}
 
           {isGenerating && (
-            <div className="card flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-              <p className="text-sm font-600 text-foreground">AI is crafting your posts...</p>
-              <p className="text-xs text-muted-foreground">
-                Synthesizing copy, hashtags, and format assets ({visualFormat})
+            <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-700 border-t-slate-900 dark:border-t-white animate-spin" />
+              <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Drafting {postCount} posts...
               </p>
             </div>
           )}
 
           {generatedPosts.length > 0 && (
-            <>
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <p className="text-xs font-600 text-foreground">
-                  {generatedPosts.length} posts generated · {completedCount} ready for review
-                </p>
+            <div className="flex flex-col gap-4">
+              {/* Batch Action Bar */}
+              <div className="flex items-center justify-between flex-wrap gap-2 px-1">
+                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {generatedPosts.length} posts generated
+                  </span>
+                  <span>&bull;</span>
+                  <span>
+                    {completedCount} ready for review
+                  </span>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleSendAllToApprovalQueue}
-                  className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-sm"
+                  className="h-8 px-3 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
                 >
                   <CheckSquare size={13} />
-                  <span>Send All to Approval Queue ({generatedPosts.length})</span>
+                  <span>Send all to approval queue ({generatedPosts.length})</span>
                 </button>
               </div>
 
-              <div className="flex flex-col gap-3">
+              {/* Cards List */}
+              <div className="flex flex-col gap-4">
                 {generatedPosts.map((post, idx) => (
                   <GeneratedPostCard
                     key={post.id}
@@ -444,7 +458,7 @@ export default function AIGeneratorShell() {
                   />
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

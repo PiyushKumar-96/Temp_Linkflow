@@ -1,39 +1,26 @@
 'use client';
 
 import React from 'react';
-import {
-  Sparkles,
-  Zap,
-  CheckCircle2,
-  Layers,
-  Image as ImageIcon,
-  BarChart2,
-  FileText,
-  ArrowRight,
-  Clock,
-  ShieldCheck,
-  TrendingUp,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-const HOOK_FORMULAS = [
+const HOOK_EXAMPLES = [
   {
-    title: 'The Contrarian Shift',
-    preview: 'Everyone says X. Here is what actually worked for our team...',
+    title: 'The contrarian shift',
+    preview: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
     topicText: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked:',
-    tag: 'Virality 96%',
+    metric: '96% engagement score',
   },
   {
-    title: 'Metric Case Breakdown',
-    preview: 'We reduced churn by 40% with one simple operational change...',
-    topicText: 'How we reduced churn by 40% in 90 days without adding new features:',
-    tag: 'Conversion 94%',
+    title: 'Case breakdown with metric',
+    preview: 'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
+    topicText: 'How we reduced onboarding churn by 40% in 90 days without adding new features:',
+    metric: '94% engagement score',
   },
   {
-    title: '5 Tactical Rules',
-    preview: '5 non-obvious principles high-performing engineering teams use...',
+    title: 'Tactical framework',
+    preview: '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
     topicText: '5 non-obvious rules that saved our distributed engineering team 12 hours a week:',
-    tag: 'High Saves 98%',
+    metric: '98% engagement score',
   },
 ];
 
@@ -42,190 +29,182 @@ export default function AIGeneratorEmptyState({
   theme,
   reference,
   visualFormat,
-  postCount,
   onSelectTopic,
-  onGenerate,
 }) {
   const formatLabel = {
-    image: 'Image Candidates (3 variations per post)',
-    carousel: '5-Slide PDF Presentation Decks',
-    infographic: 'Visual Metric & Pillar Charts',
-    none: 'Text-Only High-Hook Narratives',
-  }[visualFormat] || 'Visual Candidates';
+    image: '3 image options per post',
+    carousel: '5-slide document deck',
+    infographic: 'Metric cards and 3-step pillar frameworks',
+    none: 'Plain narrative layout',
+  }[visualFormat] || 'Visual options';
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* 1. Live Blueprint Card */}
-      <div className="card p-5 border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-card shadow-xs">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
-                Pipeline Blueprint Ready
+    <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 flex flex-col gap-7 transition-all">
+      {/* 1. Hero Content Preview: Boldest item on the page */}
+      <div>
+        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-2">
+          Preview headline
+        </p>
+
+        <h3 className="text-xl sm:text-2xl font-bold text-[#0F172A] dark:text-white leading-tight">
+          {topic || '5 Async communication rules for distributed engineering'}
+        </h3>
+
+        <div className="flex items-center gap-2 mt-2.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+          <span>Pillar: <strong className="font-medium text-slate-700 dark:text-slate-200">{theme || 'Thought Leadership'}</strong></span>
+          <span>&bull;</span>
+          <span>Format: <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">{visualFormat}</strong></span>
+          {reference && (
+            <>
+              <span>&bull;</span>
+              <span className="truncate max-w-[260px]">Source: {reference}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 2. Connected 3-Step Sequence */}
+      <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5">
+        <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3">
+          Generation pipeline
+        </h4>
+
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
+          {/* Subtle connecting rail */}
+          <div
+            aria-hidden="true"
+            className="hidden sm:block absolute top-3.5 left-4 right-4 h-px bg-slate-200 dark:bg-slate-800 -z-0"
+          />
+
+          {/* Step 1 */}
+          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                1
+              </span>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white">
+                Opening line
               </span>
             </div>
-            <h3 className="text-base font-bold text-foreground">
-              {topic || '5 Async Communication Rules'}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Theme: <span className="font-semibold text-foreground">{theme || 'Thought Leadership'}</span> · Format:{' '}
-              <span className="font-semibold text-foreground capitalize">{visualFormat}</span>
-              {reference ? ` · Ref: ${reference.slice(0, 30)}...` : ''}
+            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
+              Drafts a concise opening hook spaced for the mobile feed fold.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onGenerate}
-            className="btn-primary text-xs py-2 px-4 flex items-center gap-2 shadow-sm shrink-0"
-          >
-            <Sparkles size={14} />
-            <span>Generate {postCount} Posts Directly</span>
-          </button>
-        </div>
-
-        {/* Pipeline Stages Mini Visualizer */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4 pt-3.5 border-t border-border/70">
-          <div className="p-2.5 rounded-lg bg-card border border-border/80 flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <Zap size={13} className="text-amber-500" />
-              <span>1. Hook Synthesis</span>
+          {/* Step 2 */}
+          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                2
+              </span>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white">
+                Visuals
+              </span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              Generates high-contrast mobile hooks with curiosity gaps.
-            </p>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-card border border-border/80 flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <Layers size={13} className="text-primary" />
-              <span>2. Asset Studio</span>
-            </div>
-            <p className="text-[11px] text-muted-foreground leading-snug">
+            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
               {formatLabel}.
             </p>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-card border border-border/80 flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <ShieldCheck size={13} className="text-emerald-500" />
-              <span>3. Quality Audit</span>
+          {/* Step 3 */}
+          <div className="relative z-10 flex-1 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className="grid size-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                3
+              </span>
+              <span className="text-xs font-semibold text-slate-900 dark:text-white">
+                Quality check
+              </span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-snug">
-              Virality score, clarity check, and direct dispatch to Review Queue.
+            <p className="text-xs text-slate-500 dark:text-slate-400 pl-8 sm:pl-0 leading-relaxed">
+              Scores the draft and slots it into your next open publishing time.
             </p>
           </div>
         </div>
       </div>
 
-      {/* 2. Format Studio Preview */}
-      <div className="card p-4 border border-border flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal size={14} className="text-primary" />
-            <h4 className="text-xs font-bold text-foreground uppercase tracking-wide">
-              Active Format Engine: <span className="text-primary capitalize">{visualFormat}</span>
-            </h4>
-          </div>
-          <span className="text-[11px] font-semibold text-muted-foreground">
-            {postCount} scheduled slot{postCount > 1 ? 's' : ''} reserved
-          </span>
-        </div>
+      {/* 3. Visuals for this post (No dashed border, plain editorial notice) */}
+      <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5">
+        <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+          Visuals for this post
+        </h4>
 
         {visualFormat === 'image' && (
-          <div className="p-3 bg-muted/40 rounded-xl border border-dashed border-border flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <ImageIcon size={22} />
-            </div>
-            <div className="text-xs">
-              <p className="font-semibold text-foreground">3 Image Candidate Variations per Post</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                AI curates matched visual candidates. In the review queue or LinkedIn preview, you can click through to choose the highest-performing asset.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-4">
+            <p className="text-xs font-medium text-slate-900 dark:text-white">
+              3 image options per post
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              You'll pick from 3 styles before it goes to review.
+            </p>
           </div>
         )}
 
         {visualFormat === 'carousel' && (
-          <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-xl border border-dashed border-indigo-200 dark:border-indigo-800 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
-              <Layers size={22} />
-            </div>
-            <div className="text-xs">
-              <p className="font-semibold text-foreground">5-Slide Swipeable Presentation Deck</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Formatted as high-converting LinkedIn carousel PDF document with phase breakdowns, metrics, and actionable slide tags.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-4">
+            <p className="text-xs font-medium text-slate-900 dark:text-white">
+              5-slide document deck
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              Structured as a swipeable presentation with phase breakdowns and slide tags.
+            </p>
           </div>
         )}
 
         {visualFormat === 'infographic' && (
-          <div className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-xl border border-dashed border-emerald-200 dark:border-emerald-800 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-              <BarChart2 size={22} />
-            </div>
-            <div className="text-xs">
-              <p className="font-semibold text-foreground">Structured Infographic & Metric Cards</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Auto-extracts key comparison statistics (+62% lift) and 3-step pillar frameworks ready for LinkedIn scannability.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-4">
+            <p className="text-xs font-medium text-slate-900 dark:text-white">
+              Metric cards and pillar frameworks
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              Extracts key comparison statistics and a 3-step actionable breakdown.
+            </p>
           </div>
         )}
 
         {visualFormat === 'none' && (
-          <div className="p-3 bg-muted/40 rounded-xl border border-dashed border-border flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
-              <FileText size={22} />
-            </div>
-            <div className="text-xs">
-              <p className="font-semibold text-foreground">Text-Only Pure Narrative Mode</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Zero distractions. Optimizes spacing for the 3-line / 5-line LinkedIn fold to drive maximum comment engagement and profile clicks.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 p-4">
+            <p className="text-xs font-medium text-slate-900 dark:text-white">
+              Text-only narrative
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              Clean spacing focused on narrative rhythm and comments.
+            </p>
           </div>
         )}
       </div>
 
-      {/* 3. Proven High-Hook Inspiration Formulas */}
-      <div className="card p-4 border border-border flex flex-col gap-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <TrendingUp size={14} className="text-primary" />
-            <h4 className="text-xs font-bold text-foreground uppercase tracking-wide">
-              Hook Formulas (Click to inject)
-            </h4>
-          </div>
-          <span className="text-[11px] text-muted-foreground">Proven Top 1% LinkedIn Hooks</span>
-        </div>
+      {/* 4. Hooks that performed well */}
+      <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5">
+        <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3">
+          Hooks that performed well
+        </h4>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {HOOK_FORMULAS.map((f) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {HOOK_EXAMPLES.map((item) => (
             <button
-              key={f.title}
+              key={item.title}
               type="button"
-              onClick={() => onSelectTopic(f.topicText)}
-              className="p-3 rounded-lg border border-border bg-card hover:bg-muted/60 text-left transition-all group flex flex-col justify-between gap-2"
+              onClick={() => onSelectTopic(item.topicText)}
+              className="p-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 text-left transition-colors flex flex-col justify-between gap-3 group"
             >
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                    {f.title}
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {item.title}
                   </span>
-                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded">
-                    {f.tag}
+                  <span className="text-[11px] text-slate-400">
+                    {item.metric}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
-                  {f.preview}
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">
+                  {item.preview}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-[10px] font-semibold text-primary opacity-80 group-hover:opacity-100">
-                <span>Use this topic</span>
-                <ArrowRight size={10} />
+
+              <div className="flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 pt-1">
+                <span>Use this hook</span>
+                <ArrowRight size={12} />
               </div>
             </button>
           ))}

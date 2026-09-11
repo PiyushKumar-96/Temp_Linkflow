@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { X, Send, Edit3, CheckSquare, Sparkles } from 'lucide-react';
+import { X, Edit3, CheckSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ComposerPreview from '@/app/post-creation-composer/components/ComposerPreview';
 
@@ -31,39 +31,34 @@ export default function LinkedInPreviewModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] z-10 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh] z-10">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/40">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-[#0a66c2]/10 text-[#0a66c2] flex items-center justify-center shrink-0">
-              <Sparkles size={15} />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-foreground truncate">
-                LinkedIn Feed Preview
-              </h3>
-              <p className="text-[11px] text-muted-foreground truncate">
-                {post.title || 'Generated AI LinkedIn Post'}
-              </p>
-            </div>
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+              Post preview
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+              {post.title || 'Draft post'}
+            </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+            className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="Close preview"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Scrollable Preview Body (Rendering ComposerPreview) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f4f2ee] scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f3f2ef] dark:bg-slate-950/80 scrollbar-thin">
           <ComposerPreview
             content={post.content || ''}
             cta={post.cta || ''}
@@ -77,22 +72,20 @@ export default function LinkedInPreviewModal({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <Link
-              to={`/post-creation-composer?id=${post.id}&mode=edit`}
-              className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
-              onClick={onClose}
-            >
-              <Edit3 size={13} />
-              <span>Open in Composer</span>
-            </Link>
-          </div>
+        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-wrap gap-2">
+          <Link
+            to={`/post-creation-composer?id=${post.id}&mode=edit`}
+            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
+            onClick={onClose}
+          >
+            <Edit3 size={12} />
+            <span>Edit in composer</span>
+          </Link>
 
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="btn-secondary text-xs py-1.5 px-3"
+              className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors"
             >
               Close
             </button>
@@ -102,10 +95,10 @@ export default function LinkedInPreviewModal({
                   onSendToQueue(post.id);
                   onClose();
                 }}
-                className="btn-primary text-xs py-1.5 px-3.5 flex items-center gap-1.5 shadow-sm"
+                className="h-8 px-3.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
               >
-                <CheckSquare size={13} />
-                <span>Send to Approval Queue</span>
+                <CheckSquare size={12} />
+                <span>Send to approval queue</span>
               </button>
             )}
           </div>
