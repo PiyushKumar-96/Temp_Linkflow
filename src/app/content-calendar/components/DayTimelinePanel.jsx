@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Plus, Clock, ArrowRight } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { AVATARS } from '@/temp-backend/data/media';
+import EmptyDayState from './EmptyDayState';
 
 const MONTH_SHORT = [
   'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -149,26 +150,7 @@ export default function DayTimelinePanel({
         })}
 
         {/* Empty State */}
-        {dayPosts.length === 0 && (
-          <div className="py-12 px-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center flex flex-col items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3">
-              <Calendar size={18} />
-            </div>
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              No events planned
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
-              No LinkedIn posts or distribution events are scheduled for this day.
-            </p>
-            <button
-              onClick={() => navigate(`/post-creation-composer?date=${selectedDate}`)}
-              className="mt-4 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-1.5"
-            >
-              <Plus size={13} />
-              <span>Schedule post</span>
-            </button>
-          </div>
-        )}
+        {dayPosts.length === 0 && <EmptyDayState selectedDate={selectedDate} />}
       </div>
 
       {/* Footer Quick Action */}
