@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Zap,
   Settings,
   FileText,
   UserCheck,
@@ -20,6 +19,7 @@ import {
   ThumbsUp,
   Heart,
 } from 'lucide-react';
+import { IconWorkflow } from './DashboardCustomIcons';
 import { ModalShell, TONES, buttonStyles } from './DashboardPrimitives';
 
 /* ------------------------------------------------------------------ */
@@ -703,7 +703,7 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      icon={Zap}
+      icon={IconWorkflow}
       tone="violet"
       title="How the workflow works"
       subtitle="Follow one post from idea to LinkedIn"

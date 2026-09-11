@@ -3,16 +3,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertTriangle,
-  RotateCw,
-  Upload,
-  FileText,
   MoreVertical,
   XCircle,
   CheckCircle2,
-  RefreshCcw,
 } from 'lucide-react';
-import { IconAttentionRequired } from './DashboardCustomIcons';
+import {
+  IconAttentionRequired,
+  IconPipelineFailure,
+  IconRetryDispatch,
+  IconManualPublish,
+  IconAttemptsCount,
+  IconFormatText,
+} from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, buttonStyles, formatSlot } from './DashboardPrimitives';
 
 const DEMO_FAILURE = {
@@ -71,7 +73,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
         <div className="mt-4 flex flex-1 flex-col rounded-xl bg-rose-50/60 p-4 ring-1 ring-inset ring-rose-200/80 dark:bg-rose-400/[0.06] dark:ring-rose-400/15">
           {/* Alert title */}
           <div className="flex items-start gap-2.5">
-            <AlertTriangle size={17} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" strokeWidth={2.2} />
+            <IconPipelineFailure size={18} className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400" />
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <p className="pt-0.5 text-[13px] font-semibold text-foreground">Pipeline dispatch failed</p>
@@ -91,7 +93,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
           {/* Failed post */}
           <div className="mt-3 rounded-lg bg-card p-3 ring-1 ring-inset ring-border/70 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
             <div className="flex items-center gap-2">
-              <FileText size={14} className="shrink-0 text-muted-foreground" />
+              <IconFormatText size={15} className="shrink-0 text-muted-foreground" />
               <p className="truncate text-xs font-semibold text-foreground">{failedItem.title}</p>
             </div>
             <p className="mt-1.5 flex items-start gap-1.5 pl-[22px] text-xs text-rose-600 dark:text-rose-400">
@@ -105,7 +107,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
               </span>
               <span className="tabular-nums">{formatSlot(failedItem.date) || 'Unknown time'}</span>
               <span className="inline-flex items-center gap-1 tabular-nums">
-                <RefreshCcw size={11} />
+                <IconAttemptsCount size={12} />
                 {failedItem.attempts || '3 of 3'}
               </span>
               <span className="flex flex-wrap gap-1">
@@ -129,7 +131,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
               disabled={retrying}
               className={`${buttonStyles.dark} h-9 w-full px-3 sm:w-auto sm:flex-1`}
             >
-              <RotateCw size={14} className={retrying ? 'animate-spin motion-reduce:animate-none' : ''} />
+              <IconRetryDispatch size={14} className={retrying ? 'animate-spin motion-reduce:animate-none' : ''} />
               {retrying ? 'Retrying…' : 'Retry dispatch'}
             </button>
             <button
@@ -137,7 +139,7 @@ export default function DashboardAttentionRequired({ failedPosts, onRetryPost, o
               onClick={() => onManualPublish?.(failedItem)}
               className={`${buttonStyles.outline} h-9 w-full px-3 sm:w-auto sm:flex-1`}
             >
-              <Upload size={14} />
+              <IconManualPublish size={14} />
               Publish manually
             </button>
           </div>

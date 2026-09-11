@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import {
-  IconWorkflow,
+  IconQuickShortcuts,
   IconQuickNewPost,
   IconQuickPlanTopic,
   IconQuickOpenQueue,
@@ -84,7 +84,7 @@ export default function DashboardQuickActions({ actions = ACTIONS }) {
   return (
     <Panel className="flex flex-1 flex-col p-5">
       <PanelHeader
-        icon={IconWorkflow}
+        icon={IconQuickShortcuts}
         tone="amber"
         title="Quick actions"
         badge={
@@ -139,7 +139,7 @@ export default function DashboardQuickActions({ actions = ACTIONS }) {
                   group-hover:scale-105
                 `}
               >
-                <Icon size={16} strokeWidth={2.3} />
+                <Icon size={18} strokeWidth={1.8} />
               </span>
 
               {/* Text */}

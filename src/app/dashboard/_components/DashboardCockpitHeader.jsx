@@ -4,21 +4,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
-  Calendar,
   ChevronDown,
-  Sparkles,
-  Plus,
-  Shield,
   Building2,
   Settings,
   CalendarClock,
-  Sun,
-  CloudSun,
-  Moon,
 } from 'lucide-react';
+import {
+  IconGreetingMorning,
+  IconGreetingAfternoon,
+  IconGreetingEvening,
+  IconHeaderCalendar,
+  IconVerifiedRole,
+  IconComposePlus,
+  IconGenerativeSparkle,
+} from './DashboardCustomIcons';
 import { Pill, formatDayLabel, getGreeting } from './DashboardPrimitives';
 
-const GREETING_ICONS = { morning: Sun, afternoon: CloudSun, evening: Moon };
+const GREETING_ICONS = {
+  morning: IconGreetingMorning,
+  afternoon: IconGreetingAfternoon,
+  evening: IconGreetingEvening,
+};
 
 export default function DashboardCockpitHeader() {
   const navigate = useNavigate();
@@ -87,7 +93,7 @@ export default function DashboardCockpitHeader() {
           className={`${tabletBase} hidden items-center gap-3 px-3.5 md:flex select-none hover:border-blue-200 dark:hover:border-blue-900/60 hover:shadow-md`}
         >
           <span className="grid size-7 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400 ring-1 ring-blue-500/20 shadow-xs">
-            <Calendar size={13} strokeWidth={2.3} />
+            <IconHeaderCalendar size={15} />
           </span>
           <div className="flex flex-col text-left">
             <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
@@ -136,7 +142,7 @@ export default function DashboardCockpitHeader() {
                 {displayName}
               </span>
               <span className="mt-0.5 flex items-center gap-1 text-[10px] font-medium leading-none text-violet-600/90 dark:text-violet-400">
-                <Shield size={9} strokeWidth={2.4} className="text-violet-500 shrink-0" />
+                <IconVerifiedRole size={11} className="text-violet-500 shrink-0" />
                 {displayRole}
               </span>
             </div>
@@ -155,7 +161,7 @@ export default function DashboardCockpitHeader() {
               <div className="px-3 pb-3 pt-2">
                 <p className="truncate font-semibold text-foreground">{displayName}</p>
                 <p className="truncate text-xs text-muted-foreground">{user?.email || 'Signed in'}</p>
-                <Pill tone="blue" icon={Shield} className="mt-2">
+                <Pill tone="blue" icon={IconVerifiedRole} className="mt-2">
                   {displayRole}
                 </Pill>
               </div>
@@ -195,12 +201,12 @@ export default function DashboardCockpitHeader() {
           className="group relative h-11 rounded-full bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 hover:from-slate-900 hover:via-indigo-950 hover:to-purple-950 text-white pl-2.5 pr-4 flex items-center gap-2.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.35),0_2px_6px_rgba(99,102,241,0.2)] hover:shadow-[0_6px_22px_-2px_rgba(99,102,241,0.45),0_2px_8px_rgba(15,23,42,0.3)] ring-1 ring-white/20 hover:ring-white/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <span className="grid size-7 place-items-center rounded-full bg-white/15 text-white shadow-xs group-hover:bg-white/25 group-hover:scale-110 transition-all duration-200">
-            <Plus size={14} strokeWidth={2.8} />
+            <IconComposePlus size={14} />
           </span>
           <span className="text-[13px] font-bold tracking-tight text-white/95 group-hover:text-white">
             Compose post
           </span>
-          <Sparkles
+          <IconGenerativeSparkle
             size={14}
             className="text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.65)] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
           />

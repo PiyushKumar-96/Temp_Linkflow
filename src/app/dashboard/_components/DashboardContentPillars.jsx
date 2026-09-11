@@ -2,8 +2,11 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, AlertCircle } from 'lucide-react';
-import { IconContentPillars } from './DashboardCustomIcons';
+import {
+  IconContentPillars,
+  IconGenerativeSparkle,
+  IconAttentionRequired,
+} from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill } from './DashboardPrimitives';
 
 const BAR = {
@@ -81,7 +84,7 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
           <span className="font-semibold text-foreground tabular-nums">{totalPlanned}</span> of {totalTarget} monthly posts planned
         </span>
         <span className={`inline-flex items-center gap-1 font-semibold ${healthy ? 'text-emerald-600 dark:text-emerald-300' : 'text-amber-600 dark:text-amber-300'}`}>
-          {healthy ? <Sparkles size={12} /> : <AlertCircle size={12} />}
+          {healthy ? <IconGenerativeSparkle size={12} /> : <IconAttentionRequired size={12} />}
           {healthy ? 'Cadence healthy' : 'Behind plan'}
         </span>
       </div>

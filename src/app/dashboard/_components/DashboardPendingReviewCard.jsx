@@ -3,17 +3,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FileText,
-  Image as ImageIcon,
-  Layers,
   MoreVertical,
   CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
-import { IconPendingReview } from './DashboardCustomIcons';
+import {
+  IconPendingReview,
+  IconFormatCarousel,
+  IconFormatImage,
+  IconFormatText,
+  IconGenerativeSparkle,
+} from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, Avatar } from './DashboardPrimitives';
 
-const FORMAT_ICONS = { image: ImageIcon, carousel: Layers, text: FileText };
+const FORMAT_ICONS = {
+  image: IconFormatImage,
+  carousel: IconFormatCarousel,
+  text: IconFormatText,
+};
 
 const DEMO_ITEMS = [
   {
@@ -95,7 +101,7 @@ export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) 
       ) : (
         <ul className="mt-3 flex flex-1 flex-col divide-y divide-border/60">
           {items.map((item) => {
-            const FormatIcon = FORMAT_ICONS[item.visualFormat] || FileText;
+            const FormatIcon = FORMAT_ICONS[item.visualFormat] || IconFormatText;
             const highImpact = /high/i.test(item.impact);
             return (
               <li key={item.id} className="py-1 first:pt-0 last:pb-0">
@@ -118,7 +124,7 @@ export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <Pill tone="blue">{item.category}</Pill>
-                      <Pill tone="emerald" icon={Sparkles}>
+                      <Pill tone="emerald" icon={IconGenerativeSparkle}>
                         Quality {item.qualityScore}%
                       </Pill>
                     </div>

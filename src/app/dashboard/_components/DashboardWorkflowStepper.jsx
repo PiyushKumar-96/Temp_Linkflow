@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlayCircle, ChevronRight, Check } from 'lucide-react';
-import { IconWorkflow } from './DashboardCustomIcons';
+import { ChevronRight, Check } from 'lucide-react';
+import { IconWorkflow, IconWorkflowHowItWorks } from './DashboardCustomIcons';
 import { Panel, buttonStyles } from './DashboardPrimitives';
 
 const DEFAULT_STEPS = [
@@ -62,7 +62,7 @@ export default function DashboardWorkflowStepper({ steps = DEFAULT_STEPS, onOpen
               onClick={onOpenWorkflowModal || (() => navigate('/approval-workflow'))}
               className={`${buttonStyles.outline} h-9 px-3.5 flex items-center gap-1.5`}
             >
-              <PlayCircle size={14} />
+              <IconWorkflowHowItWorks size={14} />
               <span>How it works</span>
               <ChevronRight size={14} />
             </button>

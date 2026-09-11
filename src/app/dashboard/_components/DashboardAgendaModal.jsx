@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { IconTodayFocus } from './DashboardCustomIcons';
 import { ModalShell, Pill, buttonStyles, formatDayLabel } from './DashboardPrimitives';
 
 const PRIORITY = {
@@ -49,7 +50,7 @@ export default function DashboardAgendaModal({ isOpen, onClose, tasks = DEFAULT_
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      icon={CalendarDays}
+      icon={IconTodayFocus}
       tone="blue"
       title="Today's agenda"
       subtitle={`${formatDayLabel(new Date())} · ${urgent} urgent item${urgent === 1 ? '' : 's'}`}

@@ -4,28 +4,30 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
-  Clock,
   MoreVertical,
-  Layers,
-  Image as ImageIcon,
-  FileText,
-  Video,
-  LayoutGrid,
-  Building2,
-  User,
   CalendarPlus,
 } from 'lucide-react';
-import { IconUpcomingPosts } from './DashboardCustomIcons';
+import {
+  IconUpcomingPosts,
+  IconFormatCarousel,
+  IconFormatImage,
+  IconFormatText,
+  IconFormatVideo,
+  IconFormatInfographic,
+  IconTargetCompany,
+  IconTargetPersonal,
+  IconPrecisionClock,
+} from './DashboardCustomIcons';
 import { Panel, PanelHeader, PanelLink, Pill, IconButton, addDays, toISODate, formatSlot } from './DashboardPrimitives';
 
 const FORMATS = {
-  carousel: { label: 'Carousel', icon: Layers },
-  image: { label: 'Image', icon: ImageIcon },
-  article: { label: 'Article', icon: FileText },
-  none: { label: 'Text', icon: FileText },
-  text: { label: 'Text', icon: FileText },
-  video: { label: 'Video', icon: Video },
-  infographic: { label: 'Infographic', icon: LayoutGrid },
+  carousel: { label: 'Carousel', icon: IconFormatCarousel },
+  image: { label: 'Image', icon: IconFormatImage },
+  article: { label: 'Article', icon: IconFormatText },
+  none: { label: 'Text', icon: IconFormatText },
+  text: { label: 'Text', icon: IconFormatText },
+  video: { label: 'Video', icon: IconFormatVideo },
+  infographic: { label: 'Infographic', icon: IconFormatInfographic },
 };
 
 const STATUS = {
@@ -37,8 +39,8 @@ const STATUS = {
 };
 
 const TARGETS = {
-  company: { label: 'Company page', icon: Building2 },
-  personal: { label: 'Personal profile', icon: User },
+  company: { label: 'Company page', icon: IconTargetCompany },
+  personal: { label: 'Personal profile', icon: IconTargetPersonal },
 };
 
 function demoPosts() {
@@ -163,7 +165,7 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
                         </Pill>
                       </span>
                       <span className="inline-flex items-center gap-1 tabular-nums">
-                        <Clock size={11} />
+                        <IconPrecisionClock size={12} />
                         {formatSlot(post.slot)}
                       </span>
                       <span className="inline-flex items-center gap-1">
