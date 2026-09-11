@@ -16,8 +16,8 @@ export default function ApprovalSourceTabs({
   counts = {},
 }) {
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
+    <div className="flex items-center gap-2 flex-nowrap shrink-0 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
         Source:
       </span>
       {TABS.map((tab) => {
@@ -29,20 +29,20 @@ export default function ApprovalSourceTabs({
           <button
             key={tab.id}
             type="button"
-            onClick={() => onSelectSource(tab.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+            onClick={() => onSelectSource && onSelectSource(tab.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
               isActive
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                ? 'bg-[#0a66c2] text-white border border-[#0a66c2] shadow-xs'
+                : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60'
             }`}
           >
-            <Icon size={13} />
+            <Icon size={13} className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'} />
             <span>{tab.label}</span>
             <span
-              className={`px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold ${
+              className={`px-1.5 py-0.5 rounded-full text-[10.5px] tabular-nums font-bold leading-none ${
                 isActive
                   ? 'bg-white/25 text-white'
-                  : 'bg-muted text-foreground'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
               {count}

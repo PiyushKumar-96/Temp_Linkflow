@@ -68,15 +68,16 @@ export default function ComposerShell() {
   const [content, setContent] = useState('');
   const [cta, setCta] = useState('');
   const [selectedTone, setSelectedTone] = useState('professional');
-  const [hashtags, setHashtags] = useState(['#LinkedInMarketing', '#ContentStrategy', '#B2BSaaS']);
+  const [hashtags, setHashtags] = useState([]);
   const [pillarId, setPillarId] = useState('thought-leadership');
   const [target, setTarget] = useState('personal');
   const [device, setDevice] = useState('desktop');
 
-  const [visualFormat, setVisualFormat] = useState('image');
+  const [visualFormat, setVisualFormat] = useState('none');
   const [imageUrl, setImageUrl] = useState('');
   const [candidateImages, setCandidateImages] = useState([]);
   const [carouselSlides, setCarouselSlides] = useState([]);
+  const [uploadedPdfInfo, setUploadedPdfInfo] = useState(null);
   const [infographicData, setInfographicData] = useState(null);
 
   const [imageGeneration, setImageGeneration] = useState(null); // { startedAt, count } while generating
@@ -365,20 +366,101 @@ export default function ComposerShell() {
     }
   };
 
-  const handleUploadImage = (file) => {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      toast.error('Use a PNG, JPG or WEBP image.');
+  const handleUploadAttachment = (file) => {
+    if (!file) return;
+
+    const MAX_BYTES = 15 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      toast.error('File size exceeds 15 MB limit. Please select a smaller file.');
       return;
     }
-    if (file.size > MAX_UPLOAD_BYTES) {
-      toast.error('That image is over 10 MB. Try a smaller file.');
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+    const isStandardImage = ['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
+
+    if (isPdf) {
+      const pdfName = file.name;
+      const baseName = pdfName.replace(/\.pdf$/i, '');
+      const sizeMb = (file.size / 1024 / 1024).toFixed(1);
+
+      const slidesFromPdf = [
+        {
+          id: `pdf-slide-1`,
+          headline: baseName,
+          body: `Cover slide from uploaded document: ${pdfName} (${sizeMb} MB)`,
+          tag: 'PAGE 01 / 04',
+          accentColor: '#0a66c2',
+        },
+        {
+          id: `pdf-slide-2`,
+          headline: 'Executive Summary & Strategy',
+          body: 'Detailed breakdown of core metrics and strategic focus areas.',
+          tag: 'PAGE 02 / 04',
+          accentColor: '#6366f1',
+        },
+        {
+          id: `pdf-slide-3`,
+          headline: 'Key Takeaways & Framework',
+          body: 'Structured methodologies and actionable insights for execution.',
+          tag: 'PAGE 03 / 04',
+          accentColor: '#8b5cf6',
+        },
+        {
+          id: `pdf-slide-4`,
+          headline: 'Next Steps & Recommendations',
+          body: 'High-impact conclusions and follow-up initiatives.',
+          tag: 'PAGE 04 / 04',
+          accentColor: '#10b981',
+        },
+      ];
+
+      setVisualFormat('carousel');
+      setUploadedPdfInfo({
+        name: pdfName,
+        size: sizeMb,
+        pageCount: 4,
+      });
+      setCarouselSlides(slidesFromPdf);
+      setImageUrl('');
+      setRevealMode('quick');
+      toast.success(`PDF uploaded: ${pdfName} (will publish as a LinkedIn carousel)`);
       return;
     }
-    const url = URL.createObjectURL(file);
-    setRevealMode('quick');
-    setCandidateImages((prev) => [{ id: `upload-${Date.now()}`, url, alt: file.name, source: 'upload' }, ...prev]);
-    setImageUrl(url);
-    setVisualFormat('image');
+
+    if (isGif) {
+      const url = URL.createObjectURL(file);
+      setVisualFormat('image');
+      setUploadedPdfInfo(null);
+      setImageUrl(url);
+      setCandidateImages((prev) => [{ id: `gif-${Date.now()}`, url, alt: file.name, source: 'upload', isGif: true }, ...prev]);
+      setRevealMode('quick');
+      toast.success(`GIF uploaded: ${file.name}`);
+      return;
+    }
+
+    if (isStandardImage) {
+      const url = URL.createObjectURL(file);
+      setVisualFormat('image');
+      setUploadedPdfInfo(null);
+      setCandidateImages((prev) => [{ id: `upload-${Date.now()}`, url, alt: file.name, source: 'upload' }, ...prev]);
+      setImageUrl(url);
+      setRevealMode('quick');
+      toast.success(`Image uploaded: ${file.name}`);
+      return;
+    }
+
+    toast.error('Unsupported format. Please upload an Image (PNG/JPG), PDF, or GIF.');
+  };
+
+  const handleRemoveAttachment = () => {
+    setVisualFormat('none');
+    setImageUrl('');
+    setUploadedPdfInfo(null);
+    setCarouselSlides([]);
+    setCandidateImages([]);
+    setInfographicData(null);
+    toast.info('Visual attachment removed');
   };
 
   // ---------- Setup ----------
@@ -649,9 +731,12 @@ export default function ComposerShell() {
             revealMode={revealMode}
             onSelectImage={handleSelectImage}
             onRemoveImage={handleRemoveImage}
-            onUploadImage={handleUploadImage}
+            onUploadImage={handleUploadAttachment}
+            onUploadAttachment={handleUploadAttachment}
+            onRemoveAttachment={handleRemoveAttachment}
             onGenerateImages={handleGenerateImages}
             onCancelImages={handleCancelImages}
+            uploadedPdfInfo={uploadedPdfInfo}
             isGenerating={isGenerating}
             onViewDrafts={() => setShowDraftsModal(true)}
           />

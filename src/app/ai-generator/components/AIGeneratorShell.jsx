@@ -218,8 +218,9 @@ export default function AIGeneratorShell() {
     return () => clearInterval(interval);
   }, [generatedPosts.length]);
 
-  const handleGenerate = async () => {
-    if (!topic && customTopics.length === 0) {
+  const handleGenerate = async (overrideTopic) => {
+    const activeTopic = typeof overrideTopic === 'string' ? overrideTopic : topic;
+    if (!activeTopic && customTopics.length === 0) {
       toast.error('Please enter a topic or add notes for this batch');
       return;
     }
@@ -239,7 +240,7 @@ export default function AIGeneratorShell() {
       const postTopic =
         customTopics.length > 0
           ? customTopics[i % customTopics.length]
-          : topic || MOCK_TOPICS[i % MOCK_TOPICS.length];
+          : activeTopic || MOCK_TOPICS[i % MOCK_TOPICS.length];
       const slot = useScheduleRules && sequentialSlots[i]
         ? sequentialSlots[i]
         : { date: addDays(startDate, i), time: defaultTime, isSettingsSlot: false };
@@ -413,7 +414,22 @@ export default function AIGeneratorShell() {
               theme={theme}
               reference={reference}
               visualFormat={visualFormat}
-              onSelectTopic={(newTopicText) => setTopic(newTopicText)}
+              postCount={postCount}
+              onSelectTopic={(item) => {
+                const text = item.preview || item.topicText || item;
+                const title = item.title || 'Selected hook';
+                setTopic(text);
+                toast.success(`Hook applied: "${title}"`);
+                const el = document.getElementById('ai-generator-topic-input');
+                if (el) {
+                  el.focus();
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              onGenerateWithHook={(hookText) => {
+                setTopic(hookText);
+                handleGenerate(hookText);
+              }}
             />
           )}
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { CheckSquare, Keyboard, RotateCcw, AlertCircle } from 'lucide-react';
+import { CheckSquare, RotateCcw, AlertCircle } from 'lucide-react';
 import ApprovalQueue from './ApprovalQueue';
 import ApprovalDetail from './ApprovalDetail';
 import ApprovalSourceTabs from './ApprovalSourceTabs';
@@ -16,7 +16,7 @@ import {
 } from '../_api';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { POST_STATUS, STATUS_BUCKET, matchesStatusBucket } from '@/lib/post-status';
+import { POST_STATUS, normalizeStatus } from '@/lib/post-status';
 
 export default function ApprovalShell() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,41 +34,35 @@ export default function ApprovalShell() {
 
   const postList = useMemo(() => (Array.isArray(posts) ? posts : []), [posts]);
 
+  // Exclude approved, scheduled, and published posts — they live in Calendar and Content Library
+  const queuePosts = useMemo(() => {
+    return postList.filter((p) => {
+      const canonical = normalizeStatus(p.status);
+      return (
+        canonical !== POST_STATUS.APPROVED &&
+        canonical !== POST_STATUS.SCHEDULED &&
+        canonical !== POST_STATUS.PUBLISHED
+      );
+    });
+  }, [postList]);
+
   // URL state synchronization
-  const filter = searchParams.get('status') || 'all';
   const sourceFilter = searchParams.get('source') || 'all';
   const selectedParamId = searchParams.get('post');
 
   const sourceCounts = useMemo(() => {
     return {
-      all: postList.length,
-      composer: postList.filter((p) => (p.source || 'ai_generator') === 'composer').length,
-      ai_generator: postList.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
-      bulk_upload: postList.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
+      all: queuePosts.length,
+      composer: queuePosts.filter((p) => (p.source || 'ai_generator') === 'composer').length,
+      ai_generator: queuePosts.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
+      bulk_upload: queuePosts.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
     };
-  }, [postList]);
+  }, [queuePosts]);
 
   const filtered = useMemo(() => {
-    let list = postList;
-
-    // Filter by Source
-    if (sourceFilter !== 'all') {
-      list = list.filter((p) => (p.source || 'ai_generator') === sourceFilter);
-    }
-
-    // Filter by Status
-    if (filter === 'all') return list;
-    if (filter === 'pending' || filter === 'in_review') {
-      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.IN_REVIEW));
-    }
-    if (filter === 'approved' || filter === 'scheduled') {
-      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.SCHEDULED));
-    }
-    if (filter === 'rejected' || filter === 'attention') {
-      return list.filter((p) => matchesStatusBucket(p.status, STATUS_BUCKET.ATTENTION));
-    }
-    return list.filter((p) => matchesStatusBucket(p.status, filter) || p.status === filter);
-  }, [postList, filter, sourceFilter]);
+    if (sourceFilter === 'all') return queuePosts;
+    return queuePosts.filter((p) => (p.source || 'ai_generator') === sourceFilter);
+  }, [queuePosts, sourceFilter]);
 
   const selectedId = useMemo(() => {
     if (selectedParamId && filtered.some((p) => p.id === selectedParamId)) {
@@ -78,23 +72,12 @@ export default function ApprovalShell() {
   }, [selectedParamId, filtered]);
 
   const selected = useMemo(() => {
-    return postList.find((p) => p.id === selectedId) || null;
-  }, [postList, selectedId]);
+    return queuePosts.find((p) => p.id === selectedId) || null;
+  }, [queuePosts, selectedId]);
 
   const handleSelect = (id) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('post', id);
-    setSearchParams(nextParams, { replace: true });
-  };
-
-  const handleFilterChange = (newFilter) => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (newFilter === 'all') {
-      nextParams.delete('status');
-    } else {
-      nextParams.set('status', newFilter);
-    }
-    nextParams.delete('post');
     setSearchParams(nextParams, { replace: true });
   };
 
@@ -177,24 +160,22 @@ export default function ApprovalShell() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [filtered, selectedId, selected, isOwner, navigate]);
 
-  const pendingCount = postList.filter(
-    (p) => p.status === 'awaiting_review' || p.status === 'pending' || p.status === 'needs_revision'
-  ).length;
+  const pendingCount = queuePosts.length;
 
   if (isLoading) {
     return (
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <div className="h-8 w-44 bg-muted rounded animate-pulse" />
-          <div className="h-9 w-64 bg-muted rounded-lg animate-pulse" />
+          <div className="h-9 w-48 bg-slate-200/70 dark:bg-slate-800 rounded-xl animate-pulse" />
+          <div className="h-9 w-64 bg-slate-200/70 dark:bg-slate-800 rounded-xl animate-pulse" />
         </div>
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-5" style={{ minHeight: 640 }}>
-          <div className="xl:col-span-2 card p-4 space-y-3">
+          <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-muted/60 rounded-lg animate-pulse" />
+              <div key={i} className="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
             ))}
           </div>
-          <div className="xl:col-span-3 card p-6 h-full bg-muted/30 animate-pulse" />
+          <div className="xl:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 h-full min-h-[500px] animate-pulse" />
         </div>
       </div>
     );
@@ -202,15 +183,17 @@ export default function ApprovalShell() {
 
   if (isError) {
     return (
-      <div className="card p-8 text-center max-w-md mx-auto my-12 border border-danger/30 bg-danger/5">
-        <AlertCircle size={28} className="text-danger mx-auto mb-3" />
-        <h2 className="text-base font-600 text-foreground mb-1">Failed to load approval queue</h2>
-        <p className="text-xs text-muted-foreground mb-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-rose-200/80 dark:border-rose-900/50 p-8 text-center max-w-md mx-auto my-12 shadow-sm">
+        <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-500 flex items-center justify-center mx-auto mb-3">
+          <AlertCircle size={24} />
+        </div>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Failed to load approval queue</h2>
+        <p className="text-xs text-slate-500 mb-4">
           {error?.message || 'A network error occurred while loading posts.'}
         </p>
         <button
           onClick={() => refetch()}
-          className="btn-primary text-xs py-2 px-4 mx-auto flex items-center gap-1.5"
+          className="px-4 py-2 text-xs font-semibold rounded-full bg-[#0a66c2] text-white hover:bg-[#084e96] transition-colors inline-flex items-center gap-1.5 shadow-xs"
         >
           <RotateCcw size={13} />
           <span>Try Again</span>
@@ -220,83 +203,48 @@ export default function ApprovalShell() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-6 lg:p-8 border border-slate-200/80 dark:border-slate-800 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_12px_28px_-12px_rgba(15,23,42,0.06)]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <CheckSquare size={20} className="text-primary" />
-          <h1 className="text-2xl font-700 text-foreground">Approval Queue</h1>
-          {pendingCount > 0 && (
-            <span className="px-2 py-0.5 text-xs font-700 bg-warning/20 text-warning rounded-full">
-              {pendingCount} pending
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Keyboard shortcut trigger */}
-          <button
-            onClick={() => setShortcutsOpen(true)}
-            className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground transition-colors flex items-center gap-1.5 text-xs font-500"
-            title="Press '?' for keyboard shortcuts"
-          >
-            <Keyboard size={14} />
-            <span className="hidden sm:inline">Shortcuts</span>
-            <kbd className="text-[10px] font-mono bg-muted px-1.5 py-0.2 rounded border border-border">
-              ?
-            </kbd>
-          </button>
-
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
-            {[
-              { id: 'all', label: 'All' },
-              { id: 'in_review', label: 'In Review' },
-              { id: 'scheduled', label: 'Scheduled' },
-              { id: 'attention', label: 'Needs Attention' },
-            ].map((f) => {
-              const active =
-                filter === f.id ||
-                (f.id === 'in_review' && filter === 'pending') ||
-                (f.id === 'scheduled' && filter === 'approved') ||
-                (f.id === 'attention' && filter === 'rejected');
-              return (
-                <button
-                  key={`filter-${f.id}`}
-                  onClick={() => handleFilterChange(f.id)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-all duration-150 ${
-                    active
-                      ? 'bg-card text-foreground card-shadow'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-3">
+          <div className="w-[42px] h-[42px] rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#0a66c2] dark:text-blue-400 flex items-center justify-center border border-blue-100/80 dark:border-blue-900/50 shadow-2xs shrink-0">
+            <CheckSquare size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Approval Queue</h1>
+              {pendingCount > 0 && (
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800">
+                  {pendingCount} pending
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Review, quality check, and schedule LinkedIn posts before publishing.
+            </p>
           </div>
         </div>
+
+        <div className="flex items-center shrink-0">
+          {/* Source Tabs in Header */}
+          <ApprovalSourceTabs
+            activeSource={sourceFilter}
+            onSelectSource={handleSourceChange}
+            counts={sourceCounts}
+          />
+        </div>
       </div>
 
-      {/* Source Filter Tabs */}
-      <div className="bg-card p-2 rounded-xl border border-border">
-        <ApprovalSourceTabs
-          activeSource={sourceFilter}
-          onSelectSource={handleSourceChange}
-          counts={sourceCounts}
-        />
-      </div>
-
-      {/* Split panel */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-5" style={{ minHeight: 640 }}>
-        <div className="xl:col-span-2">
+      {/* Split panel: Queue (left) & Detail (right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8" style={{ minHeight: 640 }}>
+        <div className="xl:col-span-5 h-full">
           <ApprovalQueue
             posts={filtered}
             selectedId={selectedId}
             onSelect={handleSelect}
           />
         </div>
-        <div className="xl:col-span-3">
+        <div className="xl:col-span-7 h-full">
           {selected ? (
             <ApprovalDetail
               post={selected}
@@ -307,8 +255,14 @@ export default function ApprovalShell() {
               isApproving={approveMutation.isPending}
             />
           ) : (
-            <div className="card flex items-center justify-center h-full min-h-[400px]">
-              <p className="text-sm text-muted-foreground">Select a post to review</p>
+            <div className="bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-12 flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+              <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
+                <CheckSquare size={22} />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">No Post Selected</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
+                Select a post from the queue to view audit details, research package, or approve.
+              </p>
             </div>
           )}
         </div>
@@ -322,3 +276,4 @@ export default function ApprovalShell() {
     </div>
   );
 }
+

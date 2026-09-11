@@ -10,25 +10,26 @@ import {
   FileText,
   ShieldCheck,
   CheckCircle2,
+  Check,
 } from 'lucide-react';
 
 const HOOK_EXAMPLES = [
   {
     title: 'The contrarian shift',
     preview: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
-    topicText: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked:',
+    topicText: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
     metric: '96% engagement score',
   },
   {
     title: 'Case breakdown with metric',
     preview: 'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
-    topicText: 'How we reduced onboarding churn by 40% in 90 days without adding new features:',
+    topicText: 'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
     metric: '94% engagement score',
   },
   {
     title: 'Tactical framework',
     preview: '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
-    topicText: '5 non-obvious rules that saved our distributed engineering team 12 hours a week:',
+    topicText: '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
     metric: '98% engagement score',
   },
 ];
@@ -39,6 +40,8 @@ export default function AIGeneratorEmptyState({
   reference,
   visualFormat,
   onSelectTopic,
+  onGenerateWithHook,
+  postCount = 3,
 }) {
   const formatLabel = {
     image: '3 image options per post',
@@ -231,38 +234,83 @@ export default function AIGeneratorEmptyState({
 
       {/* 4. Hooks that performed well */}
       <div className="border-t border-slate-100 dark:border-slate-800/80 pt-5">
-        <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3">
-          Hooks that performed well
-        </h4>
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            Hooks that performed well
+          </h4>
+          <span className="text-[11px] text-slate-400">
+            Click any hook to apply as topic
+          </span>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {HOOK_EXAMPLES.map((item) => (
-            <button
-              key={item.title}
-              type="button"
-              onClick={() => onSelectTopic(item.topicText)}
-              className="p-3.5 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 text-left transition-colors flex flex-col justify-between gap-3 group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {item.title}
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    {item.metric}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">
-                  {item.preview}
-                </p>
-              </div>
+          {HOOK_EXAMPLES.map((item) => {
+            const isSelected = Boolean(
+              topic?.trim() &&
+                (topic.trim() === item.preview.trim() ||
+                  topic.trim() === item.topicText.trim() ||
+                  topic.toLowerCase().includes(item.title.toLowerCase()) ||
+                  item.preview.toLowerCase().startsWith(topic.toLowerCase().slice(0, 35)))
+            );
 
-              <div className="flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 pt-1">
-                <span>Use this hook</span>
-                <ArrowRight size={12} />
-              </div>
-            </button>
-          ))}
+            return (
+              <button
+                key={item.title}
+                type="button"
+                onClick={() => onSelectTopic && onSelectTopic(item)}
+                className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-3 group relative cursor-pointer ${
+                  isSelected
+                    ? 'border-blue-600 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 ring-2 ring-blue-500/20 shadow-xs'
+                    : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      {isSelected && (
+                        <CheckCircle2 size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                      )}
+                      <span
+                        className={`text-xs font-semibold truncate transition-colors ${
+                          isSelected
+                            ? 'text-blue-900 dark:text-blue-200'
+                            : 'text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                        }`}
+                      >
+                        {item.title}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 shrink-0">
+                      {item.metric}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-xs leading-relaxed line-clamp-3 ${
+                      isSelected
+                        ? 'text-blue-950/80 dark:text-blue-200/80 font-normal'
+                        : 'text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {item.preview}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs font-medium pt-1">
+                  {isSelected ? (
+                    <span className="flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400">
+                      <Check size={13} strokeWidth={2.5} />
+                      <span>Hook applied</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 group-hover:translate-x-0.5 transition-transform">
+                      <span>Use this hook</span>
+                      <ArrowRight size={12} />
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

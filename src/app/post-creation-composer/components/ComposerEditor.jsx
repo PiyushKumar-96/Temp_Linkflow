@@ -8,9 +8,10 @@ import {
   Building2,
   ChevronDown,
   Eraser,
-  FolderOpen,
+  FileText,
   GraduationCap,
   Image as ImageIcon,
+  Info,
   Laugh,
   Layers,
   LayoutGrid,
@@ -18,13 +19,16 @@ import {
   List,
   ListOrdered,
   MessageCircle,
+  Paperclip,
   PenLine,
   Redo2,
   Rocket,
   SlidersHorizontal,
   Smile,
   Sparkles,
+  Trash2,
   Undo2,
+  Upload,
   User,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -32,11 +36,7 @@ import APP_CONFIG from '@/lib/config';
 import { CardHeader, ProgressRing, Segmented } from './ComposerUI';
 import ImageOptions from './ImageOptions';
 import CarouselOptions from './CarouselOptions';
-import InfographicOptions from './InfographicOptions';
-import { CarouselVisual, InfographicVisual, TextOnlyVisual } from '@/components/visuals';
 import { PILLARS, TARGETS, getPillar, prefersReducedMotion } from '../_model/composer-utils';
-
-
 
 const MAX_CHARS = APP_CONFIG.maxPostCharacters || 3000;
 const LINE_HEIGHT = 24; // keep in sync with .cmp-editor-text in composer.css
@@ -49,20 +49,6 @@ const TONES = [
   { value: 'educational', label: 'Educational', icon: GraduationCap },
   { value: 'humorous', label: 'Humorous', icon: Laugh },
 ];
-
-const VISUAL_FORMATS = [
-  { value: 'image', label: 'Image', icon: ImageIcon },
-  { value: 'carousel', label: 'Carousel', icon: Layers },
-  { value: 'infographic', label: 'Infographic', icon: LayoutGrid },
-  { value: 'none', label: 'Text only', icon: Ban },
-];
-
-const VISUAL_QUALIFIER = {
-  image: 'One image under your post',
-  carousel: 'Swipeable slides',
-  infographic: 'Add GIF only or framework graphic',
-  none: 'Text-only posts do well when the hook is strong',
-};
 
 const TARGET_OPTIONS = TARGETS.map((t) => ({
   value: t.id,
@@ -241,6 +227,9 @@ export default function ComposerEditor({
   onSelectImage,
   onRemoveImage,
   onUploadImage,
+  onUploadAttachment,
+  onRemoveAttachment,
+  uploadedPdfInfo,
   onGenerateImages,
   onCancelImages,
   isGenerating = false,
@@ -496,15 +485,6 @@ export default function ComposerEditor({
         <CardHeader icon={PenLine} tone="blue" title="Write" id="cmp-write-title">
           <button
             type="button"
-            className="cmp-btn cmp-btn-outline is-sm flex items-center gap-1.5"
-            onClick={onViewDrafts}
-            title="View saved drafts"
-          >
-            <FolderOpen size={14} />
-            <span>Saved drafts</span>
-          </button>
-          <button
-            type="button"
             className="cmp-btn cmp-btn-soft tone-violet is-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
             disabled={!safeContent.trim() || isEnhancing || busy}
             onClick={handleEnhance}
@@ -563,14 +543,11 @@ export default function ComposerEditor({
           <button
             type="button"
             className="cmp-tool"
-            title="Attach image"
-            aria-label="Attach image"
-            onClick={() => {
-              if (onVisualFormatChange) onVisualFormatChange('image');
-              fileRef.current?.click();
-            }}
+            title="Attach media (Image, PDF, or GIF)"
+            aria-label="Attach media (Image, PDF, or GIF)"
+            onClick={() => fileRef.current?.click()}
           >
-            <ImageIcon size={16} />
+            <Paperclip size={16} />
           </button>
           <button type="button" className="cmp-tool" title="Insert link" aria-label="Insert link" onClick={() => insertAtCursor(' https://linkedin.com ')}>
             <Link2 size={16} />
@@ -604,11 +581,14 @@ export default function ComposerEditor({
         <input
           ref={fileRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            if (file && onUploadImage) onUploadImage(file);
+            if (file) {
+              if (onUploadAttachment) onUploadAttachment(file);
+              else if (onUploadImage) onUploadImage(file);
+            }
             e.target.value = '';
           }}
         />
@@ -682,63 +662,277 @@ export default function ComposerEditor({
             </span>
           </div>
         </div>
-      </section>
 
-      {/* ---------- Visual ---------- */}
-      <section className="cmp-card m-rise" style={{ '--m-i': 4 }} aria-labelledby="cmp-visual-title">
-        <CardHeader icon={ImageIcon} tone="amber" title="Visual" qualifier={VISUAL_QUALIFIER[visualFormat]} id="cmp-visual-title" />
-        <div className="cmp-card-body flex flex-col gap-4">
-          <Segmented
-            label="Visual format"
-            options={VISUAL_FORMATS}
-            value={visualFormat}
-            onChange={(v) => onVisualFormatChange && onVisualFormatChange(v)}
-            className="is-collapsible"
-          />
-
-          <div key={visualFormat} className="m-fade-in">
-            {visualFormat === 'image' && (
-              <ImageOptions
-                images={candidateImages}
-                imageUrl={imageUrl}
-                generation={imageGeneration}
-                revealMode={revealMode}
-                canGenerate={!isGenerating && !imageGeneration}
-                onSelect={onSelectImage}
-                onRemove={onRemoveImage}
-                onUpload={onUploadImage}
-                onGenerate={onGenerateImages}
-                onCancel={onCancelImages}
-              />
-            )}
-            {visualFormat === 'carousel' && (
-              <CarouselOptions
-                slides={carouselSlides}
-                onChangeSlides={onChangeCarouselSlides}
-                generation={carouselGeneration}
-                onGenerate={onGenerateCarousel}
-                onCancel={onCancelCarousel}
-                canGenerate={!isGenerating && !carouselGeneration}
-                isGenerating={isGenerating}
-                content={safeContent}
-              />
-            )}
-            {visualFormat === 'infographic' && (
-              <InfographicOptions
-                data={infographicData}
-                onChangeData={onChangeInfographicData}
-                generation={infographicGeneration}
-                onGenerate={onGenerateInfographic}
-                onCancel={onCancelInfographic}
-                canGenerate={!isGenerating && !infographicGeneration}
-                isGenerating={isGenerating}
-                content={safeContent}
-              />
-            )}
-            {visualFormat === 'none' && <TextOnlyVisual content={content} />}
-
+        {/* Integrated Visual & Attachments Section */}
+        {imageGeneration ? (
+          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
+            <ImageOptions
+              images={candidateImages}
+              imageUrl={imageUrl}
+              generation={imageGeneration}
+              revealMode={revealMode}
+              canGenerate={!isGenerating && !imageGeneration}
+              onSelect={onSelectImage}
+              onRemove={onRemoveAttachment || onRemoveImage}
+              onUpload={onUploadAttachment || onUploadImage}
+              onGenerate={onGenerateImages}
+              onCancel={onCancelImages}
+            />
           </div>
-        </div>
+        ) : carouselGeneration ? (
+          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
+            <CarouselOptions
+              slides={carouselSlides}
+              onChangeSlides={onChangeCarouselSlides}
+              generation={carouselGeneration}
+              onGenerate={onGenerateCarousel}
+              onCancel={onCancelCarousel}
+              canGenerate={!isGenerating && !carouselGeneration}
+              isGenerating={isGenerating}
+              content={safeContent}
+            />
+          </div>
+        ) : uploadedPdfInfo ? (
+          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-200/80 dark:border-rose-900/50">
+                  <FileText size={20} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[260px] sm:max-w-md">
+                      {uploadedPdfInfo.name}
+                    </p>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose-100/90 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 uppercase tracking-wide">
+                      PDF
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
+                    {uploadedPdfInfo.size || '1.4 MB'} • {uploadedPdfInfo.pageCount || 4} pages • Carousel document
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-outline is-sm gap-1.5"
+                  onClick={() => fileRef.current?.click()}
+                  title="Replace with another file"
+                >
+                  <Upload size={13} />
+                  <span>Replace</span>
+                </button>
+                <button
+                  type="button"
+                  className="cmp-btn is-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-2 h-auto rounded-md"
+                  onClick={onRemoveAttachment}
+                  title="Remove attachment"
+                  aria-label="Remove attachment"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* Explicit LinkedIn carousel note for uploaded PDF */}
+            <div className="flex items-start gap-2.5 text-[12.5px] leading-snug text-blue-900 bg-blue-50/90 border border-blue-200/80 rounded-lg p-2.5 mt-3 dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200">
+              <Info size={16} className="shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+              <div>
+                <span className="font-semibold text-blue-950 dark:text-blue-100">Note: </span>
+                This PDF will be published to LinkedIn as a multi-page swipeable carousel document.
+              </div>
+            </div>
+          </div>
+        ) : visualFormat === 'image' && imageUrl ? (
+          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-14 h-14 rounded-lg overflow-hidden border border-[var(--cmp-line)] shrink-0 bg-slate-100 dark:bg-slate-800 relative">
+                  <img
+                    src={imageUrl}
+                    alt="Attached visual"
+                    className="w-full h-full object-cover"
+                  />
+                  {candidateImages.find((img) => img.url === imageUrl)?.isGif && (
+                    <span className="absolute bottom-1 right-1 bg-amber-500 text-white text-[9px] font-bold px-1 rounded">
+                      GIF
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[240px] sm:max-w-md">
+                      {candidateImages.find((img) => img.url === imageUrl)?.alt ||
+                        (candidateImages.find((img) => img.url === imageUrl)?.isGif
+                          ? 'Animated GIF'
+                          : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
+                          ? 'AI Generated Visual'
+                          : 'Attached Image')}
+                    </p>
+                    <span
+                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                        candidateImages.find((img) => img.url === imageUrl)?.isGif
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                          : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
+                          ? 'bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300'
+                          : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                      }`}
+                    >
+                      {candidateImages.find((img) => img.url === imageUrl)?.isGif
+                        ? 'GIF'
+                        : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
+                        ? 'AI Visual'
+                        : 'Image'}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
+                    Attached to post • Displays full-width in LinkedIn feed
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-outline is-sm gap-1.5"
+                  onClick={() => fileRef.current?.click()}
+                  title="Replace file"
+                >
+                  <Upload size={13} />
+                  <span>Replace</span>
+                </button>
+                <button
+                  type="button"
+                  className="cmp-btn is-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-2 h-auto rounded-md"
+                  onClick={onRemoveAttachment || (() => onRemoveImage && onRemoveImage(imageUrl))}
+                  title="Remove attachment"
+                  aria-label="Remove attachment"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+
+            {candidateImages.length > 1 && (
+              <div className="mt-3 pt-3 border-t border-[var(--cmp-line)] flex items-center gap-2">
+                <span className="text-[11.5px] font-medium text-[var(--cmp-muted)] shrink-0">
+                  Alternative options:
+                </span>
+                <div className="flex items-center gap-2 overflow-x-auto py-0.5">
+                  {candidateImages.map((img, idx) => (
+                    <button
+                      key={img.id || img.url || idx}
+                      type="button"
+                      onClick={() => onSelectImage && onSelectImage(img.url)}
+                      className={`w-9 h-9 rounded-md overflow-hidden border-2 shrink-0 transition-all ${
+                        img.url === imageUrl
+                          ? 'border-[var(--cmp-navy)] ring-2 ring-[var(--cmp-navy)]/20'
+                          : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img.url} alt={img.alt || `Option ${idx + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : visualFormat === 'carousel' && carouselSlides && carouselSlides.length > 0 ? (
+          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/80 dark:border-indigo-900/50">
+                  <Layers size={20} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[280px] sm:max-w-md">
+                      AI Carousel Slide Deck
+                    </p>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 uppercase tracking-wide">
+                      {carouselSlides.length} SLIDES
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
+                    Swipeable document deck • Renders interactive cards in preview
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-outline is-sm gap-1.5"
+                  onClick={onGenerateCarousel}
+                  disabled={isGenerating || Boolean(carouselGeneration)}
+                  title="Regenerate carousel slides"
+                >
+                  <Sparkles size={13} className="text-indigo-600" />
+                  <span>Regenerate</span>
+                </button>
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-outline is-sm gap-1.5"
+                  onClick={() => fileRef.current?.click()}
+                  title="Replace with an uploaded file"
+                >
+                  <Upload size={13} />
+                  <span>Replace</span>
+                </button>
+                <button
+                  type="button"
+                  className="cmp-btn is-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-2 h-auto rounded-md"
+                  onClick={onRemoveAttachment}
+                  title="Remove carousel attachment"
+                  aria-label="Remove carousel attachment"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Empty / Default attachment state */
+          <div className="border-t border-[var(--cmp-line)] px-5 py-3.5 bg-slate-50/50 dark:bg-slate-900/20 rounded-b-[var(--cmp-radius-card)]">
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Add attachment button with explicit format mentions */}
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-outline is-sm font-medium gap-2 shadow-xs hover:border-slate-400"
+                  onClick={() => fileRef.current?.click()}
+                  title="Upload an Image, PDF, or GIF attachment"
+                >
+                  <Paperclip size={15} className="text-slate-600 dark:text-slate-400" />
+                  <span>Add attachment</span>
+                  <span className="text-[11.5px] text-[var(--cmp-muted)] font-normal ml-0.5">
+                    (Image, PDF, or GIF)
+                  </span>
+                </button>
+
+                <span className="text-slate-300 dark:text-slate-700 text-xs hidden sm:inline mx-1">|</span>
+
+                {/* Generate Image with AI */}
+                <button
+                  type="button"
+                  className="cmp-btn cmp-btn-soft is-sm font-medium gap-1.5"
+                  style={{ '--t': '#f59e0b', '--t-soft': '#fef3c7', '--t-ink': '#92400e', '--t-line': '#fde68a' }}
+                  onClick={() => {
+                    if (onVisualFormatChange) onVisualFormatChange('image');
+                    if (onGenerateImages) onGenerateImages();
+                  }}
+                  disabled={isGenerating || Boolean(imageGeneration)}
+                  title="Generate realistic image visual with AI"
+                >
+                  <Sparkles size={14} className="text-amber-600" />
+                  <span>Generate Image with AI</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

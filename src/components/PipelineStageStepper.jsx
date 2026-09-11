@@ -91,45 +91,45 @@ export default function PipelineStageStepper({
   const nextActionLine = getWhatHappensNext(canonical, post);
 
   return (
-    <div className={`p-3 bg-muted/30 border border-border/80 rounded-xl flex flex-col gap-2.5 ${className}`}>
+    <div className={`p-3 sm:p-3.5 bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/90 dark:border-slate-800 rounded-xl flex flex-col gap-3 ${className}`}>
       {/* Stepper horizontal line */}
-      <div className="flex items-center justify-between gap-1 overflow-x-auto py-0.5">
+      <div className="flex items-center justify-between gap-1 overflow-x-auto py-1 scrollbar-none">
         {PIPELINE_STAGES.map((stage, idx) => {
           const isCompleted = idx < currentStageIdx;
           const isCurrent = idx === currentStageIdx;
 
           return (
             <React.Fragment key={stage.id}>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all shrink-0 ${
                     isFailed && isCurrent
-                      ? 'bg-rose-500 text-white'
+                      ? 'bg-rose-600 text-white ring-4 ring-rose-500/20'
                       : isRejected && isCurrent
-                      ? 'bg-red-500 text-white'
+                      ? 'bg-rose-600 text-white ring-4 ring-rose-500/20'
                       : isCompleted
-                      ? 'bg-primary text-white'
+                      ? 'bg-emerald-500 text-white shadow-2xs'
                       : isCurrent
-                      ? 'bg-[#0a66c2] text-white ring-2 ring-[#0a66c2]/30'
-                      : 'bg-muted border border-border text-muted-foreground'
+                      ? 'bg-[#0a66c2] text-white ring-4 ring-[#0a66c2]/20 font-bold shadow-2xs'
+                      : 'bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-semibold'
                   }`}
                 >
                   {isFailed && isCurrent ? (
-                    <AlertCircle size={11} />
+                    <AlertCircle size={13} strokeWidth={2.5} />
                   ) : isCompleted ? (
-                    <Check size={11} />
+                    <Check size={13} strokeWidth={3} />
                   ) : (
                     idx + 1
                   )}
                 </div>
 
                 <span
-                  className={`text-xs whitespace-nowrap ${
+                  className={`text-[12.5px] whitespace-nowrap tracking-tight transition-colors ${
                     isCurrent
-                      ? 'font-bold text-foreground'
+                      ? 'font-semibold text-slate-950 dark:text-white'
                       : isCompleted
-                      ? 'font-medium text-foreground/80'
-                      : 'text-muted-foreground'
+                      ? 'font-medium text-slate-700 dark:text-slate-300'
+                      : 'font-normal text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {stage.label}
@@ -138,8 +138,8 @@ export default function PipelineStageStepper({
 
               {idx < PIPELINE_STAGES.length - 1 && (
                 <div
-                  className={`h-0.5 flex-1 min-w-[12px] mx-1 rounded-full ${
-                    idx < currentStageIdx ? 'bg-primary' : 'bg-border'
+                  className={`h-[2px] flex-1 min-w-[14px] max-w-[48px] mx-1.5 rounded-full transition-colors ${
+                    idx < currentStageIdx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'
                   }`}
                 />
               )}
@@ -149,9 +149,9 @@ export default function PipelineStageStepper({
       </div>
 
       {/* What happens next explanation line */}
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-card px-2.5 py-1.5 rounded-lg border border-border/60">
-        <Clock size={12} className="text-primary shrink-0" />
-        <span className="leading-tight text-foreground/90 font-medium">
+      <div className="flex items-center gap-2 text-xs bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 shadow-2xs">
+        <Clock size={13} className="text-[#0a66c2] shrink-0" />
+        <span className="leading-tight text-slate-700 dark:text-slate-200 font-medium">
           {nextActionLine}
         </span>
       </div>

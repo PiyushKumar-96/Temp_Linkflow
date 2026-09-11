@@ -171,6 +171,7 @@ export default function AIGeneratorForm({
 
           <div className="relative">
             <input
+              id="ai-generator-topic-input"
               type="text"
               value={topic}
               onChange={(e) => onTopicChange(e.target.value)}
