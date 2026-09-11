@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, CalendarDays, Plus, Filter, Layers } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Filter, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { STATUS_BUCKET_LIST, STATUS_FILTER_ORDER, STATUS_META } from '@/lib/post-status';
 
-const members = [
+const MEMBERS = [
   { id: 'all', label: 'All Members', initials: 'ALL' },
   { id: 'SR', label: 'Sarah Reeves', initials: 'SR' },
   { id: 'MC', label: 'Marcus Chen', initials: 'MC' },
@@ -21,19 +21,9 @@ const SERIES_LIST = [
   { id: 'Weekly Metrics Digest', label: 'Weekly Metrics Digest' },
 ];
 
-const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+const MONTH_NAMES_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ];
 
 export default function CalendarHeader({
@@ -48,89 +38,94 @@ export default function CalendarHeader({
   filterStatus = 'all',
   onStatusChange,
 }) {
-  const navigate = (dir) => {
+  const navigateMonth = (dir) => {
     const d = new Date(currentDate);
-    if (view === 'month') d.setMonth(d.getMonth() + dir);
-    else d.setDate(d.getDate() + 7 * dir);
+    d.setMonth(d.getMonth() + dir);
     onNavigate(d);
   };
 
-  const title =
-    view === 'month'
-      ? `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`
-      : `Week of ${MONTH_NAMES[currentDate.getMonth()].slice(0, 3)} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
+  const jumpToToday = () => {
+    onNavigate(new Date(2026, 8, 8)); // September 2026 demo reference
+  };
+
+  const monthLabel = `${MONTH_NAMES_SHORT[currentDate.getMonth()]}' ${currentDate.getFullYear()}`;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <CalendarDays size={22} className="text-primary" />
-          <div>
-            <h1 className="text-2xl font-700 text-foreground">Content Calendar</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Scheduled distribution and content pipeline visualization
-            </p>
+    <div className="flex flex-col gap-6">
+      {/* Top Section */}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+        <div className="flex flex-col">
+          {/* Workspace Pill */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-semibold w-fit mb-3">
+            <span>LinkedFlow</span>
           </div>
+
+          {/* Month Heading & Inline Controls */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-neutral-900 dark:text-neutral-50 tracking-tight">
+              {monthLabel}
+            </h1>
+
+            {/* < · > Chevrons Navigation */}
+            <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+              <button
+                onClick={() => navigateMonth(-1)}
+                className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                aria-label="Previous month"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                onClick={jumpToToday}
+                className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-xs font-bold"
+                aria-label="Jump to current month"
+                title="Current month"
+              >
+                •
+              </button>
+              <button
+                onClick={() => navigateMonth(1)}
+                className="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                aria-label="Next month"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+
+            {/* Calendar icon with subtle colon */}
+            <div className="flex items-center gap-1 text-neutral-400 pl-2 border-l border-neutral-200 dark:border-neutral-800">
+              <CalendarIcon size={16} />
+              <span className="text-xs font-semibold">:</span>
+            </div>
+          </div>
+
+          {/* Subtitle description */}
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 max-w-xl font-normal leading-relaxed">
+            Here all your planned events and posts. You will find information for each event as well you can plan a new one.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* View toggle */}
-          <div className="flex items-center bg-muted rounded-lg p-0.5">
-            {['month', 'week'].map((v) => (
-              <button
-                key={`view-${v}`}
-                onClick={() => onViewChange(v)}
-                className={`px-3 py-1.5 text-xs font-600 rounded-md capitalize transition-all duration-150 ${
-                  view === v
-                    ? 'bg-card text-foreground card-shadow'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {v} View
-              </button>
-            ))}
-          </div>
-
-          {/* Month / Week Navigation */}
-          <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"
-              title="Previous period"
-            >
-              <ChevronLeft size={14} />
-            </button>
-            <span className="text-xs font-600 text-foreground px-2 min-w-[150px] text-center tabular-nums">
-              {title}
-            </span>
-            <button
-              onClick={() => navigate(1)}
-              className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"
-              title="Next period"
-            >
-              <ChevronRight size={14} />
-            </button>
-          </div>
-
+        {/* Action Button: Add event */}
+        <div className="flex items-center gap-3 shrink-0">
           <Link to="/post-creation-composer">
-            <button className="btn-primary text-xs py-2 px-3 flex items-center gap-1.5">
-              <Plus size={14} />
-              <span>New Post</span>
+            <button className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white shadow-sm transition-all flex items-center gap-2">
+              <Plus size={15} />
+              <span>Add event</span>
             </button>
           </Link>
         </div>
       </div>
 
-      {/* Secondary Filter Bar: Series, Status, Member */}
-      <div className="flex items-center gap-3 p-2 bg-card border border-border rounded-xl flex-wrap">
+      {/* Filter Bar (Integrated Minimalist Editorial Bar) */}
+      <div className="flex items-center gap-3 p-2 bg-neutral-50/80 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 rounded-xl flex-wrap text-xs">
         {/* Series Filter */}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Layers size={13} className="text-primary" />
-          <span className="font-600 text-foreground">Series:</span>
+        <div className="flex items-center gap-1.5 text-neutral-500">
+          <Layers size={13} className="text-[var(--cal-accent)]" />
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">Series:</span>
           <select
             value={filterSeries}
             onChange={(e) => onSeriesChange(e.target.value)}
-            className="input-base text-xs py-1 px-2 h-7 bg-background border-border"
+            className="input-base text-xs py-1 px-2 h-7 bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 rounded-md font-medium"
           >
             {SERIES_LIST.map((s) => (
               <option key={s.id} value={s.id}>
@@ -140,14 +135,14 @@ export default function CalendarHeader({
           </select>
         </div>
 
-        {/* Status Filter from post-status.js */}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Filter size={13} className="text-primary" />
-          <span className="font-600 text-foreground">Status:</span>
+        {/* Status Filter */}
+        <div className="flex items-center gap-1.5 text-neutral-500">
+          <Filter size={13} className="text-[var(--cal-accent)]" />
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">Status:</span>
           <select
             value={filterStatus}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="input-base text-xs py-1 px-2 h-7 bg-background border-border"
+            className="input-base text-xs py-1 px-2 h-7 bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 rounded-md font-medium"
           >
             <option value="all">All Statuses</option>
             <optgroup label="Workflow Stages">
@@ -169,20 +164,19 @@ export default function CalendarHeader({
 
         {/* Member filter pills */}
         <div className="flex items-center gap-1 ml-auto">
-          <span className="text-xs font-600 text-muted-foreground mr-1 hidden md:inline">
+          <span className="text-neutral-400 font-medium mr-1 hidden sm:inline">
             Member:
           </span>
-          <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-            {members.map((m) => (
+          <div className="flex items-center gap-0.5 bg-neutral-200/60 dark:bg-neutral-800 rounded-lg p-0.5">
+            {MEMBERS.map((m) => (
               <button
-                key={`member-${m.id}`}
+                key={m.id}
                 onClick={() => onFilterChange(m.id)}
-                className={`px-2 py-1 text-xs font-500 rounded-md transition-all duration-150 ${
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   filterMember === m.id
-                    ? 'bg-card text-foreground card-shadow'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-xs'
+                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
                 }`}
-                title={m.label}
               >
                 {m.id === 'all' ? 'All' : m.initials}
               </button>

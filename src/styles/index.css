@@ -24,6 +24,12 @@
   --brand-secondary: #e8f0fe;
   --brand-accent: #7c3aed;
 
+  /* Calendar tokens aligned with brand blue & slate */
+  --cal-accent: #0a66c2;
+  --cal-accent-hover: #084d93;
+  --cal-active-bg: #eff6ff;
+  --cal-hairline: #e2e8f0;
+
   /* Semantic status tokens (1-to-1 mapping with post-status.js) */
   --status-planned-bg: #f8fafc;
   --status-planned-fg: #475569;
