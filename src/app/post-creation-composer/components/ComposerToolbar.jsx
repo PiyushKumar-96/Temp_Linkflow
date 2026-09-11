@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, CalendarClock, Check, GitCommit, History, Save, Send } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Check, FolderOpen, GitCommit, History, Save, Send } from 'lucide-react';
 import { formatSlot } from '../_model/composer-utils';
 
 function SlotChip({ date, time, onClick }) {
@@ -62,6 +62,7 @@ function SendButton({ state, disabled, onClick, idleLabel, sentLabel }) {
 
 export default function ComposerToolbar({
   onSaveDraft,
+  onViewDrafts,
   onSubmitReview,
   onSchedule,
   onOpenHistory,
@@ -89,6 +90,16 @@ export default function ComposerToolbar({
       )}
 
       <SlotChip date={scheduledDate} time={scheduledTime} onClick={onSchedule} />
+
+      <button
+        type="button"
+        className="cmp-btn cmp-btn-outline is-lg flex items-center gap-1.5"
+        onClick={onViewDrafts}
+        title="View all saved drafts"
+      >
+        <FolderOpen size={15} />
+        <span>Saved drafts</span>
+      </button>
 
       <SaveButton
         state={saveState}

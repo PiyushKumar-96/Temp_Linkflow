@@ -65,7 +65,9 @@ export function getQualityChecks({ content, cta, hashtags, visualFormat, imageUr
   const text = (content || '').trim();
   const firstLine = text.split('\n')[0].trim();
   const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-  const tagCount = (hashtags || []).length;
+  const contentTags = (text.match(/#[a-zA-Z0-9_\p{L}]+/gu) || []);
+  const allTags = Array.from(new Set([...(hashtags || []), ...contentTags]));
+  const tagCount = allTags.length;
   const visualReady = visualFormat === 'image' ? Boolean(imageUrl) : true;
   const missingTags = 3 - tagCount;
 
@@ -87,14 +89,14 @@ export function getQualityChecks({ content, cta, hashtags, visualFormat, imageUr
     {
       id: 'cta',
       label: 'Ends with a question or call to action',
-      hint: 'Add a call to action under the post.',
+      hint: 'Add a question or call to action at the end of your post.',
       weight: 20,
-      ok: Boolean(cta && cta.trim()) || /\?\s*$/.test(text),
+      ok: Boolean(cta && cta.trim()) || /\?\s*$/.test(text) || /\b(comment|share|thoughts\?|let me know|what do you think)\b/i.test(text),
     },
     {
       id: 'tags',
       label: '3–5 relevant hashtags',
-      hint: missingTags > 0 ? `Add ${missingTags} more hashtag${missingTags === 1 ? '' : 's'}.` : 'Remove hashtags until you have 5 or fewer.',
+      hint: missingTags > 0 ? `Add ${missingTags} more hashtag${missingTags === 1 ? '' : 's'} in your post.` : 'Keep hashtags to 5 or fewer.',
       weight: 15,
       ok: tagCount >= 3 && tagCount <= 5,
     },

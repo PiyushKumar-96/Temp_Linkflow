@@ -77,14 +77,20 @@ export default function InfographicOptions({
 
   const handleImageUpload = (file) => {
     if (!file) return;
+    const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+    if (!isGif) {
+      toast.error('Only GIF files are allowed. Please select a .gif image.');
+      return;
+    }
     const url = URL.createObjectURL(file);
     onChangeData?.({
       ...(data || {}),
       imageUrl: url,
+      isGif: true,
       title: file.name.replace(/\.[^/.]+$/, ''),
       pillars: data?.pillars || [],
     });
-    toast.success(`Infographic uploaded: ${file.name}`);
+    toast.success(`GIF uploaded: ${file.name}`);
   };
 
   const handleRemove = () => {
@@ -159,15 +165,15 @@ export default function InfographicOptions({
               {isOver ? <Upload size={16} /> : <Plus size={16} />}
             </span>
             <span>
-              <strong>{isOver ? 'Drop file here' : 'Upload infographic'}</strong>
-              PNG, JPG or WEBP, up to 10 MB
+              <strong>{isOver ? 'Drop GIF here' : 'Add GIF'}</strong>
+              GIF only, up to 10 MB
             </span>
           </button>
 
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/gif,.gif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -201,10 +207,10 @@ export default function InfographicOptions({
                 type="button"
                 className="cmp-link-btn text-xs"
                 onClick={() => fileInputRef.current?.click()}
-                title="Upload another graphic"
+                title="Upload another GIF"
               >
                 <Upload size={13} />
-                <span>Upload</span>
+                <span>Upload GIF</span>
               </button>
 
               <button
@@ -222,7 +228,7 @@ export default function InfographicOptions({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/gif,.gif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];

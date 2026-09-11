@@ -13,6 +13,7 @@ import { WorkflowMini } from './ComposerUI';
 import ScheduleControl from '@/components/ScheduleControl';
 import PipelineStageStepper from '@/components/PipelineStageStepper';
 import VersionHistoryDialog from '@/components/VersionHistoryDialog';
+import SavedDraftsDialog from './SavedDraftsDialog';
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
 import { getNextAvailableSlot } from '@/lib/scheduling';
 import { STOCK_IMAGES } from '@/temp-backend/data/media';
@@ -87,8 +88,8 @@ export default function ComposerShell() {
 
 
   const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
-  const [showAIPanel, setShowAIPanel] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showDraftsModal, setShowDraftsModal] = useState(false);
   const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saved'
   const [submitState, setSubmitState] = useState('idle'); // 'idle' | 'sending' | 'sent'
 
@@ -164,6 +165,26 @@ export default function ComposerShell() {
       toast.success(`Loaded template: ${tpl.name}`);
     }
   }, [editPostId, isEditMode, location.state]);
+
+  const handleSelectDraft = (draft) => {
+    if (!draft) return;
+    draftIdRef.current = draft.id;
+    setContent(draft.content || '');
+    setCta(draft.cta || '');
+    setHashtags(draft.hashtags || []);
+    if (draft.pillarId || draft.category) {
+      const pid = draft.pillarId || pillarIdFromPost(draft);
+      setPillarId(pid);
+    }
+    if (draft.target) setTarget(draft.target);
+    if (draft.visualFormat) setVisualFormat(draft.visualFormat);
+    if (draft.imageUrl) setImageUrl(draft.imageUrl);
+    if (draft.carouselSlides) setCarouselSlides(draft.carouselSlides);
+    if (draft.infographicData) setInfographicData(draft.infographicData);
+    if (draft.scheduledDate || draft.dueDate) setScheduledDate(draft.scheduledDate || draft.dueDate);
+    if (draft.scheduledTime) setScheduledTime(draft.scheduledTime);
+    toast.success(`Loaded draft: ${draft.title || 'Untitled Draft'}`);
+  };
 
   // ---------- Derived: fold + quality ----------
 
@@ -557,6 +578,7 @@ export default function ComposerShell() {
 
         <ComposerToolbar
           onSaveDraft={handleSaveDraft}
+          onViewDrafts={() => setShowDraftsModal(true)}
           onSubmitReview={handleSubmitForReview}
           onSchedule={() => setShowScheduleDrawer(true)}
           onOpenHistory={() => setShowHistoryModal(true)}
@@ -631,9 +653,7 @@ export default function ComposerShell() {
             onGenerateImages={handleGenerateImages}
             onCancelImages={handleCancelImages}
             isGenerating={isGenerating}
-            onAIGenerate={handleAIGenerate}
-            showAIPanel={showAIPanel}
-            onToggleAIPanel={() => setShowAIPanel((s) => !s)}
+            onViewDrafts={() => setShowDraftsModal(true)}
           />
         </div>
 
@@ -684,6 +704,13 @@ export default function ComposerShell() {
         onRestoreVersion={(v) => {
           if (v.content) setContent(v.content);
         }}
+      />
+
+      <SavedDraftsDialog
+        isOpen={showDraftsModal}
+        onClose={() => setShowDraftsModal(false)}
+        onSelectDraft={handleSelectDraft}
+        activeDraftId={draftIdRef.current}
       />
     </div>
   );

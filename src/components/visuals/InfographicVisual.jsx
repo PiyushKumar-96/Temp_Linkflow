@@ -57,7 +57,7 @@ export default function InfographicVisual({
             className="w-full h-full object-contain"
           />
           <div className="absolute top-2 left-2 px-2 py-1 rounded bg-black/60 backdrop-blur text-[10px] uppercase font-mono tracking-wider text-white flex items-center gap-1 font-semibold">
-            <LayoutGrid size={11} className="text-primary" /> Infographic
+            <LayoutGrid size={11} className="text-primary" /> {current.isGif || current.imageUrl?.includes('.gif') ? 'GIF' : 'Infographic'}
           </div>
         </div>
       ) : (

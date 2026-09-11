@@ -4,14 +4,12 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   AlignLeft,
   Ban,
-  BookOpen,
   Briefcase,
   Building2,
   ChevronDown,
   Eraser,
-  Flame,
+  FolderOpen,
   GraduationCap,
-  Hash,
   Image as ImageIcon,
   Laugh,
   Layers,
@@ -20,25 +18,16 @@ import {
   List,
   ListOrdered,
   MessageCircle,
-  MessageSquarePlus,
-  MessageSquareQuote,
-  Monitor,
   PenLine,
-  Plus,
   Redo2,
-  RefreshCw,
   Rocket,
-  Scissors,
   SlidersHorizontal,
-  Smartphone,
   Smile,
   Sparkles,
-  Target,
-  TrendingUp,
   Undo2,
   User,
-  X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import APP_CONFIG from '@/lib/config';
 import { CardHeader, ProgressRing, Segmented } from './ComposerUI';
 import ImageOptions from './ImageOptions';
@@ -71,7 +60,7 @@ const VISUAL_FORMATS = [
 const VISUAL_QUALIFIER = {
   image: 'One image under your post',
   carousel: 'Swipeable slides',
-  infographic: 'One data-led graphic',
+  infographic: 'Add GIF only or framework graphic',
   none: 'Text-only posts do well when the hook is strong',
 };
 
@@ -81,64 +70,10 @@ const TARGET_OPTIONS = TARGETS.map((t) => ({
   icon: t.id === 'company' ? Building2 : User,
 }));
 
-const DEVICE_OPTIONS = [
-  { value: 'desktop', label: 'Desktop feed', icon: Monitor, iconOnly: true },
-  { value: 'mobile', label: 'Mobile feed', icon: Smartphone, iconOnly: true },
-];
-
 const LINKEDIN_EMOJIS = [
   '🚀', '💡', '🔥', '📈', '🎯', '⚡', '🤖', '💻',
   '👉', '👇', '👏', '🤝', '🙌', '👍', '💬', '✍️',
   '🤩', '😄', '🤔', '🧠', '🏆', '✨', '🌟', '📌',
-];
-
-const HASHTAG_SUGGESTIONS = [
-  '#LinkedInTips',
-  '#ContentMarketing',
-  '#B2BSaaS',
-  '#GrowthMarketing',
-  '#SocialMediaStrategy',
-  '#ThoughtLeadership',
-  '#StartupLife',
-  '#MarketingStrategy',
-  '#LinkedInMarketing',
-  '#DigitalMarketing',
-  '#BrandBuilding',
-  '#ContentCreation',
-];
-
-const TONE_REWRITES = [
-  {
-    tone: 'professional',
-    preview: "We're pleased to share key insights from our recent growth strategy and quarterly performance benchmarks...",
-  },
-  {
-    tone: 'conversational',
-    preview: "Can I be honest with you? Most LinkedIn advice is completely backwards. Here's what actually worked for our team...",
-  },
-  {
-    tone: 'inspirational',
-    preview: 'Three years ago we started with zero traction and a blank screen. Today we empower thousands of creators. Never quit on your day one.',
-  },
-  {
-    tone: 'educational',
-    preview: 'Here are the 5 core framework metrics that actually predict B2B audience expansion (and how to execute them step-by-step)...',
-  },
-];
-
-const IMPROVE_OPTIONS = [
-  { label: 'Add a stronger hook', icon: Target },
-  { label: 'Make it more concise', icon: Scissors },
-  { label: 'Include a call to action', icon: MessageSquarePlus },
-  { label: 'Improve readability', icon: BookOpen },
-  { label: 'Add more data points', icon: TrendingUp },
-  { label: 'Make it more engaging', icon: Flame },
-];
-
-const AI_TABS = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'improve', label: 'Improve' },
-  { value: 'tone', label: 'Change tone' },
 ];
 
 // ---------- Unicode formatting helpers (render as styled text on LinkedIn) ----------
@@ -184,39 +119,6 @@ function toUnicodeStrikethrough(text) {
 
 function clearUnicodeFormatting(text) {
   return text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
-}
-
-function improveText(content, instruction) {
-  if (instruction.includes('hook')) {
-    const hooks = [
-      'Most people get this completely backward in our industry:\n\n',
-      'Here is the single biggest lesson I learned the hard way:\n\n',
-      'Stop overcomplicating this. Here is the framework that actually works:\n\n',
-    ];
-    return hooks[Math.floor(Math.random() * hooks.length)] + content;
-  }
-  if (instruction.includes('concise')) {
-    return content
-      .split('\n')
-      .filter(Boolean)
-      .map((l) => l.trim())
-      .join('\n\n');
-  }
-  if (instruction.includes('call to action')) {
-    return `${content}\n\nWhat's your take on this? Let me know your thoughts in the comments below 👇`;
-  }
-  if (instruction.includes('readability')) {
-    return content.split('. ').join('.\n\n');
-  }
-  if (instruction.includes('data points')) {
-    return `${content}\n\n📊 Benchmark insight: Teams adopting this workflow see a 3.4x lift in post impressions within 30 days.`;
-  }
-  return `${content}\n\n✨ Pro-tip: Consistency outperforms sporadic perfection every time.`;
-}
-
-function normalizeTag(raw) {
-  const cleaned = raw.trim().replace(/^#+/, '').replace(/[^\p{L}\p{N}_]/gu, '');
-  return cleaned ? `#${cleaned}` : '';
 }
 
 // ---------- Sub-components ----------
@@ -302,113 +204,6 @@ function PillarPicker({ value, onChange }) {
   );
 }
 
-function HashtagsCard({ hashtags, onChange }) {
-  const [draft, setDraft] = useState('');
-  const [leaving, setLeaving] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const count = hashtags.length;
-  const countTone = count >= 3 && count <= 5 ? 'green' : 'amber';
-  const suggestions = HASHTAG_SUGGESTIONS.filter((t) => !hashtags.includes(t)).slice(0, 8);
-
-  const add = (raw) => {
-    const tag = normalizeTag(raw);
-    if (!tag) return;
-    if (hashtags.some((h) => h.toLowerCase() === tag.toLowerCase())) {
-      toast.info(`${tag} is already added`);
-      return;
-    }
-    onChange([...hashtags, tag]);
-  };
-
-  const remove = (tag) => {
-    if (prefersReducedMotion()) {
-      onChange(hashtags.filter((h) => h !== tag));
-      return;
-    }
-    setLeaving((l) => [...l, tag]);
-    setTimeout(() => {
-      setLeaving((l) => l.filter((t) => t !== tag));
-      onChange((current) => (Array.isArray(current) ? current : hashtags).filter((h) => h !== tag));
-    }, 150);
-  };
-
-  return (
-    <section className="cmp-card m-rise" style={{ '--m-i': 5 }} aria-labelledby="cmp-tags-title">
-      <CardHeader icon={Hash} tone="green" title="Hashtags" qualifier="3–5 works best" id="cmp-tags-title">
-        <span className={`cmp-pill tone-${countTone}`}>
-          <span className="cmp-dot" />
-          {count} of 5
-        </span>
-      </CardHeader>
-
-      <div className="cmp-card-body flex flex-col gap-4">
-        <div className="cmp-tagbox">
-          {hashtags.map((tag) => (
-            <span key={tag} className={`cmp-tag ${leaving.includes(tag) ? 'is-leaving' : ''}`}>
-              {tag}
-              <button type="button" className="cmp-tag-x" aria-label={`Remove ${tag}`} onClick={() => remove(tag)}>
-                <X size={13} />
-              </button>
-            </span>
-          ))}
-          <input
-            className="cmp-tag-input"
-            value={draft}
-            placeholder={count ? 'Add another' : 'Add a hashtag and press Enter'}
-            aria-label="Add a hashtag"
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
-                if (draft.trim()) {
-                  e.preventDefault();
-                  add(draft);
-                  setDraft('');
-                }
-              } else if (e.key === 'Backspace' && !draft && hashtags.length) {
-                remove(hashtags[hashtags.length - 1]);
-              }
-            }}
-            onBlur={() => {
-              if (draft.trim()) {
-                add(draft);
-                setDraft('');
-              }
-            }}
-          />
-        </div>
-
-        <div className="flex items-start gap-3">
-          <div className="flex items-center gap-1 pt-1 shrink-0">
-            <span className="text-[13px] cmp-muted">Suggested</span>
-            <button
-              type="button"
-              className="cmp-icon-btn"
-              aria-label="Refresh suggestions"
-              disabled={isRefreshing}
-              onClick={async () => {
-                // BACKEND: POST /api/ai/hashtag-suggestions with { content, tone }
-                setIsRefreshing(true);
-                await new Promise((r) => setTimeout(r, 600));
-                setIsRefreshing(false);
-              }}
-            >
-              <RefreshCw size={14} className={isRefreshing ? 'cmp-spin' : ''} />
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-2" aria-live="polite">
-            {suggestions.map((tag) => (
-              <button key={tag} type="button" className="cmp-suggest" onClick={() => add(tag)}>
-                <Plus size={13} />
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ---------- Main ----------
 
 export default function ComposerEditor({
@@ -449,12 +244,12 @@ export default function ComposerEditor({
   onGenerateImages,
   onCancelImages,
   isGenerating = false,
+  onViewDrafts,
   onAIGenerate,
   showAIPanel = false,
   onToggleAIPanel,
 }) {
   const safeContent = content || '';
-  const safeHashtags = Array.isArray(hashtags) ? hashtags : [];
   const remaining = MAX_CHARS - safeContent.length;
   const isNearLimit = remaining < 300;
   const isAtLimit = remaining <= 0;
@@ -469,9 +264,7 @@ export default function ComposerEditor({
   const [history, setHistory] = useState([safeContent]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [aiTab, setAiTab] = useState('draft');
-  const [includeImages, setIncludeImages] = useState(true);
-  const [rewriting, setRewriting] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [justRewritten, setJustRewritten] = useState(false);
   const [foldY, setFoldY] = useState(null);
 
@@ -615,41 +408,46 @@ export default function ComposerEditor({
     toast.success('Added a blank line between paragraphs');
   };
 
-  // AI rewrite: shimmer while working, flash the field when done, offer undo.
-  const runRewrite = (successLabel, produce) => {
-    if (rewriting) return;
+  const handleEnhance = () => {
+    if (isEnhancing || isGenerating) return;
     const before = safeContent;
-    setRewriting(true);
-    // BACKEND: POST /api/ai/improve-post with { content, instruction }
-    setTimeout(
-      () => {
-        pushHistory(produce(before));
-        setRewriting(false);
-        setJustRewritten(true);
-        setTimeout(() => setJustRewritten(false), 1000);
-        toast.success(successLabel, {
-          action: { label: 'Undo', onClick: () => onChange && onChange(before) },
-        });
-      },
-      prefersReducedMotion() ? 0 : 750
-    );
-  };
+    setIsEnhancing(true);
 
-  const handleImprove = (instruction) => {
-    if (!safeContent.trim()) {
-      toast.error('Write something first, then choose an improvement.');
-      return;
-    }
-    runRewrite(`Applied: ${instruction.toLowerCase()}`, (text) => improveText(text, instruction));
-  };
+    setTimeout(() => {
+      let result = '';
+      if (!before.trim()) {
+        result = `The biggest mistake most B2B companies make on LinkedIn?\n\nThey treat it like a broadcast channel — pushing announcements instead of starting conversations.\n\nHere's what actually works:\n\n→ Share the messy middle, not just polished outcomes\n→ Ask genuine questions your audience cares about\n→ Respond to every comment in the first hour\n→ Write for one person, not your entire market\n\nLinkedIn rewards consistency and authenticity — not perfection.\n\nWhat's your biggest challenge with LinkedIn growth? Let's discuss in the comments 👇`;
+      } else {
+        const lines = before.split('\n').map((l) => l.trim()).filter(Boolean);
+        if (lines.length === 1) {
+          result = `${lines[0]}\n\nHere is why this matters:\n\n→ Focus on high-intent takeaways\n→ Test and iterate weekly\n→ Prioritize substance over vanity metrics\n\nWhat's your take on this? Let me know below 👇`;
+        } else {
+          const first = lines[0];
+          const rest = lines.slice(1);
+          const hasBullets = rest.some((l) => l.startsWith('→') || l.startsWith('•') || l.startsWith('-'));
+          const formattedRest = hasBullets
+            ? rest.map((l) => (l.startsWith('- ') ? `→ ${l.slice(2)}` : l)).join('\n')
+            : rest.map((l) => (l.length < 90 ? `→ ${l}` : l)).join('\n\n');
 
-  const handleToneRewrite = (tone, preview) => {
-    if (onToneChange) onToneChange(tone);
-    runRewrite(`Rewritten in a ${tone} tone`, () => `${preview}\n\n[Continue your insights here...]`);
+          const hasQuestion = /\?\s*$/.test(before.trim());
+          const cta = hasQuestion ? '' : '\n\nWhat are your thoughts on this? Let me know below 👇';
+          result = `${first}\n\n${formattedRest}${cta}`;
+        }
+      }
+
+      pushHistory(result);
+      setIsEnhancing(false);
+      setJustRewritten(true);
+      setTimeout(() => setJustRewritten(false), 1000);
+
+      toast.success(before.trim() ? 'Enhanced with AI' : 'Draft created with AI', {
+        action: { label: 'Undo', onClick: () => onChange && onChange(before) },
+      });
+    }, prefersReducedMotion() ? 0 : 800);
   };
 
   const showFold = foldY != null && foldIndex != null && !isGenerating;
-  const busy = isGenerating || rewriting;
+  const busy = isGenerating;
 
   return (
     <div className="flex flex-col gap-5">
@@ -698,13 +496,22 @@ export default function ComposerEditor({
         <CardHeader icon={PenLine} tone="blue" title="Write" id="cmp-write-title">
           <button
             type="button"
-            className="cmp-btn cmp-btn-soft tone-violet is-sm"
-            aria-expanded={showAIPanel}
-            aria-controls="cmp-ai-panel"
-            onClick={onToggleAIPanel}
+            className="cmp-btn cmp-btn-outline is-sm flex items-center gap-1.5"
+            onClick={onViewDrafts}
+            title="View saved drafts"
           >
-            <Sparkles size={15} />
-            Write with AI
+            <FolderOpen size={14} />
+            <span>Saved drafts</span>
+          </button>
+          <button
+            type="button"
+            className="cmp-btn cmp-btn-soft tone-violet is-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+            disabled={!safeContent.trim() || isEnhancing || busy}
+            onClick={handleEnhance}
+            title={safeContent.trim() ? 'Enhance post with AI' : 'Type some text to enhance with AI'}
+          >
+            <Sparkles size={14} className={isEnhancing ? 'cmp-spin text-violet-600' : safeContent.trim() ? 'text-violet-600' : 'text-slate-400'} />
+            {isEnhancing ? 'Enhancing…' : 'Enhance with AI'}
           </button>
         </CardHeader>
 
@@ -805,91 +612,9 @@ export default function ComposerEditor({
             e.target.value = '';
           }}
         />
-
-        {showAIPanel && (
-          <div id="cmp-ai-panel" className="cmp-ai">
-            <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-              <Segmented label="AI tools" options={AI_TABS} value={aiTab} onChange={setAiTab} size="sm" inline />
-              <span className="text-[12.5px] cmp-muted">
-                Uses {pillar.label.toLowerCase()} and a {selectedTone} tone
-              </span>
-            </div>
-
-            <div key={aiTab} className="m-fade-in">
-              {aiTab === 'draft' && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                  <div>
-                    <p className="text-[14px] font-medium cmp-ink">Write a full draft</p>
-                    <p className="text-[13px] cmp-muted mt-0.5">
-                      {safeContent.trim()
-                        ? 'Replaces what you have written. You can undo it.'
-                        : 'A hook, body and call to action you can edit.'}
-                    </p>
-                    <label className="mt-2 inline-flex items-center gap-2 text-[13px] cmp-ink cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="accent-violet-600 w-4 h-4"
-                        checked={includeImages}
-                        onChange={(e) => setIncludeImages(e.target.checked)}
-                      />
-                      Also create 3 image options
-                    </label>
-                  </div>
-                  <button
-                    type="button"
-                    className="cmp-btn cmp-btn-primary is-sm shrink-0"
-                    disabled={busy || Boolean(imageGeneration)}
-                    onClick={() => onAIGenerate && onAIGenerate({ withImages: includeImages })}
-                  >
-                    <Sparkles size={15} />
-                    {isGenerating ? 'Drafting…' : 'Draft post'}
-                  </button>
-                </div>
-              )}
-
-              {aiTab === 'improve' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {IMPROVE_OPTIONS.map(({ label, icon: Icon }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      className="cmp-ai-opt"
-                      disabled={!safeContent.trim() || busy}
-                      onClick={() => handleImprove(label)}
-                    >
-                      <Icon size={15} />
-                      {label}
-                    </button>
-                  ))}
-                  {!safeContent.trim() && (
-                    <p className="sm:col-span-2 text-[12.5px] cmp-muted">Write something first to use these.</p>
-                  )}
-                </div>
-              )}
-
-              {aiTab === 'tone' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {TONE_REWRITES.map(({ tone, preview }) => (
-                    <button
-                      key={tone}
-                      type="button"
-                      className="cmp-ai-opt cmp-ai-tone"
-                      disabled={busy}
-                      onClick={() => handleToneRewrite(tone, preview)}
-                    >
-                      <span className="capitalize cmp-ink">{tone}</span>
-                      <p className="line-clamp-2">{preview}</p>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         <div
           ref={editorRef}
-          className={`cmp-editor ${rewriting ? 'is-rewriting' : ''} ${justRewritten ? 'is-rewritten' : ''}`}
+          className={`cmp-editor ${isEnhancing ? 'is-rewriting' : ''} ${justRewritten ? 'is-rewritten' : ''}`}
           style={{ '--fold-y': `${foldY ?? 0}px` }}
         >
           <div className="cmp-fold-tint" data-hidden={!showFold} aria-hidden="true" />
@@ -922,7 +647,6 @@ export default function ComposerEditor({
 
           <div className="cmp-fold-line" data-hidden={!showFold} aria-hidden="true">
             <span className="cmp-fold-label">
-              {device === 'mobile' ? <Smartphone size={12} /> : <Monitor size={12} />}
               …more cuts here
             </span>
           </div>
@@ -944,20 +668,6 @@ export default function ComposerEditor({
           )}
         </div>
 
-        <div className="px-5 pt-3">
-          <div className="cmp-field">
-            <MessageSquareQuote size={16} className="cmp-field-icon" aria-hidden="true" />
-            <input
-              type="text"
-              className="cmp-input"
-              value={cta}
-              aria-label="Call to action"
-              placeholder="Call to action, e.g. What's your biggest challenge with LinkedIn growth?"
-              onChange={(e) => onCtaChange && onCtaChange(e.target.value)}
-            />
-          </div>
-        </div>
-
         <div className="cmp-card-foot mt-4">
           <div className="flex items-center gap-2.5">
             <ProgressRing
@@ -970,17 +680,6 @@ export default function ComposerEditor({
             >
               {remaining.toLocaleString()} characters left
             </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] cmp-muted">Show fold for</span>
-            <Segmented
-              label="Show fold for"
-              options={DEVICE_OPTIONS}
-              value={device}
-              onChange={(v) => onDeviceChange && onDeviceChange(v)}
-              size="sm"
-              inline
-            />
           </div>
         </div>
       </section>
@@ -1041,8 +740,6 @@ export default function ComposerEditor({
           </div>
         </div>
       </section>
-
-      <HashtagsCard hashtags={safeHashtags} onChange={onHashtagsChange} />
     </div>
   );
 }
