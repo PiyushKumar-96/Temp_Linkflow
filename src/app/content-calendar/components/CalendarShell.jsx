@@ -1,16 +1,33 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MonthMatrix from './MonthMatrix';
 import DayTimelinePanel from './DayTimelinePanel';
 import WeekView from './WeekView';
 import PostDetailPopover from './PostDetailPopover';
-import { normalizeStatus, matchesStatusBucket } from '@/lib/post-status';
+import { normalizeStatus, matchesStatusBucket, POST_STATUS } from '@/lib/post-status';
 import { CALENDAR_POSTS } from '@/temp-backend/data/posts';
+import { getStoredPosts } from '@/temp-backend';
 
 export default function CalendarShell() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [version, setVersion] = useState(0);
+
+  // Synchronize when posts are approved, scheduled, or updated in storage
+  useEffect(() => {
+    const handleSync = (e) => {
+      if (!e || !e.key || e.key === 'linkedflow_master_posts' || e.key === 'linkedflow_approval_posts') {
+        setVersion((v) => v + 1);
+      }
+    };
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('linkedflow_posts_updated', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('linkedflow_posts_updated', handleSync);
+    };
+  }, []);
 
   // URL parameters
   const view = searchParams.get('view') === 'week' ? 'week' : 'month';
@@ -71,9 +88,68 @@ export default function CalendarShell() {
     updateParam('date', dateStr);
   };
 
+  // Combine static calendar posts with live approved/scheduled/published posts from storage
+  const allCalendarPosts = useMemo(() => {
+    const stored = getStoredPosts();
+    let approvalStored = [];
+    try {
+      const rawApproval = localStorage.getItem('linkedflow_approval_posts');
+      if (rawApproval) approvalStored = JSON.parse(rawApproval);
+    } catch {
+      // ignore
+    }
+
+    // Merge stored posts and approval queue posts
+    const combinedStored = [...stored];
+    const seen = new Set(combinedStored.map((p) => p.id));
+    approvalStored.forEach((p) => {
+      if (!seen.has(p.id)) {
+        combinedStored.push(p);
+        seen.add(p.id);
+      } else {
+        const idx = combinedStored.findIndex((item) => item.id === p.id);
+        if (idx !== -1 && (p.status === POST_STATUS.APPROVED || p.status === 'approved')) {
+          combinedStored[idx] = { ...combinedStored[idx], ...p };
+        }
+      }
+    });
+
+    // Extract approved, scheduled, and published posts
+    const approvedAndPublished = combinedStored
+      .filter((p) => {
+        const s = normalizeStatus(p.status);
+        return s === POST_STATUS.APPROVED || s === POST_STATUS.SCHEDULED || s === POST_STATUS.PUBLISHED;
+      })
+      .map((p) => {
+        const date = p.date || p.scheduledDate || p.dueDate || '2026-09-15';
+        const time = p.time || p.scheduledTime || '10:00';
+        return {
+          id: p.id,
+          title: p.title || p.excerpt || (p.content || '').slice(0, 60),
+          status: p.status,
+          date,
+          time,
+          author: p.author || 'Sarah Reeves',
+          authorInitials: p.authorInitials || 'SR',
+          category: p.category || 'Thought Leadership',
+          series: p.series || 'B2B Growth Playbook',
+          content: p.content,
+          hashtags: p.hashtags,
+          imageUrl: p.imageUrl,
+          visualFormat: p.visualFormat,
+        };
+      });
+
+    // Merge with default CALENDAR_POSTS (deduplicating by id)
+    const existingIds = new Set(approvedAndPublished.map((p) => p.id));
+    const defaultCalendar = CALENDAR_POSTS.filter((p) => !existingIds.has(p.id));
+
+    return [...defaultCalendar, ...approvedAndPublished];
+  }, [version]);
+
   // Filter posts based on active filters
   const filteredPosts = useMemo(() => {
-    return CALENDAR_POSTS.filter((p) => {
+    return allCalendarPosts.filter((p) => {
       if (filterMember !== 'all' && p.authorInitials !== filterMember) {
         return false;
       }
@@ -88,7 +164,7 @@ export default function CalendarShell() {
       }
       return true;
     });
-  }, [filterMember, filterSeries, filterStatus]);
+  }, [allCalendarPosts, filterMember, filterSeries, filterStatus]);
 
   return (
     <div className="flex flex-col gap-6 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-6 lg:p-8 border border-slate-200/80 dark:border-slate-800 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_12px_28px_-12px_rgba(15,23,42,0.06)]">

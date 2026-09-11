@@ -13,8 +13,6 @@ import VersionHistoryDialog from '@/components/VersionHistoryDialog';
 import ApprovalDetailHeader from './ApprovalDetailHeader';
 import ApprovalFailedAlert from './ApprovalFailedAlert';
 import ApprovalPostPreview from './ApprovalPostPreview';
-import ApprovalResearchTab from './ApprovalResearchTab';
-import ApprovalActivityTab from './ApprovalActivityTab';
 
 const candidateImages = [
   {
@@ -43,8 +41,6 @@ export default function ApprovalDetail({
   isApproving = false,
 }) {
   const { isOwner } = useAuth();
-  const [comment, setComment] = useState('');
-  const [activeTab, setActiveTab] = useState('review');
 
   // Dialog States
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -80,12 +76,6 @@ export default function ApprovalDetail({
 
   const handleChangeBriefConfirm = (newBrief) => {
     onChangeBrief(newBrief);
-  };
-
-  const handleSendComment = () => {
-    if (!comment.trim()) return;
-    onAddComment(comment.trim());
-    setComment('');
   };
 
   const handleDownloadManual = () => {
@@ -125,10 +115,6 @@ export default function ApprovalDetail({
     ],
   };
 
-  const citations = post.citations || [];
-  const activityLog = post.activityLog || [];
-  const revisionsCount = post.revisions || (post.revisionsList?.length || 0);
-
   const targetSlotText = post.scheduledDate
     ? `${post.scheduledDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
     : post.dueDate
@@ -141,21 +127,13 @@ export default function ApprovalDetail({
       <ApprovalDetailHeader
         post={post}
         targetSlotText={targetSlotText}
-        revisionsCount={revisionsCount}
         isOwner={isOwner}
         isApproving={isApproving}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        citationsCount={citations.length}
-        activityCount={(post.comments?.length || 0) + activityLog.length}
-        onDownloadManual={handleDownloadManual}
         onOpenReject={() => setRejectDialogOpen(true)}
         onApprove={handleApprove}
-        onOpenChangeBrief={() => setChangeBriefDialogOpen(true)}
-        onOpenHistory={() => setHistoryDialogOpen(true)}
       />
 
-      {/* Main Tab Content */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-5 space-y-4">
         {/* Failed Post Alert Banner */}
         {normalizeStatus(post.status) === POST_STATUS.FAILED && (
@@ -166,33 +144,14 @@ export default function ApprovalDetail({
           />
         )}
 
-        {/* TAB 1: CLEAN MODERN POST PREVIEW */}
-        {activeTab === 'review' && (
-          <ApprovalPostPreview
-            post={post}
-            authorAvatar={authorAvatar}
-            targetSlotText={targetSlotText}
-            qualityAudit={qualityAudit}
-            candidateImages={candidateImages}
-            comment={comment}
-            setComment={setComment}
-            onSendComment={handleSendComment}
-          />
-        )}
-
-        {/* TAB 2: RESEARCH PACKAGE */}
-        {activeTab === 'research' && <ApprovalResearchTab citations={citations} />}
-
-        {/* TAB 3: HISTORY & AUDIT LOG */}
-        {activeTab === 'history' && (
-          <ApprovalActivityTab
-            post={post}
-            activityLog={activityLog}
-            comment={comment}
-            setComment={setComment}
-            onSendComment={handleSendComment}
-          />
-        )}
+        {/* Clean Modern Post Preview */}
+        <ApprovalPostPreview
+          post={post}
+          authorAvatar={authorAvatar}
+          targetSlotText={targetSlotText}
+          qualityAudit={qualityAudit}
+          candidateImages={candidateImages}
+        />
       </div>
 
       {/* Modals */}

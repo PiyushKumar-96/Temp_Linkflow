@@ -55,18 +55,43 @@ export function useApprovePost() {
       toast.error(err.message || 'Failed to approve post. Rolled back changes.');
     },
     onSuccess: () => {
-      toast.success('Post approved and queued for publication!');
+      toast.success('Post approved! Added to Content Calendar & Content Library.');
     },
-    onSettled: () => {
+    onSettled: (data, error, variables) => {
       const current = queryClient.getQueryData(['posts', 'approval-queue']);
       if (current) {
         try {
           localStorage.setItem('linkedflow_approval_posts', JSON.stringify(current));
+
+          // Also synchronize linkedflow_master_posts for Content Calendar & Library
+          const rawMaster = localStorage.getItem('linkedflow_master_posts');
+          let master = rawMaster ? JSON.parse(rawMaster) : [];
+          if (Array.isArray(master)) {
+            const approvedPost = current.find((p) => p.id === variables?.id);
+            if (approvedPost) {
+              const idx = master.findIndex((m) => m.id === variables?.id);
+              if (idx !== -1) {
+                master[idx] = { ...master[idx], ...approvedPost, status: POST_STATUS.APPROVED };
+              } else {
+                master.push({ ...approvedPost, status: POST_STATUS.APPROVED });
+              }
+              localStorage.setItem('linkedflow_master_posts', JSON.stringify(master));
+            }
+          }
         } catch {
           // Ignore
         }
       }
+
+      // Notify Content Calendar and Content Library across the app
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('linkedflow_posts_updated'));
+        window.dispatchEvent(new Event('storage'));
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
     },
   });
 }
@@ -126,16 +151,39 @@ export function useRejectPost() {
     onSuccess: () => {
       toast.error('Post rejected — author notified with comments');
     },
-    onSettled: () => {
+    onSettled: (data, error, variables) => {
       const current = queryClient.getQueryData(['posts', 'approval-queue']);
       if (current) {
         try {
           localStorage.setItem('linkedflow_approval_posts', JSON.stringify(current));
+
+          const rawMaster = localStorage.getItem('linkedflow_master_posts');
+          let master = rawMaster ? JSON.parse(rawMaster) : [];
+          if (Array.isArray(master)) {
+            const rejectedPost = current.find((p) => p.id === variables?.id);
+            if (rejectedPost) {
+              const idx = master.findIndex((m) => m.id === variables?.id);
+              if (idx !== -1) {
+                master[idx] = { ...master[idx], ...rejectedPost, status: POST_STATUS.REJECTED };
+              } else {
+                master.push({ ...rejectedPost, status: POST_STATUS.REJECTED });
+              }
+              localStorage.setItem('linkedflow_master_posts', JSON.stringify(master));
+            }
+          }
         } catch {
           // Ignore
         }
       }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('linkedflow_posts_updated'));
+        window.dispatchEvent(new Event('storage'));
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-posts'] });
     },
   });
 }

@@ -48,19 +48,42 @@ export default function LibraryShell() {
     }
 
     const handleStorage = (e) => {
-      if (e.key === 'linkedflow_master_posts' || e.key === 'linkedflow_approval_posts') {
+      if (!e || !e.key || e.key === 'linkedflow_master_posts' || e.key === 'linkedflow_approval_posts') {
         setVersion((v) => v + 1);
       }
     };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('linkedflow_posts_updated', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('linkedflow_posts_updated', handleStorage);
+    };
   }, []);
 
   const approvedLibraryItems = useMemo(() => {
     const storedPosts = getStoredPosts();
+    let approvalStored = [];
+    try {
+      const raw = localStorage.getItem('linkedflow_approval_posts');
+      if (raw) approvalStored = JSON.parse(raw);
+    } catch {
+      // ignore
+    }
+
+    const combinedPosts = [...storedPosts];
+    const seen = new Set(combinedPosts.map((p) => p.id));
+    approvalStored.forEach((p) => {
+      if (!seen.has(p.id)) {
+        combinedPosts.push(p);
+        seen.add(p.id);
+      } else if (isApprovedStatus(p.status)) {
+        const idx = combinedPosts.findIndex((item) => item.id === p.id);
+        if (idx !== -1) combinedPosts[idx] = { ...combinedPosts[idx], ...p };
+      }
+    });
 
     // 1. Only approved, scheduled, or published posts from master storage
-    const fromPosts = storedPosts
+    const fromPosts = combinedPosts
       .filter((p) => isApprovedStatus(p.status))
       .map((p) => {
         const isPub = p.status === 'published';

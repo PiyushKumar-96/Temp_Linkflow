@@ -22,9 +22,6 @@ export default function ApprovalPostPreview({
   targetSlotText,
   qualityAudit,
   candidateImages,
-  comment,
-  setComment,
-  onSendComment,
 }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -198,26 +195,6 @@ export default function ApprovalPostPreview({
             <Send size={14} /> Send
           </span>
         </div>
-      </div>
-
-      {/* 3. Quick Feedback Input Bar */}
-      <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs flex items-center gap-2.5">
-        <input
-          type="text"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSendComment()}
-          placeholder="Leave feedback or review notes for this draft..."
-          className="flex-1 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700 rounded-full px-4 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0a66c2]"
-        />
-        <button
-          onClick={onSendComment}
-          disabled={!comment.trim()}
-          className="px-4 py-2 rounded-full bg-[#0a66c2] text-white text-xs font-semibold disabled:opacity-40 hover:bg-[#084e96] transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
-        >
-          <Send size={12} />
-          <span>Comment</span>
-        </button>
       </div>
     </div>
   );
