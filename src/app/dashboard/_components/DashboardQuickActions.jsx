@@ -2,40 +2,35 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  IconQuickNewPost,
-  IconQuickPlanTopic,
-  IconQuickOpenQueue,
-  IconQuickViewReports,
-} from './DashboardCustomIcons';
+import { PenLine, Target, Inbox, BarChart3 } from 'lucide-react';
 import { Panel } from './DashboardPrimitives';
 
 const ACTIONS = [
   {
     id: 'qa-new-post',
     label: 'New post',
-    icon: IconQuickNewPost,
+    icon: PenLine,
     route: '/post-creation-composer',
     isPrimary: true,
   },
   {
     id: 'qa-plan-topic',
     label: 'Plan topic',
-    icon: IconQuickPlanTopic,
+    icon: Target,
     route: '/topics',
     isPrimary: false,
   },
   {
     id: 'qa-open-queue',
     label: 'Open queue',
-    icon: IconQuickOpenQueue,
+    icon: Inbox,
     route: '/approval-workflow',
     isPrimary: false,
   },
   {
     id: 'qa-view-reports',
     label: 'View reports',
-    icon: IconQuickViewReports,
+    icon: BarChart3,
     route: '/analytics',
     isPrimary: false,
   },
@@ -61,10 +56,10 @@ export default function DashboardQuickActions({ actions = ACTIONS }) {
               key={action.id}
               type="button"
               onClick={() => navigate(action.route)}
-              className={`group relative flex h-full flex-col justify-between rounded-[14px] border p-4 text-left transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2] ${
+              className={`group relative flex h-full flex-col justify-between rounded-[14px] p-4 text-left transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2] ${
                 isPrimary
-                  ? 'border-[#0A66C2] bg-[#0A66C2] text-white shadow-xs hover:border-[#084E96] hover:bg-[#084E96]'
-                  : 'border-[#E3E1DA] bg-transparent text-[#1B1B1F] hover:bg-[#F0EFEB]'
+                  ? 'border border-[#0A66C2] bg-[#0A66C2] text-white shadow-xs hover:border-[#084E96] hover:bg-[#084E96]'
+                  : 'border border-[#E3E1DA] bg-transparent text-[#1B1B1F] hover:bg-[#F0EFEB]'
               }`}
             >
               {/* Top: Icon */}
@@ -73,7 +68,7 @@ export default function DashboardQuickActions({ actions = ACTIONS }) {
                   className={isPrimary ? 'text-white' : 'text-[#5A5A60]'}
                   aria-hidden="true"
                 >
-                  <Icon size={20} strokeWidth={2} />
+                  <Icon size={20} strokeWidth={1.5} />
                 </span>
               </div>
 

@@ -46,7 +46,8 @@ function buildBars(range) {
   const today = new Date();
   const max = Math.max(...values);
   const dense = values.length > 10;
-  let lastMonth = null;
+  let firstVisibleSeen = false;
+  let lastVisibleMonth = null;
 
   return values.map((v, i) => {
     const end = addDays(today, -(values.length - 1 - i) * bucket);
@@ -55,16 +56,22 @@ function buildBars(range) {
     const visible = !dense || (values.length - 1 - i) % 2 === 0;
 
     let short = String(labelDate.getDate());
-    if (visible && labelDate.getMonth() !== lastMonth) {
-      short = `${MONTHS[labelDate.getMonth()]} ${labelDate.getDate()}`;
-      lastMonth = labelDate.getMonth();
+    if (visible) {
+      if (!firstVisibleSeen || labelDate.getMonth() !== lastVisibleMonth) {
+        short = `${labelDate.getDate()} ${MONTHS[labelDate.getMonth()]}`;
+        firstVisibleSeen = true;
+        lastVisibleMonth = labelDate.getMonth();
+      }
     }
+
     const full =
       bucket > 1
         ? `${start.getDate()} ${MONTHS[start.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]}`
         : `${WEEKDAYS[end.getDay()]}, ${end.getDate()} ${MONTHS[end.getMonth()]}`;
 
-    return { value: v, short, full, visible, height: 20 + (v / max) * 65, isPeak: v === max };
+    const height = max > 0 ? (v / max) * 100 : 0;
+
+    return { value: v, short, full, visible, height, isPeak: v === max && v > 0 };
   });
 }
 
@@ -74,15 +81,14 @@ export default function DashboardContentPerformance() {
 
   const data = RANGES[range];
   const bars = useMemo(() => buildBars(range), [range]);
-  const peakIdx = bars.findIndex((b) => b.isPeak);
-  const shownIdx = hoverIdx ?? peakIdx;
-  const shown = bars[shownIdx];
+  const shownIdx = hoverIdx;
+  const shown = hoverIdx !== null ? bars[hoverIdx] : null;
 
-  const anchor = ((shownIdx + 0.5) / bars.length) * 100;
+  const anchor = hoverIdx !== null ? ((hoverIdx + 0.5) / bars.length) * 100 : 0;
   const shift = anchor < 20 ? 15 : anchor > 80 ? 85 : 50;
 
   return (
-    <section className="relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-[24px] bg-[var(--card-dark)] p-6 text-white shadow-[0_1px_3px_rgba(20,24,33,0.12)]">
+    <section className="relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-[24px] bg-[var(--card-dark,#141821)] p-6 text-white shadow-[0_1px_3px_rgba(20,24,33,0.12)]">
       {/* Top row: Title + Range selector */}
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -103,7 +109,7 @@ export default function DashboardContentPerformance() {
             className="h-8 cursor-pointer appearance-none rounded-full bg-[#1F2432] border border-[#2B3140] pl-3.5 pr-8 text-xs font-semibold text-white outline-none transition-colors hover:bg-[#282F40] focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
           >
             {Object.entries(RANGES).map(([key, r]) => (
-              <option key={key} value={key} className="bg-[var(--card-dark)] text-white">
+              <option key={key} value={key} className="bg-[var(--card-dark,#141821)] text-white">
                 {r.label}
               </option>
             ))}
@@ -120,16 +126,21 @@ export default function DashboardContentPerformance() {
         <span className="text-xs sm:text-sm font-medium text-[#8F96A3]">
           impressions
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent-tint)] px-2.5 py-0.5 text-xs font-semibold text-[var(--accent-text)]">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#3C3489] px-2.5 py-0.5 text-xs font-semibold text-[#9B9BF0]">
           <TrendingUp size={12} strokeWidth={2.5} />
           {data.change}
         </span>
       </div>
 
+      {/* Chart quiet caption */}
+      <p className="mt-3 text-xs sm:text-sm font-medium text-[#8F96A3]">
+        Posts published per day
+      </p>
+
       {/* Pill bar chart: unselected bars in --bar-inactive (#2B3140), peak in flat --accent-on-dark (#9B9BF0) */}
       <div className="relative my-4 flex-1 pt-10" onMouseLeave={() => setHoverIdx(null)}>
         <div className="relative flex h-full min-h-[140px] flex-col">
-          {/* Tooltip (stays white with dark text) */}
+          {/* Tooltip: renders on hover and focus only, dismissed at rest */}
           {shown && (
             <div
               className="pointer-events-none absolute z-20 transition-[left,bottom] duration-200 ease-out motion-reduce:transition-none"
@@ -140,7 +151,7 @@ export default function DashboardContentPerformance() {
                 style={{ transform: `translateX(-${shift}%)` }}
               >
                 <span className="text-xs font-semibold text-[#1B1B1F]">
-                  {shown.value} posts · {shown.isPeak ? 'Peak in range' : shown.full}
+                  {shown.value} posts · {shown.full}
                 </span>
               </div>
             </div>
@@ -166,10 +177,10 @@ export default function DashboardContentPerformance() {
                     style={{ height: `${bar.height}%` }}
                     className={`w-full max-w-[16px] sm:max-w-[20px] rounded-full transition-all duration-150 ${
                       isPeak
-                        ? 'bg-[var(--accent-on-dark)]'
+                        ? 'bg-[var(--accent-on-dark,#9B9BF0)]'
                         : active
                         ? 'bg-[#475168]'
-                        : 'bg-[var(--bar-inactive)] hover:bg-[#384054]'
+                        : 'bg-[var(--bar-inactive,#2B3140)] hover:bg-[#384054]'
                     }`}
                   />
                 </button>

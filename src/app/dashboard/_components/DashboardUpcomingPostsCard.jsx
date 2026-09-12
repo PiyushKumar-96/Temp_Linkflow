@@ -66,7 +66,7 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
     navigate(post?.month ? `/content-calendar?month=${post.month}` : '/content-calendar');
 
   return (
-    <Panel className="flex h-full flex-col justify-between p-5 sm:p-6">
+    <Panel className="flex h-full flex-col p-5 sm:p-6">
       {/* Header: Title + All targets pill + Corner ↗ button */}
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-base font-semibold tracking-tight text-[#1B1B1F]">
@@ -97,16 +97,15 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
       </div>
 
       {filtered.length === 0 ? (
-        <div className="my-auto flex flex-col items-center justify-center py-6 text-center">
+        <div className="mt-8 flex flex-col items-center justify-center py-6 text-center">
           <CalendarPlus size={24} className="text-[#6B6B70]" />
           <p className="mt-2 text-xs font-semibold text-[#1B1B1F]">Nothing scheduled yet</p>
           <p className="mt-0.5 text-xs text-[#6B6B70]">Fill the next open slot to keep your cadence.</p>
         </div>
       ) : (
-        <ul className="my-auto flex flex-col gap-2.5 py-2">
-          {filtered.map((post, idx) => {
+        <ul className="mt-3.5 flex flex-col gap-2.5">
+          {filtered.map((post) => {
             const { day, month } = parseDateComponents(post.slot);
-            const isNearest = idx === 0;
 
             return (
               <li key={post.id}>
@@ -122,18 +121,12 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
                   }}
                   className="group flex items-center gap-3.5 rounded-[16px] p-2 transition-colors hover:bg-[#F0EFEB]/70 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
                 >
-                  {/* Date block: Blue ONLY on the nearest upcoming date; neutral #F0EFEB with ink numerals for the rest */}
-                  <div
-                    className={`flex size-12 shrink-0 flex-col items-center justify-center rounded-[14px] ${
-                      isNearest
-                        ? 'bg-[#0A66C2] text-white shadow-xs'
-                        : 'bg-[#F0EFEB] text-[#1B1B1F]'
-                    }`}
-                  >
+                  {/* Date block: Identical neutral #F0EFEB with ink numerals for all rows */}
+                  <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-[14px] bg-[#F0EFEB] text-[#1B1B1F]">
                     <span className="text-base font-bold leading-none tabular-nums">
                       {day}
                     </span>
-                    <span className={`text-[10px] font-semibold uppercase leading-tight ${isNearest ? 'text-white/80' : 'text-[#6B6B70]'}`}>
+                    <span className="text-[10px] font-semibold uppercase leading-tight text-[#6B6B70]">
                       {month}
                     </span>
                   </div>
@@ -155,10 +148,26 @@ export default function DashboardUpcomingPostsCard({ upcomingPosts, limit = 4 })
                     </div>
                   </div>
 
-                  {/* Approved green-tinted pill */}
-                  <span className="shrink-0 rounded-full bg-[#E6F4EC] px-2.5 py-0.5 text-[11px] font-semibold text-[#0F8A5F]">
-                    Approved
-                  </span>
+                  {/* Status pill: suppressed when approved, rendered only on exception */}
+                  {post.status && post.status !== 'approved' && (
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                        post.status === 'failed'
+                          ? 'bg-[#FDECEC] text-[#D64545]'
+                          : post.status === 'needs_revision'
+                          ? 'bg-[#FEF5E7] text-[#E8A33D]'
+                          : post.status === 'awaiting_review' || post.status === 'in_review'
+                          ? 'bg-[#E6F1FB] text-[#0A66C2]'
+                          : 'bg-[#F0EFEB] text-[#6B6B70]'
+                      }`}
+                    >
+                      {post.status === 'awaiting_review' || post.status === 'in_review'
+                        ? 'In review'
+                        : post.status === 'needs_revision'
+                        ? 'Revision'
+                        : post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                    </span>
+                  )}
                 </div>
               </li>
             );

@@ -102,13 +102,13 @@ export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) 
                 }}
                 className="group flex flex-col justify-between rounded-[16px] bg-[#F8F7F4] border border-[#E4E2DC]/60 p-4 transition-all hover:bg-[#F0EFEB] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
               >
-                {/* Top chips: Category (neutral gray) + Quality (green tint) + Impact (white outlined pill) */}
+                {/* Top chips: Category (neutral gray) + Quality (neutral chip) + Impact (white outlined pill) */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-[#F0EFEB] px-2.5 py-0.5 text-[11px] font-semibold text-[#1B1B1F]">
+                    <span className="inline-flex items-center rounded-full bg-white border border-[#E4E2DC] px-2.5 py-0.5 text-[11px] font-semibold text-[#6B6B70]">
                       {item.category}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-[#E6F4EC] px-2.5 py-0.5 text-[11px] font-semibold text-[#0F8A5F] tabular-nums">
+                    <span className="inline-flex items-center rounded-full bg-white border border-[#E4E2DC] px-2.5 py-0.5 text-[11px] font-semibold text-[#6B6B70] tabular-nums">
                       Quality {item.qualityScore}%
                     </span>
                   </div>

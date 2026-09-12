@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { Panel, CornerArrowButton } from './DashboardPrimitives';
 
 const DEFAULT_PILLARS = [
-  { id: 'pillar-1', name: 'Thought leadership', current: 12, target: 15, account: 'Personal profile', color: '#0A66C2' },
-  { id: 'pillar-2', name: 'Case studies & proof', current: 6, target: 8, account: 'Company page', color: '#1B1B1F' },
-  { id: 'pillar-3', name: 'Engineering culture', current: 5, target: 6, account: 'Company page', color: '#1B1B1F' },
-  { id: 'pillar-4', name: 'Industry insights', current: 4, target: 5, account: 'Personal profile', color: '#1B1B1F' },
+  { id: 'pillar-1', name: 'Thought leadership', current: 12, target: 15, account: 'Personal profile' },
+  { id: 'pillar-2', name: 'Case studies & proof', current: 6, target: 8, account: 'Company page' },
+  { id: 'pillar-3', name: 'Engineering culture', current: 5, target: 6, account: 'Company page' },
+  { id: 'pillar-4', name: 'Industry insights', current: 4, target: 5, account: 'Personal profile' },
 ];
 
 export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
@@ -20,7 +20,7 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
   const healthy = balance >= 75;
 
   return (
-    <Panel className="flex h-full flex-col justify-between p-5 sm:p-6">
+    <Panel className="flex h-full flex-col p-5 sm:p-6">
       {/* Header: Title + Neutral Corner ↗ button */}
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-base font-semibold tracking-tight text-[#1B1B1F]">
@@ -33,7 +33,7 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
       </div>
 
       {/* Hero number: 79% with muted "of target" */}
-      <div className="mt-2 flex items-baseline gap-2.5">
+      <div className="mt-1.5 flex items-baseline gap-2.5">
         <span className="text-4xl sm:text-[48px] font-semibold leading-none tabular-nums text-[#1B1B1F] tracking-tight">
           {balance}%
         </span>
@@ -42,8 +42,8 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
         </span>
       </div>
 
-      {/* Pillars list: neutral #E4E2DC tracks, ink fills, top pillar in blue */}
-      <ul className="my-auto flex flex-col gap-3 py-2">
+      {/* Pillars list: neutral #D3D1C7 tracks, uniform #0A66C2 fills */}
+      <ul className="mt-2.5 flex flex-col gap-2.5">
         {pillars.map((pillar) => {
           const pct = Math.min(100, Math.round((pillar.current / pillar.target) * 100));
 
@@ -68,14 +68,11 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
                   </span>
                 </div>
 
-                {/* Thick (10px) rounded progress bar: neutral track #E4E2DC */}
-                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#E4E2DC]">
+                {/* Thick (10px) rounded progress bar: neutral track #D3D1C7, fill #0A66C2 */}
+                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#D3D1C7]">
                   <div
-                    style={{
-                      width: `${pct}%`,
-                      backgroundColor: pillar.color,
-                    }}
-                    className="h-full rounded-full transition-[width] duration-600 ease-out"
+                    style={{ width: `${pct}%` }}
+                    className="h-full rounded-full bg-[#0A66C2] transition-[width] duration-600 ease-out"
                   />
                 </div>
               </button>
@@ -85,7 +82,7 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
       </ul>
 
       {/* Footer: 27 of 34 monthly posts planned + Mint pill for Cadence healthy */}
-      <div className="flex items-center justify-between border-t border-[#E4E2DC] pt-3 text-xs text-[#6B6B70]">
+      <div className="mt-auto flex items-center justify-between border-t border-[#E4E2DC] pt-3 text-xs text-[#6B6760]">
         <span>
           <span className="font-semibold text-[#1B1B1F] tabular-nums">{totalPlanned}</span> of {totalTarget} monthly posts planned
         </span>
