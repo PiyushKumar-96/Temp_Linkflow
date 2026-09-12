@@ -75,7 +75,7 @@ export default function DashboardCockpitHeader() {
       <div className="flex flex-wrap items-center gap-2.5 shrink-0">
         {/* Date pill (neutral) */}
         <div className="hidden h-9 items-center gap-2 rounded-full border border-[#E4E2DC] bg-white px-3.5 text-xs font-medium text-[#1B1B1F] shadow-[0_1px_2px_rgba(27,27,31,0.03)] md:flex">
-          <IconHeaderCalendar size={14} className="text-[#6B6B70]" />
+          <IconHeaderCalendar date={now} size={17} className="text-[#6B6B70]" />
           <span>{formatDayLabel(now)}</span>
         </div>
 
