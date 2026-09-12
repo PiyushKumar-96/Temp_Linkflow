@@ -8,25 +8,19 @@ import HeroScene from './HeroScene';
 export default function DashboardHeroCard({
   onOpenAgenda,
   attentionCount = 2,
-  quote = 'Consistency turns ideas into growth.',
   scenePhase, // optional: 'dawn' | 'day' | 'dusk' | 'night' — omit to follow the clock
 }) {
   const today = formatDayLabel(new Date(), { year: true });
 
   return (
-    <section className="relative isolate flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[24px] bg-[#242B38] p-6 text-white shadow-[0_1px_3px_rgba(27,27,31,0.06)]">
+    <section className="relative isolate flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[14px] bg-[var(--card-dark)] p-6 text-white">
       <HeroScene phase={scenePhase} />
 
-      {/* Top row: translucent date pill + quote */}
+      {/* Top row: translucent date pill */}
       <div className="relative z-10 flex items-start justify-between gap-4">
         <span className="inline-flex items-center rounded-full bg-white/18 px-3 py-1 text-xs font-semibold tracking-tight text-white backdrop-blur-xs">
           {today}
         </span>
-        {quote && (
-          <p className="hidden max-w-[240px] text-right text-xs italic leading-relaxed text-white/80 sm:block">
-            &ldquo;{quote}&rdquo;
-          </p>
-        )}
       </div>
 
       {/* Middle: numeral, heading, sub-line */}
@@ -49,10 +43,10 @@ export default function DashboardHeroCard({
         <button
           type="button"
           onClick={onOpenAgenda}
-          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-xs font-semibold text-[#1B1B1F] transition-all hover:scale-[1.02] hover:bg-white/95 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-xs font-semibold text-[var(--text)] transition-colors hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
           <span>View agenda</span>
-          <span className="grid size-5 place-items-center rounded-full bg-[#1B1B1F] text-white">
+          <span className="grid size-5 place-items-center rounded-full bg-[var(--text)] text-white">
             <ArrowUpRight size={12} strokeWidth={2.4} />
           </span>
         </button>

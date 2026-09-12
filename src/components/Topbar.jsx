@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Plus, Menu, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { IconHeaderCalendar } from '@/app/dashboard/_components/DashboardCustomIcons';
+import { formatDayLabel } from '@/app/dashboard/_components/DashboardPrimitives';
 
 const MOCK_NOTIFICATIONS = [
   {
@@ -58,6 +60,7 @@ export default function Topbar({ onToggleSidebar }) {
   }, []);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
+  const now = new Date();
 
   return (
     <header className="w-full px-6 lg:px-8 xl:px-10 pt-5 pb-3 sm:pt-6 sm:pb-4">
@@ -73,8 +76,14 @@ export default function Topbar({ onToggleSidebar }) {
           </button>
         </div>
 
-        {/* Header Controls: Outline "New Post" & Notification Bell */}
+        {/* Header Controls: Date Pill, Outline "New Post" & Notification Bell */}
         <div className="flex items-center gap-3 sm:gap-4 h-[36px] ml-auto">
+          {/* Date pill (neutral) */}
+          <div className="hidden h-9 items-center gap-2 rounded-full border border-[#E4E2DC] bg-white px-3.5 text-xs font-medium text-[#1B1B1F] shadow-[0_1px_2px_rgba(27,27,31,0.03)] md:flex">
+            <IconHeaderCalendar date={now} size={17} className="text-[#6B6760]" />
+            <span>{formatDayLabel(now)}</span>
+          </div>
+
           {/* New Post: outline button to avoid competing with page-level filled blue actions */}
           <Link to="/post-creation-composer" className="inline-flex items-center" tabIndex={-1}>
             <button

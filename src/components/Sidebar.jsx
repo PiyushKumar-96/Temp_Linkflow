@@ -59,7 +59,7 @@ const NavRow = React.memo(function NavRow({
         className={`relative z-10 truncate transition-[color,transform] duration-300 ease-out ${
           isActive
             ? 'text-[#1A1917]'
-            : 'text-[#8E8A82] group-hover:translate-x-[3px] group-hover:text-[#E8E5DE]'
+            : 'text-[#9C9890] group-hover:translate-x-[3px] group-hover:text-[#E8E5DE]'
         }`}
       >
         {item.label}
@@ -98,6 +98,7 @@ export default function Sidebar({
   const rowRefs = useRef({});
   const hasPositioned = useRef(false);
   const [pillY, setPillY] = useState(null);
+  const [canAnimate, setCanAnimate] = useState(false);
 
   const { data: approvalPosts = [] } = useApprovalPosts();
   const { data: upcomingPosts = [] } = useQuery({
@@ -159,11 +160,18 @@ export default function Sidebar({
     if (!nav || !row) {
       setPillY(null);
       hasPositioned.current = false;
+      setCanAnimate(false);
       return undefined;
     }
 
     const measure = () => setPillY(row.offsetTop);
     measure();
+
+    if (!hasPositioned.current) {
+      hasPositioned.current = true;
+    } else {
+      setCanAnimate(true);
+    }
 
     const ro = new ResizeObserver(measure);
     ro.observe(nav);
@@ -194,10 +202,6 @@ export default function Sidebar({
     [activeId, countFor, onCloseMobile, registerRef],
   );
 
-  // Skip the animation on first paint so the pill doesn't fly in from the top.
-  const animateFromTop = hasPositioned.current;
-  if (pillY !== null) hasPositioned.current = true;
-
   return (
     <>
       {mobileOpen && (
@@ -217,10 +221,9 @@ export default function Sidebar({
           <Link
             to="/dashboard"
             onClick={onCloseMobile}
-            className="flex items-center gap-1.5 rounded text-[16px] font-medium tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
+            className="flex items-center rounded text-[16px] font-semibold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
           >
             <span>LinkedFlow</span>
-            <span className="inline-block h-[7px] w-[7px] rounded-full bg-[#0A66C2]" />
           </Link>
         </div>
 
@@ -237,7 +240,7 @@ export default function Sidebar({
               }}
               initial={false}
               animate={{ y: pillY }}
-              transition={animateFromTop ? PILL_SPRING : { duration: 0 }}
+              transition={canAnimate ? PILL_SPRING : { duration: 0 }}
               aria-hidden="true"
             />
           )}
@@ -252,13 +255,7 @@ export default function Sidebar({
 
           <div className="flex flex-col">{GROUP_2.map(renderRow)}</div>
 
-          <div
-            className="mx-4 my-2 border-t border-[#2A2824]"
-            style={{ borderTopWidth: '0.5px' }}
-            role="separator"
-          />
-
-          <div className="flex flex-col">{FOOTER_NAV.map(renderRow)}</div>
+          <div className="mt-auto flex flex-col pb-2">{FOOTER_NAV.map(renderRow)}</div>
         </nav>
 
         <SidebarUserFooter
