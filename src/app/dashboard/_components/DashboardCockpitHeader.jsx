@@ -8,23 +8,12 @@ import {
   Building2,
   Settings,
   CalendarClock,
+  Plus,
 } from 'lucide-react';
 import {
-  IconGreetingMorning,
-  IconGreetingAfternoon,
-  IconGreetingEvening,
   IconHeaderCalendar,
-  IconVerifiedRole,
-  IconComposePlus,
-  IconGenerativeSparkle,
 } from './DashboardCustomIcons';
-import { Pill, formatDayLabel, getGreeting } from './DashboardPrimitives';
-
-const GREETING_ICONS = {
-  morning: IconGreetingMorning,
-  afternoon: IconGreetingAfternoon,
-  evening: IconGreetingEvening,
-};
+import { formatDayLabel, getGreeting } from './DashboardPrimitives';
 
 export default function DashboardCockpitHeader() {
   const navigate = useNavigate();
@@ -36,7 +25,6 @@ export default function DashboardCockpitHeader() {
 
   const now = new Date();
   const greeting = getGreeting(now);
-  const GreetingIcon = GREETING_ICONS[greeting.period];
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
@@ -59,9 +47,6 @@ export default function DashboardCockpitHeader() {
     };
   }, []);
 
-  const tabletBase =
-    'h-11 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur-md transition-all duration-200';
-
   const initials = displayName
     .split(' ')
     .filter(Boolean)
@@ -71,101 +56,65 @@ export default function DashboardCockpitHeader() {
     .toUpperCase() || 'SR';
 
   return (
-    <header className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pt-1 pb-2">
       {/* Greeting + title */}
-      <div className="min-w-0 xl:flex-1">
-        <p className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
-          <GreetingIcon size={15} className="text-amber-500" strokeWidth={2.2} />
-          {greeting.text}, {firstName}
-        </p>
-        <h1 className="mt-1.5 text-[28px] font-bold leading-none tracking-[-0.025em] text-foreground sm:text-[32px]">
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B70]">
           Operations Cockpit
+        </p>
+        <h1 className="mt-1 text-2xl sm:text-[32px] font-semibold tracking-tight text-[#1B1B1F] leading-tight">
+          {greeting.text},{' '}
+          <span className="text-[#0A66C2]">{firstName}</span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Keep your pipeline moving. Review, schedule and publish with confidence.
+        <p className="mt-1 text-xs sm:text-sm text-[#6B6B70]">
+          Review, schedule, and publish with confidence.
         </p>
       </div>
 
-      {/* Controls: Date, Profile, and Compose Post styled as premium tablets */}
-      <div className="flex flex-wrap items-center gap-3 shrink-0">
-        {/* Date Tablet */}
-        <div
-          className={`${tabletBase} hidden items-center gap-3 px-3.5 md:flex select-none hover:border-blue-200 dark:hover:border-blue-900/60 hover:shadow-md`}
-        >
-          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400 ring-1 ring-blue-500/20 shadow-xs">
-            <IconHeaderCalendar size={15} />
-          </span>
-          <div className="flex flex-col text-left">
-            <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100">
-              {formatDayLabel(now)}
-            </span>
-            <div className="mt-0.5 flex items-center gap-1.5 leading-none">
-              <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]" />
-              <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                Have a productive day!
-              </span>
-            </div>
-          </div>
+      {/* Controls: Date, Profile pill, and Compose Post */}
+      <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        {/* Date pill (neutral) */}
+        <div className="hidden h-9 items-center gap-2 rounded-full border border-[#E4E2DC] bg-white px-3.5 text-xs font-medium text-[#1B1B1F] shadow-[0_1px_2px_rgba(27,27,31,0.03)] md:flex">
+          <IconHeaderCalendar size={14} className="text-[#6B6B70]" />
+          <span>{formatDayLabel(now)}</span>
         </div>
 
-        {/* Profile Tablet */}
+        {/* Profile menu pill (neutral) */}
         <div className="relative" ref={userMenuRef}>
           <button
             type="button"
             onClick={() => setShowUserMenu((prev) => !prev)}
             aria-haspopup="true"
             aria-expanded={showUserMenu}
-            className={`${tabletBase} flex items-center gap-2.5 pl-1.5 pr-3 hover:border-violet-200 dark:hover:border-violet-900/60 hover:shadow-md cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40`}
+            className="flex h-9 items-center gap-2.5 rounded-full border border-[#E4E2DC] bg-white pl-1.5 pr-3 text-xs font-medium text-[#1B1B1F] shadow-[0_1px_2px_rgba(27,27,31,0.03)] transition-all hover:bg-[#F0EFEB] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
           >
-            {/* Avatar with luxury gradient ring */}
-            <div className="relative shrink-0">
-              <div className="size-8 rounded-full bg-gradient-to-tr from-violet-600 via-purple-500 to-indigo-500 p-[1.5px] shadow-xs transition-transform duration-200 group-hover:scale-105">
-                {user?.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={displayName}
-                    className="size-full rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="size-full rounded-full bg-white dark:bg-slate-900 grid place-items-center">
-                    <span className="text-[11px] font-bold text-violet-700 dark:text-violet-300">
-                      {initials}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+            <div className="size-6 rounded-full bg-[#F0EFEB] text-[#1B1B1F] grid place-items-center overflow-hidden shrink-0">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={displayName} className="size-full object-cover" />
+              ) : (
+                <span className="text-[10px] font-bold">{initials}</span>
+              )}
             </div>
 
             <div className="hidden flex-col text-left sm:flex">
-              <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 dark:text-slate-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
-                {displayName}
-              </span>
-              <span className="mt-0.5 flex items-center gap-1 text-[10px] font-medium leading-none text-violet-600/90 dark:text-violet-400">
-                <IconVerifiedRole size={11} className="text-violet-500 shrink-0" />
-                {displayRole}
-              </span>
+              <span className="text-xs font-semibold leading-none text-[#1B1B1F]">{displayName}</span>
+              <span className="mt-0.5 text-[10px] leading-none text-[#6B6B70]">{displayRole}</span>
             </div>
 
-            <span className="ml-1 grid size-5 place-items-center rounded-full bg-slate-100/90 dark:bg-slate-800 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 group-hover:bg-slate-200/70 transition-all">
-              <ChevronDown
-                size={12}
-                strokeWidth={2.5}
-                className={`transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`}
-              />
-            </span>
+            <ChevronDown
+              size={12}
+              className={`text-[#6B6B70] transition-transform duration-150 ${showUserMenu ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 z-50 mt-2.5 w-64 overflow-hidden rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl p-1.5 text-[13px] shadow-[0_12px_36px_-10px_rgba(15,23,42,0.22)] animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none ring-1 ring-black/5">
-              <div className="px-3 pb-3 pt-2">
-                <p className="truncate font-semibold text-foreground">{displayName}</p>
-                <p className="truncate text-xs text-muted-foreground">{user?.email || 'Signed in'}</p>
-                <Pill tone="blue" icon={IconVerifiedRole} className="mt-2">
-                  {displayRole}
-                </Pill>
+            <div className="absolute right-0 z-50 mt-1.5 w-60 overflow-hidden rounded-[20px] bg-white p-1.5 text-xs shadow-xl border border-[#E4E2DC] animate-in fade-in zoom-in-95 duration-100 motion-reduce:animate-none">
+              <div className="px-3 py-2.5 border-b border-[#E4E2DC]">
+                <p className="truncate font-semibold text-[#1B1B1F]">{displayName}</p>
+                <p className="truncate text-[11px] text-[#6B6B70]">{user?.email || 'Signed in'}</p>
+                <p className="mt-1 text-[11px] font-medium text-[#0A66C2]">{displayRole}</p>
               </div>
-              <div className="border-t border-border/60 pt-1.5">
+              <div className="pt-1">
                 {[
                   { label: 'Account settings', icon: Settings, route: '/settings' },
                   { label: 'Schedule preferences', icon: CalendarClock, route: '/content-calendar' },
@@ -177,16 +126,16 @@ export default function DashboardCockpitHeader() {
                       setShowUserMenu(false);
                       navigate(item.route);
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-foreground transition-colors hover:bg-muted/70 cursor-pointer"
+                    className="flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-[#1B1B1F] transition-colors hover:bg-[#F0EFEB] cursor-pointer"
                   >
-                    <item.icon size={15} className="text-muted-foreground" />
-                    {item.label}
+                    <item.icon size={14} className="text-[#6B6B70]" />
+                    <span>{item.label}</span>
                   </button>
                 ))}
               </div>
               {activeAccount && (
-                <div className="mt-1.5 flex items-center gap-2 border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                  <Building2 size={13} />
+                <div className="mt-1 flex items-center gap-1.5 border-t border-[#E4E2DC] px-3 py-2 text-[11px] text-[#6B6B70]">
+                  <Building2 size={12} />
                   <span className="truncate">{activeAccount.name}</span>
                 </div>
               )}
@@ -194,25 +143,18 @@ export default function DashboardCockpitHeader() {
           )}
         </div>
 
-        {/* Primary CTA Tablet */}
+        {/* Primary CTA: Solid blue pill with white text and a white circular "+" icon inside */}
         <button
           type="button"
           onClick={() => navigate('/post-creation-composer')}
-          className="group relative h-11 rounded-full bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 hover:from-slate-900 hover:via-indigo-950 hover:to-purple-950 text-white pl-2.5 pr-4 flex items-center gap-2.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.35),0_2px_6px_rgba(99,102,241,0.2)] hover:shadow-[0_6px_22px_-2px_rgba(99,102,241,0.45),0_2px_8px_rgba(15,23,42,0.3)] ring-1 ring-white/20 hover:ring-white/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex h-9 items-center gap-2 rounded-full bg-[#0A66C2] pl-3 pr-4 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#084E96] hover:scale-[1.02] active:scale-[0.98] cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
         >
-          <span className="grid size-7 place-items-center rounded-full bg-white/15 text-white shadow-xs group-hover:bg-white/25 group-hover:scale-110 transition-all duration-200">
-            <IconComposePlus size={14} />
+          <span className="grid size-4 place-items-center rounded-full bg-white text-[#0A66C2]">
+            <Plus size={12} strokeWidth={3} />
           </span>
-          <span className="text-[13px] font-bold tracking-tight text-white/95 group-hover:text-white">
-            Compose post
-          </span>
-          <IconGenerativeSparkle
-            size={14}
-            className="text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.65)] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
-          />
+          <span>Compose post</span>
         </button>
       </div>
     </header>
   );
 }
-

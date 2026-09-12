@@ -126,7 +126,17 @@ export async function getPostById(id) {
 
 export async function getUpcomingPosts() {
   const posts = getStoredPosts();
-  return posts.filter((p) => p.status === POST_STATUS.SCHEDULED || p.status === POST_STATUS.APPROVED && p.scheduledDate);
+  const upcoming = posts.filter(
+    (p) => p.status === POST_STATUS.SCHEDULED || (p.status === POST_STATUS.APPROVED && p.scheduledDate)
+  );
+  const seen = new Set();
+  return upcoming.filter((p) => {
+    const key = (p.title || p.id || '').trim().toLowerCase();
+    if (seen.has(key) || seen.has(p.id)) return false;
+    seen.add(key);
+    seen.add(p.id);
+    return true;
+  });
 }
 
 export async function getRecentlyPublishedPosts() {

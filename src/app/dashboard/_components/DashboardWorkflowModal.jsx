@@ -199,7 +199,7 @@ function CountUp({ to, delay = 0, duration = 1100 }) {
 const cardSurface = 'rounded-2xl border border-border/70 bg-card';
 const FloatingChip = ({ tone = 'emerald', icon: Icon, children }) => (
   <span
-    className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-card px-2.5 py-1 text-[11px] font-semibold shadow-lg shadow-slate-900/10 ring-1 ring-inset ring-border/70 ${TONES[tone].text}`}
+    className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-card px-2.5 py-1 text-[11px] font-semibold shadow-lg shadow-slate-900/10 ring-1 ring-inset ring-border/70 ${TONES[tone]?.text || 'text-foreground'}`}
   >
     {Icon && <Icon size={12} strokeWidth={2.5} />}
     {children}
@@ -688,10 +688,10 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
   const paused = !playing;
 
   const TONE_RINGS = {
-    blue: 'ring-2 ring-inset ring-blue-500 dark:ring-blue-400 shadow-sm',
-    violet: 'ring-2 ring-inset ring-violet-500 dark:ring-violet-400 shadow-sm',
-    amber: 'ring-2 ring-inset ring-amber-500 dark:ring-amber-400 shadow-sm',
-    emerald: 'ring-2 ring-inset ring-emerald-500 dark:ring-emerald-400 shadow-sm',
+    blue: 'ring-2 ring-inset ring-[#0A66C2] shadow-sm',
+    violet: 'ring-2 ring-inset ring-[#2E7CC4] shadow-sm',
+    amber: 'ring-2 ring-inset ring-[#E8A33D] shadow-sm',
+    emerald: 'ring-2 ring-inset ring-[#0F8A5F] shadow-sm',
   };
 
   return (
@@ -773,7 +773,7 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
                   <span className="relative grid size-9 shrink-0 place-items-center">
                     {isActive && (
                       <span
-                        className={`absolute inset-0 rounded-xl ${TONES[step.tone].chip}`}
+                        className={`absolute inset-0 rounded-xl ${TONES[step.tone]?.chip || ''}`}
                         style={{ animation: 'hiw-ping 1.8s cubic-bezier(0,0,.2,1) infinite' }}
                       />
                     )}
@@ -782,7 +782,7 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
                         isDone
                           ? 'bg-emerald-500 text-white'
                           : isActive
-                            ? TONES[step.tone].chip
+                            ? TONES[step.tone]?.chip || ''
                             : 'bg-muted/70 text-muted-foreground'
                       }`}
                     >

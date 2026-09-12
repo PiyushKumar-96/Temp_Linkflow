@@ -1,68 +1,124 @@
 'use client';
 
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
-/* Tone palette — one place to tune every status colour on the page.   */
 /* ------------------------------------------------------------------ */
-export const TONES = {
-  slate: {
-    chip: 'bg-slate-100 text-slate-600 dark:bg-slate-400/10 dark:text-slate-300',
-    pill: 'bg-slate-100 text-slate-600 ring-slate-500/15 dark:bg-slate-400/10 dark:text-slate-300 dark:ring-slate-400/20',
-    dot: 'bg-slate-400',
-    text: 'text-slate-600 dark:text-slate-300',
-  },
-  blue: {
-    chip: 'bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300',
-    pill: 'bg-blue-50 text-blue-700 ring-blue-600/15 dark:bg-blue-400/10 dark:text-blue-300 dark:ring-blue-400/20',
-    dot: 'bg-blue-500',
-    text: 'text-blue-600 dark:text-blue-300',
-  },
-  indigo: {
-    chip: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-300',
-    pill: 'bg-indigo-50 text-indigo-700 ring-indigo-600/15 dark:bg-indigo-400/10 dark:text-indigo-300 dark:ring-indigo-400/20',
-    dot: 'bg-indigo-500',
-    text: 'text-indigo-600 dark:text-indigo-300',
-  },
-  violet: {
-    chip: 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300',
-    pill: 'bg-violet-50 text-violet-700 ring-violet-600/15 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/20',
-    dot: 'bg-violet-500',
-    text: 'text-violet-600 dark:text-violet-300',
-  },
-  emerald: {
-    chip: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300',
-    pill: 'bg-emerald-50 text-emerald-700 ring-emerald-600/15 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/20',
-    dot: 'bg-emerald-500',
-    text: 'text-emerald-600 dark:text-emerald-300',
-  },
-  amber: {
-    chip: 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300',
-    pill: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20',
-    dot: 'bg-amber-500',
-    text: 'text-amber-600 dark:text-amber-300',
-  },
-  rose: {
-    chip: 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300',
-    pill: 'bg-rose-50 text-rose-700 ring-rose-600/15 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-400/20',
-    dot: 'bg-rose-500',
-    text: 'text-rose-600 dark:text-rose-300',
-  },
+/* ------------------------------------------------------------------ */
+/* Revised Tone palette: Warm neutrals + selective color              */
+const DEFAULT_TONE = {
+  pill: 'bg-[#F0EFEB] text-[#1B1B1F]',
+  chip: 'bg-[#F0EFEB] text-[#1B1B1F]',
+  text: 'text-[#6B6B70]',
+  dot: 'bg-[#6B6B70]',
 };
 
-const tone = (name) => TONES[name] || TONES.slate;
+const BASE_TONES = {
+  blue: {
+    pill: 'bg-[#0A66C2] text-white',
+    chip: 'bg-[#0A66C2] text-white',
+    text: 'text-[#0A66C2]',
+    dot: 'bg-[#0A66C2]',
+  },
+  accent: {
+    pill: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
+    chip: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
+    text: 'text-[var(--accent-text)]',
+    dot: 'bg-[var(--accent)]',
+  },
+  lime: {
+    pill: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
+    chip: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
+    text: 'text-[var(--accent-text)]',
+    dot: 'bg-[var(--accent)]',
+  },
+  violet: DEFAULT_TONE,
+  amber: {
+    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
+    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
+    text: 'text-[#E8A33D]',
+    dot: 'bg-[#E8A33D]',
+  },
+  emerald: {
+    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    text: 'text-[#0F8A5F]',
+    dot: 'bg-[#0F8A5F]',
+  },
+  rose: {
+    pill: 'bg-[#FDECEC] text-[#D64545]',
+    chip: 'bg-[#FDECEC] text-[#D64545]',
+    text: 'text-[#D64545]',
+    dot: 'bg-[#D64545]',
+  },
+  slate: DEFAULT_TONE,
+  lavender: DEFAULT_TONE,
+  mint: {
+    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    text: 'text-[#0F8A5F]',
+    dot: 'bg-[#0F8A5F]',
+  },
+  butter: {
+    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
+    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
+    text: 'text-[#E8A33D]',
+    dot: 'bg-[#E8A33D]',
+  },
+  sky: DEFAULT_TONE,
+  periwinkle: {
+    pill: 'bg-[#0A66C2] text-white',
+    chip: 'bg-[#0A66C2] text-white',
+    text: 'text-[#0A66C2]',
+    dot: 'bg-[#0A66C2]',
+  },
+  statusGreen: {
+    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
+    text: 'text-[#0F8A5F]',
+    dot: 'bg-[#0F8A5F]',
+  },
+  statusAmber: {
+    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
+    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
+    text: 'text-[#E8A33D]',
+    dot: 'bg-[#E8A33D]',
+  },
+  statusRed: {
+    pill: 'bg-[#FDECEC] text-[#D64545]',
+    chip: 'bg-[#FDECEC] text-[#D64545]',
+    text: 'text-[#D64545]',
+    dot: 'bg-[#D64545]',
+  },
+  dark: {
+    pill: 'bg-[#1B1B1F] text-white',
+    chip: 'bg-[#1B1B1F] text-white',
+    text: 'text-white',
+    dot: 'bg-[#1B1B1F]',
+  },
+  neutral: DEFAULT_TONE,
+};
+
+// Safe Proxy so TONES[undefined] or any missing key returns DEFAULT_TONE
+export const TONES = new Proxy(BASE_TONES, {
+  get(target, prop) {
+    if (typeof prop === 'string' && prop in target) {
+      return target[prop];
+    }
+    return DEFAULT_TONE;
+  },
+});
 
 /* ------------------------------------------------------------------ */
 /* Buttons                                                              */
 /* ------------------------------------------------------------------ */
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-card';
-
 export const buttonStyles = {
-  dark: `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-900 px-4 text-xs font-semibold text-white shadow-sm shadow-slate-900/20 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 cursor-pointer ${focusRing}`,
-  outline: `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-muted/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer ${focusRing}`,
-  ghost: `inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground cursor-pointer ${focusRing}`,
+  dark: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#0A66C2] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#084E96] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  navy: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#1B1B1F] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#2A2A30] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  outline: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white border border-[#E4E2DC] px-4 py-2 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#F0EFEB] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  white: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#1B1B1F] transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  ghost: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#F0EFEB] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
 };
 
 /* ------------------------------------------------------------------ */
@@ -71,7 +127,7 @@ export const buttonStyles = {
 export function Panel({ as: Tag = 'section', className = '', children, ...rest }) {
   return (
     <Tag
-      className={`rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-14px_rgba(15,23,42,0.10)] ${className}`}
+      className={`rounded-[24px] bg-[#FFFFFF] text-[#1B1B1F] shadow-[0_1px_3px_rgba(27,27,31,0.04)] ${className}`}
       {...rest}
     >
       {children}
@@ -79,46 +135,25 @@ export function Panel({ as: Tag = 'section', className = '', children, ...rest }
   );
 }
 
-const TONE_BADGES = {
-  emerald: {
-    container: 'bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-emerald-500/5 text-emerald-600 dark:text-emerald-400 ring-1 ring-inset ring-emerald-500/25 shadow-[0_2px_8px_-2px_rgba(16,185,129,0.25)]',
-  },
-  blue: {
-    container: 'bg-gradient-to-br from-blue-500/15 via-sky-500/10 to-blue-500/5 text-blue-600 dark:text-blue-400 ring-1 ring-inset ring-blue-500/25 shadow-[0_2px_8px_-2px_rgba(59,130,246,0.25)]',
-  },
-  violet: {
-    container: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-violet-500/5 text-violet-600 dark:text-violet-400 ring-1 ring-inset ring-violet-500/25 shadow-[0_2px_8px_-2px_rgba(139,92,246,0.25)]',
-  },
-  amber: {
-    container: 'bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-600 dark:text-amber-400 ring-1 ring-inset ring-amber-500/25 shadow-[0_2px_8px_-2px_rgba(245,158,11,0.25)]',
-  },
-  rose: {
-    container: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-rose-500/5 text-rose-600 dark:text-rose-400 ring-1 ring-inset ring-rose-500/25 shadow-[0_2px_8px_-2px_rgba(244,63,94,0.25)]',
-  },
-  indigo: {
-    container: 'bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-indigo-500/5 text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/25 shadow-[0_2px_8px_-2px_rgba(99,102,241,0.25)]',
-  },
-  slate: {
-    container: 'bg-gradient-to-br from-slate-500/15 via-slate-500/10 to-slate-500/5 text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-500/25 shadow-[0_2px_8px_-2px_rgba(100,116,139,0.18)]',
-  },
-};
-
-export function CustomIconBadge({ icon: Icon, tone: toneName = 'slate', size = 'size-8', iconSize = 17, className = '' }) {
-  const t = TONE_BADGES[toneName] || TONE_BADGES.slate;
-  if (!Icon) return null;
+export function CornerArrowButton({ onClick, label = 'Open', className = '' }) {
   return (
-    <span className={`grid ${size} shrink-0 place-items-center rounded-xl transition-all duration-200 group-hover:scale-105 ${t.container} ${className}`}>
-      <Icon size={iconSize} strokeWidth={2.2} />
-    </span>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`size-8 shrink-0 rounded-full bg-[#F0EFEB] hover:bg-[#0A66C2] text-[#1B1B1F] hover:text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer ${className}`}
+    >
+      <ArrowUpRight size={15} strokeWidth={2.4} />
+    </button>
   );
 }
 
-export function PanelHeader({ icon: Icon, tone: toneName = 'slate', title, badge, action, className = '' }) {
+export function PanelHeader({ title, badge, action, className = '' }) {
   return (
-    <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 ${className}`}>
-      <div className="flex min-w-0 items-center gap-2.5">
-        {Icon && <CustomIconBadge icon={Icon} tone={toneName} size="size-8" iconSize={17} />}
-        <h3 className="whitespace-nowrap text-[15px] font-bold tracking-tight text-foreground">{title}</h3>
+    <div className={`flex items-center justify-between gap-3 ${className}`}>
+      <div className="flex items-center gap-2.5">
+        <h3 className="text-base font-semibold text-[#1B1B1F] tracking-tight">{title}</h3>
         {badge}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
@@ -131,19 +166,19 @@ export function PanelLink({ onClick, children, className = '' }) {
     <button
       type="button"
       onClick={onClick}
-      className={`group inline-flex items-center gap-1 rounded-md text-xs font-semibold text-primary transition-colors hover:text-primary/80 cursor-pointer ${focusRing} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-[#F0EFEB] px-3 py-1 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#0A66C2] hover:text-white cursor-pointer ${className}`}
     >
       <span>{children}</span>
-      <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+      <ArrowUpRight size={13} strokeWidth={2} />
     </button>
   );
 }
 
-export function Pill({ tone: toneName = 'slate', dot = false, pulse = false, icon: Icon, children, className = '' }) {
-  const t = tone(toneName);
+export function Pill({ tone: toneName = 'neutral', dot = false, pulse = false, icon: Icon, children, className = '' }) {
+  const t = TONES[toneName] || TONES.neutral;
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${t.pill} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${t.pill} ${className}`}
     >
       {dot && (
         <span className="relative flex size-1.5">
@@ -153,7 +188,7 @@ export function Pill({ tone: toneName = 'slate', dot = false, pulse = false, ico
           <span className={`relative inline-flex size-1.5 rounded-full ${t.dot}`} />
         </span>
       )}
-      {Icon && <Icon size={11} strokeWidth={2.4} />}
+      {Icon && <Icon size={12} strokeWidth={2.2} />}
       {children}
     </span>
   );
@@ -162,8 +197,8 @@ export function Pill({ tone: toneName = 'slate', dot = false, pulse = false, ico
 export function LiveDot({ label = 'Live' }) {
   return (
     <span className="relative flex size-2 shrink-0" title={label}>
-      <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:hidden" />
-      <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+      <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#0F8A5F] opacity-60 motion-reduce:hidden" />
+      <span className="relative inline-flex size-2 rounded-full bg-[#0F8A5F]" />
       <span className="sr-only">{label}</span>
     </span>
   );
@@ -176,14 +211,12 @@ export function IconButton({ label, onClick, children, className = '' }) {
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`grid size-7 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer ${focusRing} ${className}`}
+      className={`grid size-7 shrink-0 place-items-center rounded-full text-[#6B6B70] transition-colors hover:bg-[#F0EFEB] hover:text-[#1B1B1F] cursor-pointer ${className}`}
     >
       {children}
     </button>
   );
 }
-
-const AVATAR_TONES = ['blue', 'violet', 'emerald', 'amber', 'rose', 'indigo'];
 
 export function Avatar({ src, name = '', size = 'size-8', textSize = 'text-[11px]', className = '' }) {
   const initials = name
@@ -193,7 +226,9 @@ export function Avatar({ src, name = '', size = 'size-8', textSize = 'text-[11px
     .map((n) => n[0])
     .join('')
     .toUpperCase();
-  const toneName = AVATAR_TONES[(name.charCodeAt(0) || 0) % AVATAR_TONES.length];
+  const toneKeys = ['sky', 'violet', 'lavender', 'blue'];
+  const toneKey = toneKeys[(name.charCodeAt(0) || 0) % toneKeys.length];
+  const t = TONES[toneKey] || TONES.sky;
   const [failed, setFailed] = useState(false);
 
   if (src && !failed) {
@@ -202,14 +237,14 @@ export function Avatar({ src, name = '', size = 'size-8', textSize = 'text-[11px
         src={src}
         alt={name}
         onError={() => setFailed(true)}
-        className={`${size} shrink-0 rounded-full object-cover ring-2 ring-card ${className}`}
+        className={`${size} shrink-0 rounded-full object-cover ring-2 ring-white ${className}`}
       />
     );
   }
   return (
     <span
       aria-hidden="true"
-      className={`${size} grid shrink-0 place-items-center rounded-full ${textSize} font-bold ring-2 ring-card ${tone(toneName).chip} ${className}`}
+      className={`${size} grid shrink-0 place-items-center rounded-full ${textSize} font-bold ring-2 ring-white ${t.pill} ${className}`}
     >
       {initials || '?'}
     </span>
@@ -256,7 +291,7 @@ export function ModalShell({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] animate-in fade-in duration-150 motion-reduce:animate-none"
+        className="absolute inset-0 bg-[#0B2942]/50 backdrop-blur-[2px] animate-in fade-in duration-150 motion-reduce:animate-none"
       />
       <div
         ref={dialogRef}
@@ -264,36 +299,36 @@ export function ModalShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative flex outline-none max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200 motion-reduce:animate-none`}
+        className={`relative flex outline-none max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-[24px] border border-[#E4E2DC] bg-[#FFFFFF] text-[#1B1B1F] shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none`}
       >
-        <div className="flex items-start justify-between gap-4 px-6 pb-4 pt-5">
+        <div className="flex items-start justify-between gap-4 px-6 pb-3 pt-5 border-b border-[#E4E2DC]">
           <div className="flex items-center gap-3">
             {Icon && (
-              <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone(toneName).chip}`}>
-                <Icon size={18} />
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#F0EFEB] text-[#1B1B1F]">
+                <Icon size={16} />
               </span>
             )}
             <div>
-              <h2 id={titleId} className="text-base font-semibold tracking-tight text-foreground">
+              <h2 id={titleId} className="text-base font-semibold tracking-tight text-[#1B1B1F]">
                 {title}
               </h2>
-              {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+              {subtitle && <p className="mt-0.5 text-xs text-[#6B6B70]">{subtitle}</p>}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className={`grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer ${focusRing}`}
+            className="grid size-8 place-items-center rounded-full text-[#6B6B70] transition-colors hover:bg-[#F0EFEB] hover:text-[#1B1B1F] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
           >
-            <X size={17} />
+            <X size={16} />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-6 pb-5">{children}</div>
+        <div className="overflow-y-auto px-6 py-5">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-border/60 bg-muted/30 px-6 py-3.5">
+          <div className="flex items-center justify-end gap-2 border-t border-[#E4E2DC] bg-[#F8F7F4] px-6 py-4">
             {footer}
           </div>
         )}

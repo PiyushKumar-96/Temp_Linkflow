@@ -3,30 +3,48 @@
 @tailwind utilities;
 
 :root {
+  /* Brand */
+  --brand: #0A66C2;
+  --brand-tint: #E6F1FB;
+
+  /* Accent (replaces all lime) */
+  --accent: #5B5BD6;
+  --accent-hover: #4A4AC4;
+  --accent-on-dark: #9B9BF0;
+  --accent-tint: #EEEDFE;
+  --accent-text: #3C3489;
+  --on-accent: #FFFFFF;
+
+  /* Surfaces */
+  --page-bg: #F1F0EC;
+  --card: #FFFFFF;
+  --card-dark: #141821;
+  --bar-inactive: #2B3140;
+
+  /* Status */
+  --success: #1D9E75;
+  --info: #378ADD;
+  --warning: #EF9F27;
+  --danger: #E24B4A;
+
   --background: #f3f6fb;
   --foreground: #0f172a;
   --primary: #0a66c2;
   --primary-foreground: #ffffff;
   --secondary: #e8f0fe;
   --secondary-foreground: #0a66c2;
-  --accent: #7c3aed;
   --accent-foreground: #ffffff;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --card: #ffffff;
   --card-foreground: #0f172a;
   --border: #e2e8f0;
   --input: #f8fafc;
   --ring: #0a66c2;
   --radius: 10px;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
-  --success: #16a34a;
   --success-bg: #f0fdf4;
-  --warning: #d97706;
   --warning-bg: #fffbeb;
-  --danger: #dc2626;
   --danger-bg: #fef2f2;
-  --info: #0369a1;
   --info-bg: #f0f9ff;
   --sidebar-width: 240px;
   --sidebar-collapsed: 64px;

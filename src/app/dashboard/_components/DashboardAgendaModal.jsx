@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { IconTodayFocus } from './DashboardCustomIcons';
 import { ModalShell, Pill, buttonStyles, formatDayLabel } from './DashboardPrimitives';
 
 const PRIORITY = {
-  critical: { label: 'Critical', tone: 'rose', rail: 'bg-rose-500' },
-  high: { label: 'High', tone: 'amber', rail: 'bg-amber-500' },
-  normal: { label: 'Normal', tone: 'blue', rail: 'bg-blue-500' },
+  critical: { label: 'Critical', tone: 'statusRed', dot: 'bg-[#D64545]' },
+  high: { label: 'High', tone: 'statusAmber', dot: 'bg-[#E8A33D]' },
+  normal: { label: 'Normal', tone: 'neutral', dot: 'bg-[#6B6B70]' },
 };
 
 const DEFAULT_TASKS = [
@@ -60,18 +60,19 @@ export default function DashboardAgendaModal({ isOpen, onClose, tasks = DEFAULT_
         </button>
       }
     >
-      <ol className="flex flex-col gap-2.5">
+      <ol className="flex flex-col gap-3">
         {tasks.map((task) => {
           const p = PRIORITY[task.priority] || PRIORITY.normal;
           return (
             <li
               key={task.id}
-              className="relative overflow-hidden rounded-xl border border-border/70 bg-card py-3.5 pl-5 pr-4"
+              className="flex flex-col justify-between rounded-[18px] bg-[#F8F7F4] border border-[#E4E2DC]/60 p-4 text-[#1B1B1F]"
             >
-              <span aria-hidden="true" className={`absolute inset-y-3 left-0 w-1 rounded-r-full ${p.rail}`} />
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <time className="text-xs font-medium text-muted-foreground tabular-nums">{task.time}</time>
+                  <span className="rounded-full bg-[#F0EFEB] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#1B1B1F]">
+                    {task.time}
+                  </span>
                   <Pill tone={p.tone}>{p.label}</Pill>
                 </div>
                 <button
@@ -80,14 +81,14 @@ export default function DashboardAgendaModal({ isOpen, onClose, tasks = DEFAULT_
                     onClose();
                     navigate(task.route);
                   }}
-                  className="group inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 cursor-pointer"
+                  className="group inline-flex items-center gap-1 rounded-full bg-white border border-[#E4E2DC] px-3 py-1 text-xs font-semibold text-[#1B1B1F] shadow-xs transition-colors hover:bg-[#0A66C2] hover:text-white cursor-pointer"
                 >
-                  {task.action}
-                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                  <span>{task.action}</span>
+                  <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </button>
               </div>
-              <h4 className="mt-2 text-[13px] font-semibold text-foreground">{task.title}</h4>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{task.desc}</p>
+              <h4 className="mt-2.5 text-sm font-semibold text-[#1B1B1F]">{task.title}</h4>
+              <p className="mt-0.5 text-xs text-[#6B6B70]">{task.desc}</p>
             </li>
           );
         })}

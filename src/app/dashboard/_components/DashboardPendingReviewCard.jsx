@@ -2,24 +2,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  MoreVertical,
-  CheckCircle2,
-} from 'lucide-react';
-import {
-  IconPendingReview,
-  IconFormatCarousel,
-  IconFormatImage,
-  IconFormatText,
-  IconGenerativeSparkle,
-} from './DashboardCustomIcons';
-import { Panel, PanelHeader, PanelLink, Pill, IconButton, Avatar } from './DashboardPrimitives';
-
-const FORMAT_ICONS = {
-  image: IconFormatImage,
-  carousel: IconFormatCarousel,
-  text: IconFormatText,
-};
+import { CheckCircle2 } from 'lucide-react';
+import { Panel, CornerArrowButton } from './DashboardPrimitives';
 
 const DEMO_ITEMS = [
   {
@@ -33,7 +17,6 @@ const DEMO_ITEMS = [
     timestamp: '2 hours ago',
     impact: 'Medium',
     author: 'Lisa Tran',
-    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
   },
   {
     id: 'pending-2',
@@ -46,7 +29,6 @@ const DEMO_ITEMS = [
     timestamp: '5 hours ago',
     impact: 'High',
     author: 'Rohan Mehta',
-    authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80',
   },
 ];
 
@@ -59,110 +41,113 @@ const mapPost = (p, idx) => ({
   visualFormat: p.visualFormat || 'text',
   timestamp: p.submittedAt || 'Recently',
   impact: p.impact || 'Medium',
-  author: p.author || '',
-  authorAvatar: p.authorAvatar,
+  author: p.author || 'Sarah Reeves',
 });
 
-/**
- * pendingPosts === undefined -> demo data
- * pendingPosts === []        -> "all clear" state
- */
 export default function DashboardPendingReviewCard({ pendingPosts, limit = 2 }) {
   const navigate = useNavigate();
 
   const items = pendingPosts === undefined ? DEMO_ITEMS : pendingPosts.slice(0, limit).map(mapPost);
-  const count = pendingPosts === undefined ? DEMO_ITEMS.length : pendingPosts.length;
+  const count = pendingPosts === undefined ? 14 : pendingPosts.length;
 
   const open = (id) => navigate(`/approval-workflow?highlight=${id}`);
 
   return (
-    <Panel className="flex h-full flex-col p-5">
-      <PanelHeader
-        icon={IconPendingReview}
-        tone="amber"
-        title="Pending review"
-        badge={count > 0 && <Pill tone="amber">{count} queued</Pill>}
-        action={<PanelLink onClick={() => navigate('/approval-workflow')}>Open queue</PanelLink>}
-      />
+    <Panel className="flex h-full flex-col justify-between p-5 sm:p-6">
+      {/* Header: Title + Ink pill counter + Corner ↗ button */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <h3 className="text-base font-semibold tracking-tight text-[#1B1B1F]">
+            Pending review
+          </h3>
+          {count > 0 && (
+            <span className="inline-flex items-center rounded-full bg-[#1B1B1F] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-white">
+              {count} queued
+            </span>
+          )}
+        </div>
+        <CornerArrowButton
+          onClick={() => navigate('/approval-workflow')}
+          label="Open queue"
+        />
+      </div>
 
       {items.length === 0 ? (
-        <div className="mt-4 flex flex-1 flex-col items-center justify-center py-8 text-center">
-          <CheckCircle2 size={26} className="text-emerald-500" />
-          <p className="mt-2 text-[13px] font-semibold text-foreground">Review queue is clear</p>
-          <p className="mt-1 text-xs text-muted-foreground">New drafts will appear here for approval.</p>
-          <button
-            type="button"
-            onClick={() => navigate('/topics')}
-            className="mt-3 text-xs font-semibold text-primary hover:underline cursor-pointer"
-          >
-            Plan a topic
-          </button>
+        <div className="my-auto flex flex-col items-center justify-center py-6 text-center">
+          <CheckCircle2 size={24} className="text-[#0F8A5F]" />
+          <p className="mt-2 text-xs font-semibold text-[#1B1B1F]">Review queue is clear</p>
+          <p className="mt-0.5 text-xs text-[#6B6B70]">New drafts will appear here for approval.</p>
         </div>
       ) : (
-        <ul className="mt-3 flex flex-1 flex-col divide-y divide-border/60">
+        <div className="my-auto flex flex-col gap-3 py-2">
           {items.map((item) => {
-            const FormatIcon = FORMAT_ICONS[item.visualFormat] || IconFormatText;
-            const highImpact = /high/i.test(item.impact);
+            const authorInitials = (item.author || 'SR')
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .toUpperCase();
+            const isHigh = /high/i.test(item.impact);
+
             return (
-              <li key={item.id} className="py-1 first:pt-0 last:pb-0">
-                <div
-                  role="link"
-                  tabIndex={0}
-                  onClick={() => open(item.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      open(item.id);
-                    }
-                  }}
-                  className="group -mx-2 flex items-start gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                >
-                  <span className="mt-0.5 hidden size-8 shrink-0 place-items-center rounded-lg bg-muted/70 text-muted-foreground sm:grid">
-                    <FormatIcon size={15} />
+              <div
+                key={item.id}
+                role="link"
+                tabIndex={0}
+                onClick={() => open(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    open(item.id);
+                  }
+                }}
+                className="group flex flex-col justify-between rounded-[16px] bg-[#F8F7F4] border border-[#E4E2DC]/60 p-4 transition-all hover:bg-[#F0EFEB] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
+              >
+                {/* Top chips: Category (neutral gray) + Quality (green tint) + Impact (white outlined pill) */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-[#F0EFEB] px-2.5 py-0.5 text-[11px] font-semibold text-[#1B1B1F]">
+                      {item.category}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-[#E6F4EC] px-2.5 py-0.5 text-[11px] font-semibold text-[#0F8A5F] tabular-nums">
+                      Quality {item.qualityScore}%
+                    </span>
+                  </div>
+                  {/* Impact pill */}
+                  <span
+                    className={`inline-flex items-center rounded-full bg-white border border-[#E4E2DC] px-2.5 py-0.5 text-[11px] font-semibold ${
+                      isHigh ? 'text-[#E8A33D]' : 'text-[#6B6B70]'
+                    }`}
+                  >
+                    {item.impact} impact
                   </span>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <Pill tone="blue">{item.category}</Pill>
-                      <Pill tone="emerald" icon={IconGenerativeSparkle}>
-                        Quality {item.qualityScore}%
-                      </Pill>
-                    </div>
-                    <h4 className="mt-1.5 truncate text-[13px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
-                      {item.title}
-                    </h4>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{item.excerpt}</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                      {item.author && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <Avatar src={item.authorAvatar} name={item.author} size="size-5" textSize="text-[8px]" className="ring-0" />
-                          <span className="font-medium text-foreground/80">{item.author}</span>
-                        </span>
-                      )}
-                      <span>{item.timestamp}</span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className={`size-1.5 rounded-full ${highImpact ? 'bg-rose-500' : 'bg-slate-400'}`} />
-                        <span className={highImpact ? 'font-medium text-foreground' : ''}>{item.impact} impact</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 pt-0.5">
-                    <IconButton
-                      label="Post options"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        open(item.id);
-                      }}
-                    >
-                      <MoreVertical size={14} />
-                    </IconButton>
-                  </div>
                 </div>
-              </li>
+
+                {/* Bold title without truncation */}
+                <h4 className="mt-2.5 text-sm font-semibold text-[#1B1B1F] transition-colors group-hover:text-[#0A66C2] leading-snug">
+                  {item.title}
+                </h4>
+
+                {/* Excerpt */}
+                <p className="mt-1 line-clamp-1 text-xs text-[#6B6B70]">
+                  {item.excerpt}
+                </p>
+
+                {/* Author with initials in neutral circle + date */}
+                <div className="mt-3 flex items-center justify-between border-t border-[#E4E2DC] pt-2.5 text-xs text-[#6B6B70]">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="grid size-5 place-items-center rounded-full bg-[#F0EFEB] text-[10px] font-bold text-[#1B1B1F]"
+                    >
+                      {authorInitials}
+                    </span>
+                    <span className="font-medium text-[#1B1B1F]">{item.author}</span>
+                  </div>
+                  <span className="text-[11px] text-[#6B6B70]">{item.timestamp}</span>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
       )}
     </Panel>
   );

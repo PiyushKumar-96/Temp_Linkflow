@@ -13,6 +13,10 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        brand: {
+          DEFAULT: 'var(--brand)',
+          tint: 'var(--brand-tint)',
+        },
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
@@ -23,8 +27,16 @@ module.exports = {
         },
         accent: {
           DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          'on-dark': 'var(--accent-on-dark)',
+          tint: 'var(--accent-tint)',
+          text: 'var(--accent-text)',
           foreground: 'var(--accent-foreground)',
         },
+        'on-accent': 'var(--on-accent)',
+        'page-bg': 'var(--page-bg)',
+        'card-dark': 'var(--card-dark)',
+        'bar-inactive': 'var(--bar-inactive)',
         muted: {
           DEFAULT: 'var(--muted)',
           foreground: 'var(--muted-foreground)',
@@ -37,6 +49,7 @@ module.exports = {
         input: 'var(--input)',
         ring: 'var(--ring)',
         success: 'var(--success)',
+        info: 'var(--info)',
         warning: 'var(--warning)',
         danger: 'var(--danger)',
       },
