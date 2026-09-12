@@ -103,55 +103,53 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="-m-4 sm:-m-6 lg:-m-8 min-h-screen bg-[var(--page-bg)] p-4 sm:p-6 lg:p-8 text-[#1B1B1F]">
-      <div className="flex flex-col gap-4 max-w-[1440px] mx-auto pb-16">
-        {/* Top Cockpit Header */}
-        <DashboardCockpitHeader />
+    <div className="flex flex-col gap-4 max-w-[1440px] mx-auto pb-16 text-[#1B1B1F]">
+      {/* Top Cockpit Header */}
+      <DashboardCockpitHeader />
 
-        {/* Row 1: Hero card (5 cols) | Pipeline health (4 cols) | Today's focus (3 cols) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-5 md:col-span-2">
-            <DashboardHeroCard onOpenAgenda={() => setIsAgendaModalOpen(true)} />
-          </div>
-          <div className="lg:col-span-4 md:col-span-1">
-            <DashboardPipelineHealth />
-          </div>
-          <div className="lg:col-span-3 md:col-span-1">
-            <DashboardTodayFocus />
-          </div>
+      {/* Row 1: Hero card (5 cols) | Pipeline health (4 cols) | Today's focus (3 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-5 md:col-span-2">
+          <DashboardHeroCard onOpenAgenda={() => setIsAgendaModalOpen(true)} />
         </div>
-
-        {/* Row 2: Workflow (12 cols, shorter height) */}
-        <DashboardWorkflowStepper
-          onOpenWorkflowModal={() => setIsWorkflowModalOpen(true)}
-        />
-
-        {/* Row 3: Content performance, dark (7 cols) | Pending review (5 cols) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-7">
-            <DashboardContentPerformance />
-          </div>
-          <div className="lg:col-span-5">
-            <DashboardPendingReviewCard pendingPosts={pendingPosts} />
-          </div>
+        <div className="lg:col-span-4 md:col-span-1">
+          <DashboardPipelineHealth />
         </div>
+        <div className="lg:col-span-3 md:col-span-1">
+          <DashboardTodayFocus />
+        </div>
+      </div>
 
-        {/* Row 4: Upcoming posts (5 cols) | Content pillars (4 cols) | stacked column (3 cols: Attention + Quick actions) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-5 md:col-span-2 lg:col-span-5">
-            <DashboardUpcomingPostsCard upcomingPosts={upcomingPosts} />
-          </div>
-          <div className="lg:col-span-4 md:col-span-1">
-            <DashboardContentPillars />
-          </div>
-          <div className="lg:col-span-3 md:col-span-1 flex flex-col gap-4">
-            <DashboardAttentionRequired
-              failedPosts={failedPosts}
-              onRetryPost={handleRetryPost}
-              onManualPublish={handleManualPublish}
-            />
-            <DashboardQuickActions />
-          </div>
+      {/* Row 2: Workflow (12 cols, shorter height) */}
+      <DashboardWorkflowStepper
+        onOpenWorkflowModal={() => setIsWorkflowModalOpen(true)}
+      />
+
+      {/* Row 3: Content performance, dark (7 cols) | Pending review (5 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-7">
+          <DashboardContentPerformance />
+        </div>
+        <div className="lg:col-span-5">
+          <DashboardPendingReviewCard pendingPosts={pendingPosts} />
+        </div>
+      </div>
+
+      {/* Row 4: Upcoming posts (5 cols) | Content pillars (4 cols) | stacked column (3 cols: Attention + Quick actions) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-5 md:col-span-2 lg:col-span-5">
+          <DashboardUpcomingPostsCard upcomingPosts={upcomingPosts} />
+        </div>
+        <div className="lg:col-span-4 md:col-span-1">
+          <DashboardContentPillars />
+        </div>
+        <div className="lg:col-span-3 md:col-span-1 flex flex-col gap-4">
+          <DashboardAttentionRequired
+            failedPosts={failedPosts}
+            onRetryPost={handleRetryPost}
+            onManualPublish={handleManualPublish}
+          />
+          <DashboardQuickActions />
         </div>
       </div>
 

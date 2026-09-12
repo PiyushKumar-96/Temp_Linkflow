@@ -4,25 +4,31 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import CommandPalette from './CommandPalette';
 
 export default function AppLayout({ children }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
-      <Topbar sidebarCollapsed={collapsed} />
-      <main
-        className="transition-all duration-300 min-h-screen"
-        style={{
-          marginLeft: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
-          paddingTop: 'var(--topbar-height)',
-        }}
-      >
-        <div className="px-6 lg:px-8 xl:px-10 py-6 max-w-screen-2xl mx-auto">
+    <div className="min-h-screen bg-[var(--page-bg,#F1F0EC)] flex flex-col">
+      <Sidebar
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+      />
+      
+      <div className="min-h-screen flex flex-col min-[900px]:pl-[244px] transition-[padding] duration-200">
+        <Topbar onToggleSidebar={() => setMobileOpen((o) => !o)} />
+        <main className="flex-1 px-6 lg:px-8 xl:px-10 pb-10 max-w-screen-2xl w-full mx-auto">
           {children || <Outlet />}
-        </div>
-      </main>
+        </main>
+      </div>
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
     </div>
   );
 }

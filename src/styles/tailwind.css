@@ -17,9 +17,21 @@
 
   /* Surfaces */
   --page-bg: #F1F0EC;
+  --background: #F1F0EC;
+  --text: #1B1917;
+  --text-main: #1B1917;
   --card: #FFFFFF;
   --card-dark: #141821;
   --bar-inactive: #2B3140;
+
+  /* Rail tokens */
+  --rail-bg: #1A1917;
+  --rail-divider: #302E2A;
+  --rail-label: #9C9890;
+  --rail-label-active: #FFFFFF;
+  --rail-label-hover: #E8E5DE;
+  --count-muted: #6B6760;
+  --count-attention: #E8B84B;
 
   /* Status */
   --success: #1D9E75;
@@ -27,7 +39,6 @@
   --warning: #EF9F27;
   --danger: #E24B4A;
 
-  --background: #f3f6fb;
   --foreground: #0f172a;
   --primary: #0a66c2;
   --primary-foreground: #ffffff;
@@ -40,13 +51,13 @@
   --border: #e2e8f0;
   --input: #f8fafc;
   --ring: #0a66c2;
-  --radius: 10px;
+  --radius: 6px;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --success-bg: #f0fdf4;
   --warning-bg: #fffbeb;
   --danger-bg: #fef2f2;
   --info-bg: #f0f9ff;
-  --sidebar-width: 240px;
+  --sidebar-width: 200px;
   --sidebar-collapsed: 64px;
   --topbar-height: 64px;
 }

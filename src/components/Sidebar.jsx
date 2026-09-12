@@ -1,224 +1,271 @@
 'use client';
 
-import React from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import AppLogo from '@/components/ui/AppLogo';
-import {
-  PenSquare,
-  CalendarDays,
-  CheckSquare,
-  BookImage,
-  LayoutTemplate,
-  ChevronLeft,
-  ChevronRight,
-  Settings,
-  Users,
-  BarChart3,
-  Sparkles,
-  Target,
-  LayoutDashboard,
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useApprovalPosts } from '@/app/approval-workflow/_api/queries';
+import { useQuery } from '@tanstack/react-query';
+import { getUpcomingPosts } from '@/temp-backend';
+import { POST_STATUS, normalizeStatus } from '@/lib/post-status';
+import SidebarUserFooter from './SidebarUserFooter';
 
-import { useAuth } from '@/context/AuthContext';
-
-const navSections = [
-  {
-    key: 'plan',
-    title: 'Plan',
-    items: [
-      { id: 'nav-topics', label: 'Topics', href: '/topics', icon: Target },
-      { id: 'nav-calendar', label: 'Content Calendar', href: '/content-calendar', icon: CalendarDays },
-    ],
-  },
-  {
-    key: 'create',
-    title: 'Create',
-    items: [
-      { id: 'nav-composer', label: 'Post Composer', href: '/post-creation-composer', icon: PenSquare },
-      { id: 'nav-ai', label: 'AI Generator', href: '/ai-generator', icon: Sparkles },
-      { id: 'nav-templates', label: 'Post Templates', href: '/post-templates', icon: LayoutTemplate },
-    ],
-  },
-  {
-    key: 'review',
-    title: 'Review',
-    items: [
-      {
-        id: 'nav-approval',
-        label: 'Approval Queue',
-        href: '/approval-workflow',
-        icon: CheckSquare,
-        badge: 5,
-      },
-    ],
-  },
-  {
-    key: 'measure',
-    title: 'Measure',
-    items: [
-      { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { id: 'nav-analytics', label: 'Analytics', href: '/analytics', icon: BarChart3 },
-    ],
-  },
-  {
-    key: 'assets',
-    title: 'Library',
-    items: [
-      { id: 'nav-library', label: 'Content Library', href: '/content-library', icon: BookImage },
-    ],
-  },
+const GROUP_1 = [
+  { id: 'nav-composer', label: 'Post composer', href: '/post-creation-composer' },
+  { id: 'nav-approval', label: 'Approval queue', href: '/approval-workflow', countKey: 'approval' },
+  { id: 'nav-calendar', label: 'Content calendar', href: '/content-calendar', countKey: 'calendar' },
+  { id: 'nav-topics', label: 'Topics', href: '/topics' },
+  { id: 'nav-library', label: 'Library', href: '/content-library' },
+  { id: 'nav-ai', label: 'AI generator', href: '/ai-generator' },
+  { id: 'nav-templates', label: 'Post templates', href: '/post-templates' },
 ];
 
-const bottomItems = [
-  { id: 'nav-team', label: 'Team', href: '/team', icon: Users },
-  { id: 'nav-settings', label: 'Settings', href: '/settings', icon: Settings },
+const GROUP_2 = [
+  { id: 'nav-dashboard', label: 'Dashboard', href: '/dashboard' },
+  { id: 'nav-analytics', label: 'Analytics', href: '/analytics' },
 ];
 
-export default function Sidebar({ collapsed, onToggle }) {
+const FOOTER_NAV = [
+  { id: 'nav-team', label: 'Team', href: '/team' },
+  { id: 'nav-settings', label: 'Settings', href: '/settings' },
+];
+
+const ALL_ITEMS = [...GROUP_1, ...GROUP_2, ...FOOTER_NAV];
+
+const PILL_SPRING = { type: 'spring', stiffness: 360, damping: 30, mass: 0.85 };
+
+const NavRow = React.memo(function NavRow({
+  item,
+  isActive,
+  count,
+  countType,
+  onNavigate,
+  registerRef,
+}) {
+  return (
+    <Link
+      ref={(node) => registerRef(item.id, node)}
+      to={item.href}
+      onClick={onNavigate}
+      aria-current={isActive ? 'page' : undefined}
+      className="group relative flex h-[38px] w-full items-center rounded-[14px] px-5 text-[13.5px] font-normal select-none focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-[#5B5BD6]/70"
+    >
+      <span
+        className={`relative z-10 truncate transition-[color,transform] duration-300 ease-out ${
+          isActive
+            ? 'text-[#1A1917]'
+            : 'text-[#8E8A82] group-hover:translate-x-[3px] group-hover:text-[#E8E5DE]'
+        }`}
+      >
+        {item.label}
+      </span>
+
+      {count > 0 && (
+        <span
+          className={`relative z-10 ml-auto text-[12px] font-normal tabular-nums transition-colors duration-300 ${
+            isActive
+              ? 'text-[#8A6D1A]'
+              : countType === 'attention'
+              ? 'text-[#E8B84B]'
+              : 'text-[#6B6760]'
+          }`}
+          aria-label={
+            countType === 'attention'
+              ? `${item.label}, ${count} pending`
+              : `${item.label}, ${count} scheduled`
+          }
+        >
+          {count}
+        </span>
+      )}
+    </Link>
+  );
+});
+
+export default function Sidebar({
+  mobileOpen = false,
+  onCloseMobile,
+  onOpenCommandPalette,
+}) {
   const { pathname } = useLocation();
-  const { user, isOwner } = useAuth();
 
-  const isActive = (href) => {
-    if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
-    if (href === '/analytics') return pathname === '/analytics';
-    if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
-  };
+  const navRef = useRef(null);
+  const rowRefs = useRef({});
+  const hasPositioned = useRef(false);
+  const [pillY, setPillY] = useState(null);
+
+  const { data: approvalPosts = [] } = useApprovalPosts();
+  const { data: upcomingPosts = [] } = useQuery({
+    queryKey: ['posts', 'upcoming'],
+    queryFn: getUpcomingPosts,
+    staleTime: 30 * 1000,
+  });
+
+  const approvalCount = useMemo(() => {
+    if (!Array.isArray(approvalPosts)) return 0;
+    return approvalPosts.filter((p) => {
+      const s = normalizeStatus ? normalizeStatus(p.status) : p.status;
+      return (
+        s === POST_STATUS.AWAITING_REVIEW ||
+        s === POST_STATUS.NEEDS_REVISION ||
+        s === 'awaiting_review' ||
+        s === 'needs_revision' ||
+        s === POST_STATUS.FAILED ||
+        s === 'failed'
+      );
+    }).length;
+  }, [approvalPosts]);
+
+  const scheduledCount = useMemo(() => {
+    if (!Array.isArray(upcomingPosts)) return 0;
+    return upcomingPosts.filter((p) => {
+      const s = normalizeStatus ? normalizeStatus(p.status) : p.status;
+      return s === POST_STATUS.SCHEDULED || (s === POST_STATUS.APPROVED && p.scheduledDate);
+    }).length;
+  }, [upcomingPosts]);
+
+  const isActive = useCallback(
+    (href) => {
+      if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
+      if (href === '/analytics') return pathname === '/analytics';
+      return pathname.startsWith(href);
+    },
+    [pathname],
+  );
+
+  // Exactly one active id. Longest href wins, so nested routes can't double-match.
+  const activeId = useMemo(() => {
+    const matches = ALL_ITEMS.filter((i) => isActive(i.href));
+    if (!matches.length) return null;
+    return matches.sort((a, b) => b.href.length - a.href.length)[0].id;
+  }, [isActive]);
+
+  const registerRef = useCallback((id, node) => {
+    if (node) rowRefs.current[id] = node;
+    else delete rowRefs.current[id];
+  }, []);
+
+  // Measure only when the active row changes or the rail resizes. The animation
+  // itself never triggers a measurement, which is what keeps it smooth.
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const row = activeId ? rowRefs.current[activeId] : null;
+
+    if (!nav || !row) {
+      setPillY(null);
+      hasPositioned.current = false;
+      return undefined;
+    }
+
+    const measure = () => setPillY(row.offsetTop);
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(nav);
+    return () => ro.disconnect();
+  }, [activeId]);
+
+  const countFor = useCallback(
+    (item) => {
+      if (item.countKey === 'approval') return approvalCount;
+      if (item.countKey === 'calendar') return scheduledCount;
+      return 0;
+    },
+    [approvalCount, scheduledCount],
+  );
+
+  const renderRow = useCallback(
+    (item) => (
+      <NavRow
+        key={item.id}
+        item={item}
+        isActive={item.id === activeId}
+        count={countFor(item)}
+        countType={item.countKey === 'approval' ? 'attention' : 'muted'}
+        onNavigate={onCloseMobile}
+        registerRef={registerRef}
+      />
+    ),
+    [activeId, countFor, onCloseMobile, registerRef],
+  );
+
+  // Skip the animation on first paint so the pill doesn't fly in from the top.
+  const animateFromTop = hasPositioned.current;
+  if (pillY !== null) hasPositioned.current = true;
 
   return (
-    <aside
-      className="fixed left-0 top-0 h-full bg-card border-r border-border flex flex-col z-30 sidebar-transition"
-      style={{ width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
-    >
-      {/* Logo */}
-      <div
-        className="flex items-center justify-between px-4 py-4 border-b border-border"
-        style={{ height: 'var(--topbar-height)' }}
+    <>
+      {mobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs min-[900px]:hidden"
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed bottom-0 left-0 top-0 z-50 m-[14px] flex h-[calc(100vh-28px)] w-[196px] flex-col overflow-visible rounded-[28px] border-0 bg-[#181715] pb-3 pt-5 shadow-none transition-transform duration-200 ease-out min-[900px]:transform-none ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-[230px]'
+        }`}
       >
-        <div className="flex items-center gap-2 overflow-hidden">
-          <AppLogo size={32} />
-          {!collapsed && (
-            <span className="font-bold text-base text-foreground tracking-tight truncate">
-              LinkedFlow
-            </span>
-          )}
+        <div className="flex shrink-0 items-center px-5 pb-4 pt-1">
+          <Link
+            to="/dashboard"
+            onClick={onCloseMobile}
+            className="flex items-center gap-1.5 rounded text-[16px] font-medium tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
+          >
+            <span>LinkedFlow</span>
+            <span className="inline-block h-[7px] w-[7px] rounded-full bg-[#0A66C2]" />
+          </Link>
         </div>
-        {!collapsed && (
-          <button
-            onClick={onToggle}
-            className="p-1 rounded-md hover:bg-muted text-muted-foreground transition-colors"
-            aria-label="Collapse sidebar"
-          >
-            <ChevronLeft size={16} />
-          </button>
-        )}
-      </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-2 py-3 overflow-y-auto scrollbar-thin flex flex-col gap-3">
-        {navSections.map((section, sIdx) => (
-          <div key={section.key} className="flex flex-col gap-0.5">
-            {!collapsed ? (
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-2 mb-1">
-                {section.title}
-              </p>
-            ) : sIdx > 0 ? (
-              <div className="border-t border-border my-1 mx-1" />
-            ) : null}
-
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.id}
-                  to={item.href}
-                  className={`nav-item relative group ${active ? 'active' : ''}`}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon size={17} className="shrink-0" />
-                  {!collapsed && <span className="flex-1 text-xs font-medium">{item.label}</span>}
-                  {!collapsed && item.badge && item.badge > 0 && (
-                    <span className="ml-auto text-[11px] font-bold bg-warning text-white px-1.5 py-0.2 rounded-full tabular-nums">
-                      {item.badge}
-                    </span>
-                  )}
-                  {collapsed && item.badge && item.badge > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full" />
-                  )}
-                  {collapsed && (
-                    <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                      {item.label}
-                      {item.badge ? ` (${item.badge})` : ''}
-                    </div>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
-
-      {/* Bottom */}
-      <div className="px-2 py-3 border-t border-border flex flex-col gap-0.5">
-        {bottomItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.id}
-              to={item.href}
-              className="nav-item relative group"
-              title={collapsed ? item.label : undefined}
-            >
-              <Icon size={18} className="shrink-0" />
-              {!collapsed && <span className="flex-1">{item.label}</span>}
-              {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                  {item.label}
-                </div>
-              )}
-            </Link>
-          );
-        })}
-
-        {/* User */}
-        <Link
-          to="/login"
-          className={`flex items-center gap-2 mt-2 px-2 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group relative ${
-            collapsed ? 'justify-center' : ''
-          }`}
-          title="Click to view Auth & Switch Role"
+        <nav
+          ref={navRef}
+          className="relative flex min-h-0 flex-1 flex-col overflow-visible py-1"
         >
-          <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
-            <span className="text-white text-xs font-700">{user?.initials || 'SR'}</span>
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-600 text-foreground truncate">
-                {user?.name || 'Sarah Reeves'}
-              </p>
-              <p className="text-[11px] text-muted-foreground truncate font-500">
-                {isOwner ? 'Account Owner' : 'Marketing User'}
-              </p>
-            </div>
+          {pillY !== null && (
+            <motion.span
+              className="pointer-events-none absolute left-[8px] right-[8px] top-0 z-0 h-[38px] min-[900px]:right-[-18px]"
+              style={{
+                backgroundColor: 'var(--page-bg, #F1F0EC)',
+                borderRadius: 14,
+              }}
+              initial={false}
+              animate={{ y: pillY }}
+              transition={animateFromTop ? PILL_SPRING : { duration: 0 }}
+              aria-hidden="true"
+            />
           )}
-          {collapsed && (
-            <div className="absolute left-full ml-2 px-2 py-1 bg-foreground text-primary-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-              {user?.name} ({isOwner ? 'Owner' : 'Marketing'})
-            </div>
-          )}
-        </Link>
 
-        {collapsed && (
-          <button
-            onClick={onToggle}
-            className="flex items-center justify-center p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-            aria-label="Expand sidebar"
-          >
-            <ChevronRight size={16} />
-          </button>
-        )}
-      </div>
-    </aside>
+          <div className="flex flex-col">{GROUP_1.map(renderRow)}</div>
+
+          <div
+            className="mx-4 my-2 border-t border-[#2A2824]"
+            style={{ borderTopWidth: '0.5px' }}
+            role="separator"
+          />
+
+          <div className="flex flex-col">{GROUP_2.map(renderRow)}</div>
+
+          <div
+            className="mx-4 my-2 border-t border-[#2A2824]"
+            style={{ borderTopWidth: '0.5px' }}
+            role="separator"
+          />
+
+          <div className="flex flex-col">{FOOTER_NAV.map(renderRow)}</div>
+        </nav>
+
+        <SidebarUserFooter
+          onCloseMobile={onCloseMobile}
+          onOpenCommandPalette={onOpenCommandPalette}
+        />
+      </aside>
+    </>
   );
 }
