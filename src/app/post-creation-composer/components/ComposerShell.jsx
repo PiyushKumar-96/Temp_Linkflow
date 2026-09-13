@@ -32,17 +32,30 @@ import {
 import '@/styles/motion.css';
 import '@/styles/composer.css';
 
-
 const MOCK_CANDIDATE_IMAGES = [
-  { id: STOCK_IMAGES.teamBrainstorm.id, url: STOCK_IMAGES.teamBrainstorm.url, alt: STOCK_IMAGES.teamBrainstorm.label },
-  { id: STOCK_IMAGES.modernWorkspace.id, url: STOCK_IMAGES.modernWorkspace.url, alt: STOCK_IMAGES.modernWorkspace.label },
-  { id: STOCK_IMAGES.growthDashboard.id, url: STOCK_IMAGES.growthDashboard.url, alt: STOCK_IMAGES.growthDashboard.label },
+  {
+    id: STOCK_IMAGES.teamBrainstorm.id,
+    url: STOCK_IMAGES.teamBrainstorm.url,
+    alt: STOCK_IMAGES.teamBrainstorm.label,
+  },
+  {
+    id: STOCK_IMAGES.modernWorkspace.id,
+    url: STOCK_IMAGES.modernWorkspace.url,
+    alt: STOCK_IMAGES.modernWorkspace.label,
+  },
+  {
+    id: STOCK_IMAGES.growthDashboard.id,
+    url: STOCK_IMAGES.growthDashboard.url,
+    alt: STOCK_IMAGES.growthDashboard.label,
+  },
 ];
 
-const asGenerated = (images) => images.map((img, i) => ({ ...img, source: 'ai', slotKey: `gen-${i}` }));
+const asGenerated = (images) =>
+  images.map((img, i) => ({ ...img, source: 'ai', slotKey: `gen-${i}` }));
 
 const GENERATED_POST = `The biggest mistake most B2B companies make on LinkedIn?\n\nThey treat it like a broadcast channel — pushing announcements instead of starting conversations.\n\nHere's what actually works:\n\n→ Share the messy middle, not just the polished outcome\n→ Ask genuine questions your audience cares about\n→ Respond to every comment in the first hour\n→ Write for one person, not your entire ICP\n\nLinkedIn rewards consistency and authenticity — not perfection.\n\nWe grew our company page from 800 to 22,000 followers by following these principles. No paid promotion.`;
-const GENERATED_CTA = "What's the one thing that changed your LinkedIn results? Drop your thoughts below 👇";
+const GENERATED_CTA =
+  "What's the one thing that changed your LinkedIn results? Drop your thoughts below 👇";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
@@ -87,7 +100,6 @@ export default function ComposerShell() {
   const [revealMode, setRevealMode] = useState('develop');
   const [isGenerating, setIsGenerating] = useState(false);
 
-
   const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
@@ -95,10 +107,12 @@ export default function ComposerShell() {
   const [submitState, setSubmitState] = useState('idle'); // 'idle' | 'sending' | 'sent'
 
   const generationRun = useRef(0);
-  const draftIdRef = useRef(null); // repeat saves in create mode update one post instead of creating copies
+  const [draftId, setDraftId] = useState(null); // repeat saves in create mode update one post instead of creating copies
 
   const dateParam = searchParams.get('date');
-  const [scheduledDate, setScheduledDate] = useState(() => dateParam || getNextAvailableSlot().date);
+  const [scheduledDate, setScheduledDate] = useState(
+    () => dateParam || getNextAvailableSlot().date
+  );
   const [scheduledTime, setScheduledTime] = useState(() => getNextAvailableSlot().time);
 
   useEffect(() => {
@@ -123,7 +137,8 @@ export default function ComposerShell() {
       if (!targetPost) return;
 
       setActivePost(targetPost);
-      if (targetPost.scheduledDate || targetPost.dueDate) setScheduledDate(targetPost.scheduledDate || targetPost.dueDate);
+      if (targetPost.scheduledDate || targetPost.dueDate)
+        setScheduledDate(targetPost.scheduledDate || targetPost.dueDate);
       if (targetPost.scheduledTime) setScheduledTime(targetPost.scheduledTime);
 
       const lines = (targetPost.content || '').split('\n').filter((l) => l.trim() !== '');
@@ -149,7 +164,14 @@ export default function ComposerShell() {
         const existing = targetPost.imageUrl;
         const isKnown = generated.some((img) => img.url === existing);
         setVisualFormat(targetPost.visualFormat || 'image');
-        setCandidateImages(existing && !isKnown ? [{ id: 'existing-image', url: existing, alt: 'Current image', source: 'upload' }, ...generated] : generated);
+        setCandidateImages(
+          existing && !isKnown
+            ? [
+                { id: 'existing-image', url: existing, alt: 'Current image', source: 'upload' },
+                ...generated,
+              ]
+            : generated
+        );
         setImageUrl(existing || generated[0].url);
         setRevealMode('quick');
       }
@@ -169,7 +191,7 @@ export default function ComposerShell() {
 
   const handleSelectDraft = (draft) => {
     if (!draft) return;
-    draftIdRef.current = draft.id;
+    setDraftId(draft.id);
     setContent(draft.content || '');
     setCta(draft.cta || '');
     setHashtags(draft.hashtags || []);
@@ -182,16 +204,21 @@ export default function ComposerShell() {
     if (draft.imageUrl) setImageUrl(draft.imageUrl);
     if (draft.carouselSlides) setCarouselSlides(draft.carouselSlides);
     if (draft.infographicData) setInfographicData(draft.infographicData);
-    if (draft.scheduledDate || draft.dueDate) setScheduledDate(draft.scheduledDate || draft.dueDate);
+    if (draft.scheduledDate || draft.dueDate)
+      setScheduledDate(draft.scheduledDate || draft.dueDate);
     if (draft.scheduledTime) setScheduledTime(draft.scheduledTime);
     toast.success(`Loaded draft: ${draft.title || 'Untitled Draft'}`);
   };
 
   // ---------- Derived: fold + quality ----------
 
-  const composedText = useMemo(() => composePostText(content, cta, hashtags), [content, cta, hashtags]);
+  const composedText = useMemo(
+    () => composePostText(content, cta, hashtags),
+    [content, cta, hashtags]
+  );
   const foldIndex = useMemo(() => getFoldIndex(composedText, device), [composedText, device]);
-  const contentFoldIndex = content.trim() && foldIndex != null && foldIndex < content.length ? foldIndex : null;
+  const contentFoldIndex =
+    content.trim() && foldIndex != null && foldIndex < content.length ? foldIndex : null;
 
   const quality = useMemo(() => {
     const checks = getQualityChecks({ content, cta, hashtags, visualFormat, imageUrl, foldIndex });
@@ -257,8 +284,12 @@ export default function ComposerShell() {
     if (run !== generationRun.current) return;
 
     const lines = content.split('\n').filter((l) => l.trim().length > 0);
-    const firstLine = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 60) || 'The Strategic Growth Playbook';
-    const points = lines.slice(1, 5).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+    const firstLine =
+      lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 60) || 'The Strategic Growth Playbook';
+    const points = lines
+      .slice(1, 5)
+      .map((l) => l.replace(/^[#*\-•\s[color:var(--warning-text)].]+/, '').trim())
+      .filter(Boolean);
 
     const newSlides = [
       {
@@ -271,14 +302,17 @@ export default function ComposerShell() {
       {
         id: `slide-2`,
         headline: points[0] || '1. Focus on Pipeline Velocity',
-        body: points[1] || 'Content that drives high-intent discussions consistently outperforms vanity metrics.',
+        body:
+          points[1] ||
+          'Content that drives high-intent discussions consistently outperforms vanity metrics.',
         tag: 'SLIDE 02 / 04',
         accentColor: '#6366f1',
       },
       {
         id: `slide-3`,
         headline: points[2] || '2. High-Leverage Distribution',
-        body: points[3] || 'Turn each high-performing insight into structured multi-channel assets.',
+        body:
+          points[3] || 'Turn each high-performing insight into structured multi-channel assets.',
         tag: 'SLIDE 03 / 04',
         accentColor: '#8b5cf6',
       },
@@ -311,8 +345,12 @@ export default function ComposerShell() {
     if (run !== generationRun.current) return;
 
     const lines = content.split('\n').filter((l) => l.trim().length > 0);
-    const title = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 50) || 'B2B Growth Engine Framework';
-    const points = lines.slice(1, 4).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+    const title =
+      lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 50) || 'B2B Growth Engine Framework';
+    const points = lines
+      .slice(1, 4)
+      .map((l) => l.replace(/^[#*\-•\s[color:var(--warning-text)].]+/, '').trim())
+      .filter(Boolean);
 
     const generatedData = {
       title,
@@ -322,7 +360,9 @@ export default function ComposerShell() {
         {
           step: '01',
           title: points[0] ? points[0].slice(0, 30) : 'Audience Validation',
-          desc: points[1] ? points[1].slice(0, 60) : 'Direct feedback loops and customer conversation mapping',
+          desc: points[1]
+            ? points[1].slice(0, 60)
+            : 'Direct feedback loops and customer conversation mapping',
         },
         {
           step: '02',
@@ -377,7 +417,9 @@ export default function ComposerShell() {
 
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
-    const isStandardImage = ['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name);
+    const isStandardImage =
+      ['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
+      /\.(png|jpe?g|webp)$/i.test(file.name);
 
     if (isPdf) {
       const pdfName = file.name;
@@ -433,7 +475,10 @@ export default function ComposerShell() {
       setVisualFormat('image');
       setUploadedPdfInfo(null);
       setImageUrl(url);
-      setCandidateImages((prev) => [{ id: `gif-${Date.now()}`, url, alt: file.name, source: 'upload', isGif: true }, ...prev]);
+      setCandidateImages((prev) => [
+        { id: `gif-${Date.now()}`, url, alt: file.name, source: 'upload', isGif: true },
+        ...prev,
+      ]);
       setRevealMode('quick');
       toast.success(`GIF uploaded: ${file.name}`);
       return;
@@ -443,7 +488,10 @@ export default function ComposerShell() {
       const url = URL.createObjectURL(file);
       setVisualFormat('image');
       setUploadedPdfInfo(null);
-      setCandidateImages((prev) => [{ id: `upload-${Date.now()}`, url, alt: file.name, source: 'upload' }, ...prev]);
+      setCandidateImages((prev) => [
+        { id: `upload-${Date.now()}`, url, alt: file.name, source: 'upload' },
+        ...prev,
+      ]);
       setImageUrl(url);
       setRevealMode('quick');
       toast.success(`Image uploaded: ${file.name}`);
@@ -491,7 +539,6 @@ export default function ComposerShell() {
       scheduledDate,
       scheduledTime,
       dueDate: scheduledDate,
-
     };
 
     if (isEditMode && editPostId) {
@@ -505,7 +552,9 @@ export default function ComposerShell() {
           createdAt: stamp,
           author: 'Sarah Reeves',
           authorType: 'human',
-          summary: isSubmit ? `Sent revision v${nextVersion} for review` : `Edited draft in composer (v${nextVersion})`,
+          summary: isSubmit
+            ? `Sent revision v${nextVersion} for review`
+            : `Edited draft in composer (v${nextVersion})`,
           diff: `+ Human revision saved at ${new Date().toLocaleTimeString()}`,
         };
 
@@ -534,7 +583,9 @@ export default function ComposerShell() {
 
         localStorage.setItem(APPROVAL_KEY, JSON.stringify(posts));
         const updated = posts.find((ap) => ap.id === editPostId);
-        saveStoredPosts(getStoredPosts().map((p) => (p.id === editPostId && updated ? { ...p, ...updated } : p)));
+        saveStoredPosts(
+          getStoredPosts().map((p) => (p.id === editPostId && updated ? { ...p, ...updated } : p))
+        );
 
         setActivePost((prev) => (prev ? { ...prev, revisions: nextVersion } : prev));
         queryClient.invalidateQueries({ queryKey: ['posts'] });
@@ -546,9 +597,13 @@ export default function ComposerShell() {
       }
     }
 
-    if (!draftIdRef.current) draftIdRef.current = `comp-${Date.now()}`;
-    const postId = draftIdRef.current;
-    const firstLine = content.trim().split('\n')[0].replace(/^[#*\-•\s]+/, '').slice(0, 60);
+    const postId = draftId || `comp-${Date.now()}`;
+    if (!draftId) setDraftId(postId);
+    const firstLine = content
+      .trim()
+      .split('\n')[0]
+      .replace(/^[#*\-•\s]+/, '')
+      .slice(0, 60);
     const newPost = {
       id: postId,
       title: firstLine || 'Post Composer Draft',
@@ -567,14 +622,18 @@ export default function ComposerShell() {
           createdAt: stamp,
           author: 'Sarah Reeves',
           authorType: 'human',
-          summary: isSubmit ? 'Created and sent for review from Post Composer' : 'Draft saved in Post Composer',
+          summary: isSubmit
+            ? 'Created and sent for review from Post Composer'
+            : 'Draft saved in Post Composer',
         },
       ],
       activityLog: [
         {
           id: `act-${Date.now()}`,
           actor: 'Sarah Reeves',
-          action: isSubmit ? `Sent for review (Slot: ${scheduledDate} ${scheduledTime})` : 'Draft saved in Post Composer',
+          action: isSubmit
+            ? `Sent for review (Slot: ${scheduledDate} ${scheduledTime})`
+            : 'Draft saved in Post Composer',
           timestamp: stamp,
         },
       ],
@@ -596,7 +655,10 @@ export default function ComposerShell() {
     try {
       const stored = localStorage.getItem(APPROVAL_KEY);
       const approvalPosts = stored ? JSON.parse(stored) : INITIAL_APPROVAL_POSTS;
-      localStorage.setItem(APPROVAL_KEY, JSON.stringify([newPost, ...approvalPosts.filter((p) => p.id !== postId)]));
+      localStorage.setItem(
+        APPROVAL_KEY,
+        JSON.stringify([newPost, ...approvalPosts.filter((p) => p.id !== postId)])
+      );
       saveStoredPosts([newPost, ...getStoredPosts().filter((p) => p.id !== postId)]);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'approval-queue'] });
@@ -611,7 +673,9 @@ export default function ComposerShell() {
     const result = persistPost(false);
     if (!result) return;
     const slot = formatSlot(scheduledDate, scheduledTime);
-    toast.success(isEditMode ? `Version ${result.version} saved` : `Draft saved for ${slot.day}, ${slot.time}`);
+    toast.success(
+      isEditMode ? `Version ${result.version} saved` : `Draft saved for ${slot.day}, ${slot.time}`
+    );
     setSaveState('saved');
     setTimeout(() => setSaveState('idle'), 1800);
   };
@@ -633,7 +697,9 @@ export default function ComposerShell() {
     }
 
     setSubmitState('sent');
-    toast.success(isEditMode ? `Revision v${result.version} sent to the owner` : 'Sent to the owner for review');
+    toast.success(
+      isEditMode ? `Revision v${result.version} sent to the owner` : 'Sent to the owner for review'
+    );
     await wait(prefersReducedMotion() ? 300 : 1300);
     navigate(`/approval-workflow?post=${result.id}&source=composer`);
   };
@@ -641,23 +707,10 @@ export default function ComposerShell() {
   return (
     <div className="cmp flex flex-col gap-4">
       {/* Editorial Hero Header matching Dashboard Theme & Reference Image 2 */}
-      <ComposerHeader
-        isEditMode={isEditMode}
-        activePost={activePost}
-      />
+      <ComposerHeader isEditMode={isEditMode} activePost={activePost} />
 
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-3 px-3 py-2 bg-card/70 backdrop-blur-sm border border-border/70 rounded-xl shadow-sm flex-wrap">
-        <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="font-semibold text-foreground">Post Composer</span>
-          <span className="text-slate-300 dark:text-slate-700">|</span>
-          <span>Target slot: <strong className="text-foreground font-medium">{scheduledDate} {scheduledTime}</strong></span>
-        </div>
-
+      <div className="flex items-center justify-end gap-3 px-3 py-2 bg-card/70 backdrop-blur-sm border border-border/70 rounded-xl shadow-sm flex-wrap">
         <ComposerToolbar
           onSaveDraft={handleSaveDraft}
           onViewDrafts={() => setShowDraftsModal(true)}
@@ -676,21 +729,25 @@ export default function ComposerShell() {
 
       {isEditMode && activePost ? (
         <>
-          <div className="cmp-card flex items-start gap-3 px-5 py-4 m-rise" style={{ '--m-i': 1 }}>
+          <div className="cmp-card flex items-start gap-3 px-5 py-4">
             <span className="cmp-badge tone-blue" aria-hidden="true">
               <GitCommit size={17} />
             </span>
             <div className="min-w-0">
               <p className="text-[14px] font-semibold cmp-ink">Editing “{activePost.title}”</p>
               <p className="text-[13px] cmp-muted mt-0.5">
-                Saving creates version {(activePost.revisions || 0) + 1}. Earlier versions stay in History.
+                Saving creates version {(activePost.revisions || 0) + 1}. Earlier versions stay in
+                History.
               </p>
             </div>
           </div>
-          <PipelineStageStepper status={activePost.status} post={{ ...activePost, scheduledDate, scheduledTime }} />
+          <PipelineStageStepper
+            status={activePost.status}
+            post={{ ...activePost, scheduledDate, scheduledTime }}
+          />
         </>
       ) : (
-        <div className="m-rise" style={{ '--m-i': 1 }}>
+        <div>
           <WorkflowMini activeIndex={submitState === 'sent' ? 2 : 1} />
         </div>
       )}
@@ -761,7 +818,6 @@ export default function ComposerShell() {
             quality={quality}
             hasBody={Boolean(content.trim() || cta.trim())}
           />
-
         </div>
       </div>
 
@@ -795,7 +851,7 @@ export default function ComposerShell() {
         isOpen={showDraftsModal}
         onClose={() => setShowDraftsModal(false)}
         onSelectDraft={handleSelectDraft}
-        activeDraftId={draftIdRef.current}
+        activeDraftId={draftId}
       />
     </div>
   );

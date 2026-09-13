@@ -127,7 +127,10 @@ export default function TopicFormDialog({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col flex-1 overflow-y-auto p-6 gap-4">
+        <form
+          onSubmit={handleSubmit(handleFormSubmit)}
+          className="flex flex-col flex-1 overflow-y-auto p-6 gap-4"
+        >
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
               Topic Title / Strategic Angle <span className="text-destructive">*</span>
@@ -138,12 +141,18 @@ export default function TopicFormDialog({
               {...register('title')}
               className={`input w-full text-xs ${errors.title ? 'border-destructive' : ''}`}
             />
-            {errors.title && <span className="text-[10px] text-destructive mt-1 block">{errors.title.message}</span>}
+            {errors.title && (
+              <span className="text-[10px] text-destructive mt-1 block">
+                {errors.title.message}
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">Series Category</label>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
+                Series Category
+              </label>
               <select
                 {...register('seriesId')}
                 onChange={(e) => {
@@ -162,7 +171,9 @@ export default function TopicFormDialog({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1.5">Target Account</label>
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
+                Target Account
+              </label>
               <select {...register('account')} className="input w-full text-xs bg-input">
                 <option value="personal">Personal Profile</option>
                 <option value="company">Company Page</option>
@@ -171,7 +182,9 @@ export default function TopicFormDialog({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">Target Audience</label>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Target Audience
+            </label>
             <input
               type="text"
               placeholder="e.g. Engineering Managers, CTOs"
@@ -202,10 +215,19 @@ export default function TopicFormDialog({
           </div>
 
           <div className="flex items-center justify-end gap-2.5 pt-3 mt-1 border-t border-border">
-            <button type="button" onClick={onClose} className="btn btn-outline text-xs px-4 py-2" disabled={isSubmitting}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn btn-outline text-xs px-4 py-2"
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary text-xs px-5 py-2 flex items-center gap-1.5" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn btn-primary text-xs px-5 py-2 flex items-center gap-1.5"
+              disabled={isSubmitting}
+            >
               <Sparkles size={13} />
               {isSubmitting ? 'Saving...' : initialData ? 'Save Changes' : 'Plan Topic'}
             </button>

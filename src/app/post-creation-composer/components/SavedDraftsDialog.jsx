@@ -31,9 +31,7 @@ export default function SavedDraftsDialog({
     try {
       const allPosts = getStoredPosts() || [];
       // Filter for drafts or composer-created posts
-      const draftList = allPosts.filter(
-        (p) => p.status === 'draft' || p.source === 'composer'
-      );
+      const draftList = allPosts.filter((p) => p.status === 'draft' || p.source === 'composer');
       // Sort newest first
       return draftList.sort(
         (a, b) =>
@@ -96,7 +94,10 @@ export default function SavedDraftsDialog({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 id="drafts-dialog-title" className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h2
+                  id="drafts-dialog-title"
+                  className="text-lg font-semibold text-slate-900 dark:text-white"
+                >
                   Saved Drafts
                 </h2>
                 <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">

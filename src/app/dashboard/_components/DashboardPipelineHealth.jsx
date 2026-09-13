@@ -1,14 +1,29 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Panel } from './DashboardPrimitives';
 
 const ROWS = [
-  { key: 'onTrack', label: 'On track', color: '#0F8A5F', route: '/content-calendar' },
-  { key: 'inReview', label: 'In review', color: '#0A66C2', route: '/approval-workflow?status=awaiting_review' },
-  { key: 'needsAttention', label: 'Needs attention', color: '#E8A33D', route: '/approval-workflow?status=needs_revision' },
-  { key: 'blocked', label: 'Blocked', color: '#D64545', route: '/approval-workflow?status=failed' },
+  { key: 'onTrack', label: 'On track', color: 'var(--success)', route: '/content-calendar' },
+  {
+    key: 'inReview',
+    label: 'In review',
+    color: 'var(--info)',
+    route: '/approval-workflow?status=awaiting_review',
+  },
+  {
+    key: 'needsAttention',
+    label: 'Needs attention',
+    color: 'var(--warning)',
+    route: '/approval-workflow?status=needs_revision',
+  },
+  {
+    key: 'blocked',
+    label: 'Blocked',
+    color: 'var(--danger)',
+    route: '/approval-workflow?status=failed',
+  },
 ];
 
 export default function DashboardPipelineHealth({
@@ -34,55 +49,57 @@ export default function DashboardPipelineHealth({
   // Build segmented SVG paths using butt caps inside a rounded track mask.
   // This completely eliminates bulbous overlap distortion on small segments (like blocked)
   // and prevents bleeding over neighboring segments (like needs attention).
-  let currentFraction = 0;
-  const segments = activeRows.map((row) => {
-    const val = stats[row.key] || 0;
-    const fraction = total > 0 ? val / total : 0;
-    const fStart = currentFraction;
-    const fEnd = currentFraction + fraction;
-    currentFraction = fEnd;
+  const segments = useMemo(() => {
+    return activeRows.reduce((acc, row, index) => {
+      const val = stats[row.key] || 0;
+      const fraction = total > 0 ? val / total : 0;
+      const fStart = acc.currentFraction;
+      const fEnd = fStart + fraction;
 
-    // Angles measured in radians: left is Math.PI (180°), right is 0 (0°).
-    let a1 = Math.PI * (1 - fStart);
-    let a2 = Math.PI * (1 - fEnd);
+      // Angles measured in radians: left is Math.PI (180°), right is 0 (0°).
+      let a1 = Math.PI * (1 - fStart);
+      let a2 = Math.PI * (1 - fEnd);
 
-    // If starting at the beginning, extend slightly backwards past 180° to fill the mask's left round cap.
-    if (fStart <= 0.0001) {
-      a1 += 0.24;
-    }
-    // If ending at 1.0, extend slightly forwards past 0° to fill the mask's right round cap.
-    if (fEnd >= 0.9999) {
-      a2 -= 0.24;
-    }
+      // If starting at the beginning, extend slightly backwards past 180° to fill the mask's left round cap.
+      if (fStart <= 0.0001) {
+        a1 += 0.24;
+      }
+      // If ending at 1.0, extend slightly forwards past 0° to fill the mask's right round cap.
+      if (fEnd >= 0.9999) {
+        a2 -= 0.24;
+      }
 
-    const x1 = cx + radius * Math.cos(a1);
-    const y1 = cy - radius * Math.sin(a1);
-    const x2 = cx + radius * Math.cos(a2);
-    const y2 = cy - radius * Math.sin(a2);
+      const x1 = cx + radius * Math.cos(a1);
+      const y1 = cy - radius * Math.sin(a1);
+      const x2 = cx + radius * Math.cos(a2);
+      const y2 = cy - radius * Math.sin(a2);
 
-    const span = Math.abs(a1 - a2);
-    const largeArcFlag = span > Math.PI ? 1 : 0;
+      const span = Math.abs(a1 - a2);
+      const largeArcFlag = span > Math.PI ? 1 : 0;
 
-    const d = `M ${x1.toFixed(3)} ${y1.toFixed(3)} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2.toFixed(3)} ${y2.toFixed(3)}`;
+      const d = `M ${x1.toFixed(3)} ${y1.toFixed(3)} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2.toFixed(3)} ${y2.toFixed(3)}`;
 
-    return {
-      ...row,
-      d,
-    };
-  });
+      acc.list.push({
+        ...row,
+        d,
+      });
+      acc.currentFraction = fEnd;
+      return acc;
+    }, { list: [], currentFraction: 0 }).list;
+  }, [activeRows, stats, total, cx, cy, radius]);
 
   return (
     <Panel className="flex h-full flex-col justify-between p-5 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-base font-semibold tracking-tight text-[#1B1B1F]">
+        <h3 className="text-base font-semibold tracking-tight text-[color:var(--text)]">
           Pipeline health
         </h3>
         {/* Live pill with pulsing green dot */}
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F4EC] px-2.5 py-0.5 text-xs font-semibold text-[#0F8A5F]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--success-tint)] px-2.5 py-0.5 text-xs font-semibold text-[color:var(--success-text)]">
           <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#0F8A5F] opacity-75" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-[#0F8A5F]" />
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--success)] opacity-75" />
+            <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--success)]" />
           </span>
           Live
         </span>
@@ -117,7 +134,7 @@ export default function DashboardPipelineHealth({
             <path
               d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
               fill="none"
-              stroke="#F0EFEB"
+              stroke="var(--chip)"
               strokeWidth={strokeWidth}
               strokeLinecap="round"
             />
@@ -139,10 +156,10 @@ export default function DashboardPipelineHealth({
 
           {/* Hero number centered cleanly inside semicircle */}
           <div className="absolute inset-x-0 bottom-1 flex flex-col items-center justify-center text-center pointer-events-none">
-            <span className="text-[36px] font-bold leading-none tabular-nums text-[#1B1B1F] tracking-tight">
+            <span className="text-[36px] font-bold leading-none tabular-nums text-[color:var(--text)] tracking-tight">
               {pct}%
             </span>
-            <span className="mt-1 text-xs font-medium text-[#6B6B70]">
+            <span className="mt-1 text-xs font-medium text-[color:var(--text-muted)]">
               On track
             </span>
           </div>
@@ -155,18 +172,18 @@ export default function DashboardPipelineHealth({
               <button
                 type="button"
                 onClick={() => navigate(row.route)}
-                className="flex w-full items-center justify-between gap-4 rounded-md px-2.5 py-1 text-left text-xs transition-colors hover:bg-[#F0EFEB] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
+                className="flex w-full items-center justify-between gap-4 rounded-md px-2.5 py-1 text-left text-xs transition-colors hover:bg-[color:var(--chip)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)]"
               >
                 <span className="flex items-center gap-2">
                   <span
                     className="size-2 shrink-0 rounded-full"
                     style={{ backgroundColor: row.color }}
                   />
-                  <span className="whitespace-nowrap text-xs font-medium text-[#6B6B70]">
+                  <span className="whitespace-nowrap text-xs font-medium text-[color:var(--text-muted)]">
                     {row.label}
                   </span>
                 </span>
-                <span className="font-semibold text-[#1B1B1F] tabular-nums">
+                <span className="font-semibold text-[color:var(--text)] tabular-nums">
                   {stats[row.key] ?? 0}
                 </span>
               </button>

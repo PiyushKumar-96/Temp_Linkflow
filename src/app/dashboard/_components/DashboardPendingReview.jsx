@@ -5,10 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { CheckSquare, ArrowRight, Sparkles, Check, ChevronRight } from 'lucide-react';
 
-export default function DashboardPendingReview({
-  pendingPosts = [],
-  onQuickApprove,
-}) {
+export default function DashboardPendingReview({ pendingPosts = [], onQuickApprove }) {
   const navigate = useNavigate();
 
   return (
@@ -59,10 +56,10 @@ export default function DashboardPendingReview({
             >
               <div className="flex flex-col gap-1 max-w-xl">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-[#E4E2DC] text-[#6B6B70]">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-[color:var(--border)] text-[color:var(--text-muted)]">
                     {post.category || 'Thought Leadership'}
                   </span>
-                  <div className="flex items-center gap-1 text-[10px] text-[#6B6B70] font-semibold bg-white border border-[#E4E2DC] px-2 py-0.5 rounded-full">
+                  <div className="flex items-center gap-1 text-[10px] text-[color:var(--text-muted)] font-semibold bg-white border border-[color:var(--border)] px-2.5 py-0.5 rounded-full">
                     Quality {post.qualityAudit?.score || 90}%
                   </div>
                   <span className="text-[10px] text-muted-foreground">by {post.author}</span>

@@ -87,7 +87,7 @@ export default function Topbar({ onToggleSidebar }) {
           {/* New Post: outline button to avoid competing with page-level filled blue actions */}
           <Link to="/post-creation-composer" className="inline-flex items-center" tabIndex={-1}>
             <button
-              className="border border-[var(--brand,#0A66C2)] text-[var(--brand,#0A66C2)] hover:bg-[var(--brand,#0A66C2)]/10 text-xs sm:text-[13px] font-medium px-3.5 h-[32px] flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
+              className="border border-[color:var(--brand,#0A66C2)] text-[color:var(--brand,#0A66C2)] hover:bg-[color:color-mix(in_srgb,var(--brand,#0A66C2)_10%,transparent)] text-xs sm:text-[13px] font-medium px-3.5 h-[32px] flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
               style={{ borderRadius: 'var(--radius, 6px)' }}
             >
               <Plus size={14} />
@@ -105,7 +105,7 @@ export default function Topbar({ onToggleSidebar }) {
             >
               <Bell size={18} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--brand,#0A66C2)]" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[color:var(--brand,#0A66C2)]" />
               )}
             </button>
 
@@ -113,13 +113,15 @@ export default function Topbar({ onToggleSidebar }) {
             {notifMenuOpen && (
               <div className="absolute right-0 mt-2 w-80 bg-[#FFFFFF] border border-[#302E2A]/15 rounded-xl shadow-xl z-50 overflow-hidden slide-up">
                 <div className="px-4 py-3 border-b border-[#302E2A]/10 flex items-center justify-between">
-                  <span className="font-semibold text-xs text-[#1B1917]">Notifications & Alerts</span>
+                  <span className="font-semibold text-xs text-[#1B1917]">
+                    Notifications & Alerts
+                  </span>
                   {unreadCount > 0 && (
                     <button
                       onClick={() =>
                         setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
                       }
-                      className="text-[11px] text-[var(--brand,#0A66C2)] hover:underline"
+                      className="text-[11px] text-[color:var(--brand,#0A66C2)] hover:underline"
                     >
                       Mark all read
                     </button>
@@ -145,7 +147,9 @@ export default function Topbar({ onToggleSidebar }) {
                       <span className="text-[10px] text-[#6B6760] flex items-center gap-1 mt-1">
                         <Clock size={10} />
                         {n.time}
-                        {n.requestId && <span className="font-mono text-[9px] ml-1">({n.requestId})</span>}
+                        {n.requestId && (
+                          <span className="font-mono text-[9px] ml-1">({n.requestId})</span>
+                        )}
                       </span>
                     </Link>
                   ))}

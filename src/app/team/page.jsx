@@ -36,7 +36,10 @@ export default function TeamPage() {
         <div className="card p-6">
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center justify-between py-3 border-b border-border/40">
+              <div
+                key={i}
+                className="flex items-center justify-between py-3 border-b border-border/40"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
                   <div className="space-y-1.5">
@@ -114,11 +117,7 @@ export default function TeamPage() {
         isOwner={isOwner}
       />
 
-      <MemberList
-        members={safeMembers}
-        isOwner={isOwner}
-        onRoleChange={handleRoleChange}
-      />
+      <MemberList members={safeMembers} isOwner={isOwner} onRoleChange={handleRoleChange} />
 
       <InviteMemberModal
         isOpen={inviteModalOpen}

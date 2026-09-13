@@ -32,7 +32,7 @@ import { CarouselVisual, InfographicVisual } from '@/components/visuals';
 import { AVATARS } from '@/temp-backend/data/media';
 import { useAuth } from '@/context/AuthContext';
 import APP_CONFIG from '@/lib/config';
-import { CardHeader, DrawnCheck, ProgressRing, Segmented, useCountTo } from './ComposerUI';
+import { CardHeader, DrawnCheck, ProgressRing, Segmented } from './ComposerUI';
 import {
   CAROUSEL_GEN_STEPS,
   GEN_STEPS,
@@ -60,53 +60,69 @@ function PhoneDeviceFrame({ children }) {
   // 220px wide × ~440px tall = ~2:1 iPhone aspect ratio.
   // Dynamic Island is absolutely centred in the status bar — not in a flex row.
   return (
-    <div style={{ position: 'relative', margin: '0 auto', width: 220, maxWidth: '100%' }}>
+    <div
+      style={{
+        position: 'relative',
+        margin: '0 auto',
+        width: 282,
+        maxWidth: '100%',
+      }}
+    >
       {/* Outer titanium rim */}
-      <div style={{
-        borderRadius: 44,
-        padding: 3,
-        background: 'linear-gradient(150deg, #e4e4e7 0%, #a1a1aa 50%, #52525b 100%)',
-        boxShadow:
-          '0 0 0 1px #27272a,' +
-          '0 20px 48px -10px rgba(0,0,0,0.40),' +
-          'inset 0 1px 0 rgba(255,255,255,0.28)',
-      }}>
+      <div
+        style={{
+          borderRadius: 44,
+          padding: 3,
+          background: 'linear-gradient(150deg, #e4e4e7 0%, #a1a1aa 50%, #52525b 100%)',
+          boxShadow:
+            '0 0 0 1px #27272a,' +
+            '0 20px 48px -10px rgba(0,0,0,0.40),' +
+            'inset 0 1px 0 rgba(255,255,255,0.28)',
+        }}
+      >
         {/* Inner black bezel */}
         <div style={{ borderRadius: 41, background: '#080808', padding: 5 }}>
           {/* Screen — 395px gives total device ~430px = proper 2:1 ratio at 220px wide */}
-          <div style={{
-            borderRadius: 36,
-            height: 395,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            background: '#f4f2ee',
-          }}>
-
-            {/* ── Status bar: time left, island ABSOLUTE centre, icons right ── */}
-            <div style={{
-              flexShrink: 0,
-              position: 'relative',
+          <div
+            style={{
+              borderRadius: 36,
+              height: 395,
+              overflow: 'hidden',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '10px 14px 5px',
-              background: '#ffffff',
-              userSelect: 'none',
-            }}>
-              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: -0.3, zIndex: 1 }}>9:41</span>
+              flexDirection: 'column',
+              background: '#f4f2ee',
+            }}
+          >
+            {/* ── Status bar: time left, island ABSOLUTE centre, icons right ── */}
+            <div
+              style={{
+                flexShrink: 0,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px 5px',
+                background: '#ffffff',
+                userSelect: 'none',
+              }}
+            >
+              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: -0.3, zIndex: 1 }}>
+                9:41
+              </span>
 
               {/* Dynamic Island — perfectly centred via absolute */}
-              <div style={{
-                position: 'absolute',
-                top: 8,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 76,
-                height: 20,
-                borderRadius: 12,
-                background: '#000',
-              }} />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 76,
+                  height: 20,
+                  borderRadius: 12,
+                  background: '#000',
+                }}
+              />
 
               {/* Status icons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 3.5, zIndex: 1 }}>
@@ -118,60 +134,116 @@ function PhoneDeviceFrame({ children }) {
                 </svg>
                 <Wifi size={9} strokeWidth={2.5} />
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ width: 15, height: 8, border: '1px solid currentColor', borderRadius: 2, padding: 1 }}>
-                    <div style={{ height: '100%', width: '100%', background: 'currentColor', borderRadius: 1 }} />
+                  <div
+                    style={{
+                      width: 15,
+                      height: 8,
+                      border: '1px solid currentColor',
+                      borderRadius: 2,
+                      padding: 1,
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: '100%',
+                        background: 'currentColor',
+                        borderRadius: 1,
+                      }}
+                    />
                   </div>
-                  <div style={{ width: 1.5, height: 4, background: 'currentColor', borderRadius: '0 1px 1px 0', marginLeft: 1 }} />
+                  <div
+                    style={{
+                      width: 1.5,
+                      height: 4,
+                      background: 'currentColor',
+                      borderRadius: '0 1px 1px 0',
+                      marginLeft: 1,
+                    }}
+                  />
                 </div>
               </div>
             </div>
 
             {/* ── LinkedIn mobile header ── */}
-            <div style={{
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 8px',
-              background: '#ffffff',
-              borderBottom: '1px solid #e9e9e9',
-              userSelect: 'none',
-            }}>
-              <div style={{
-                width: 22, height: 22, borderRadius: 4,
-                background: '#0a66c2', color: '#fff',
-                fontSize: 9.5, fontWeight: 900,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                letterSpacing: '-0.5px', flexShrink: 0,
-              }}>in</div>
-              <div style={{
-                flex: 1, height: 24,
-                background: '#eef3f8',
-                borderRadius: 12,
-                display: 'flex', alignItems: 'center', gap: 4,
-                padding: '0 8px',
-                color: '#8c8c8c', fontSize: 10,
-              }}>
+            <div
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '4px 8px',
+                background: '#ffffff',
+                borderBottom: '1px solid #e9e9e9',
+                userSelect: 'none',
+              }}
+            >
+              <div
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 4,
+                  background: '#0a66c2',
+                  color: '#fff',
+                  fontSize: 9.5,
+                  fontWeight: 900,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  letterSpacing: '-0.5px',
+                  flexShrink: 0,
+                }}
+              >
+                in
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  height: 24,
+                  background: '#eef3f8',
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '0 8px',
+                  color: '#8c8c8c',
+                  fontSize: 10,
+                }}
+              >
                 <Search size={9.5} style={{ flexShrink: 0 }} />
                 <span>Search LinkedIn</span>
               </div>
             </div>
 
             {/* ── Feed ── (scrollbar hidden) */}
-            <div style={{
-              flex: 1, minHeight: 0,
-              overflowY: 'auto', overflowX: 'hidden',
-              padding: '5px 5px 0',
-              background: '#f4f2ee',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-            }}>
+            <div
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                padding: '5px 5px 0',
+                background: '#f4f2ee',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               {children}
             </div>
 
             {/* ── Home indicator ── */}
-            <div style={{ flexShrink: 0, padding: '5px 0 7px', background: '#f4f2ee', display: 'flex', justifyContent: 'center' }}>
-              <div style={{ width: 80, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.6)' }} />
+            <div
+              style={{
+                flexShrink: 0,
+                padding: '5px 0 7px',
+                background: '#f4f2ee',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{ width: 80, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.6)' }}
+              />
             </div>
           </div>
         </div>
@@ -182,108 +254,155 @@ function PhoneDeviceFrame({ children }) {
 
 function LaptopDeviceFrame({ children, avatarUrl }) {
   return (
-    <div style={{ position: 'relative', margin: '0 auto', maxWidth: 480, width: '100%' }}>
-
+    <div
+      style={{
+        position: 'relative',
+        margin: '0 auto',
+        width: 480,
+        maxWidth: '100%',
+      }}
+    >
       {/* ── MacBook Space Black lid casing ── */}
-      <div style={{
-        background: 'linear-gradient(175deg, #2a2a2a 0%, #1a1a1a 55%, #111 100%)',
-        borderRadius: '12px 12px 0 0',
-        padding: '6px 8px 0 8px',
-        boxShadow:
-          'inset 0 1px 0 rgba(255,255,255,0.08),' +
-          '0 -1px 0 rgba(0,0,0,0.5),' +
-          '0 22px 52px -14px rgba(0,0,0,0.55)',
-      }}>
+      <div
+        style={{
+          background: 'linear-gradient(175deg, #2a2a2a 0%, #1a1a1a 55%, #111 100%)',
+          borderRadius: '12px 12px 0 0',
+          padding: '6px 8px 0 8px',
+          boxShadow:
+            'inset 0 1px 0 rgba(255,255,255,0.08),' +
+            '0 -1px 0 rgba(0,0,0,0.5),' +
+            '0 22px 52px -14px rgba(0,0,0,0.55)',
+        }}
+      >
         {/* Camera */}
-        <div style={{ height: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 3 }}>
-          <div style={{
-            width: 4, height: 4, borderRadius: '50%',
-            background: 'radial-gradient(circle at 40% 35%, #3a3a3a, #1a1a1a)',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 1px rgba(0,0,0,0.6)',
-          }} />
+        <div
+          style={{
+            height: 7,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 3,
+          }}
+        >
+          <div
+            style={{
+              width: 4,
+              height: 4,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 40% 35%, #3a3a3a, #1a1a1a)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 1px rgba(0,0,0,0.6)',
+            }}
+          />
         </div>
 
         {/* Screen inside lid — black thin bezel */}
-        <div style={{
-          borderRadius: '7px 7px 0 0',
-          overflow: 'hidden',
-          boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.5)',
-          background: '#000',
-        }}>
-          {/* Safari/Chrome toolbar */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '5px 9px',
-            background: '#ebebeb',
-            borderBottom: '1px solid #c8c8c8',
-            userSelect: 'none',
-          }}>
-            <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
-              {['#ff5f56','#ffbd2e','#27c93f'].map((c, i) => (
-                <span key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c, boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.35), 0 0.5px 1px rgba(0,0,0,0.18)' }} />
-              ))}
-            </div>
-            <div style={{
-              flex: 1, display: 'flex', alignItems: 'center', gap: 5,
-              background: '#fff', border: '1px solid #d1d5db',
-              borderRadius: 5, padding: '2.5px 7px',
-              maxWidth: 250, margin: '0 auto',
-              fontSize: 10, fontFamily: 'ui-monospace, monospace', color: '#52525b',
-            }}>
-              <Lock size={8.5} className="text-emerald-600 shrink-0" />
-              <span>linkedin.com/feed</span>
-            </div>
-            <Globe size={10} style={{ color: '#9ca3af', flexShrink: 0 }} />
-          </div>
-
+        <div
+          style={{
+            borderRadius: '7px 7px 0 0',
+            overflow: 'hidden',
+            boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.5)',
+            background: '#000',
+          }}
+        >
           {/* LinkedIn nav */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            height: 38, padding: '0 10px',
-            background: '#fff', borderBottom: '1px solid #e9e9e9',
-            userSelect: 'none',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              height: 38,
+              padding: '0 10px',
+              background: '#fff',
+              borderBottom: '1px solid #e9e9e9',
+              userSelect: 'none',
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{
-                width: 24, height: 24, borderRadius: 4,
-                background: '#0a66c2', color: '#fff',
-                fontSize: 11, fontWeight: 900,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                letterSpacing: '-0.5px',
-              }}>in</div>
-              <div style={{
-                width: 100, height: 24, background: '#f3f2ef',
-                borderRadius: 4, padding: '0 7px',
-                display: 'flex', alignItems: 'center', gap: 4,
-                color: '#8c8c8c', fontSize: 10.5,
-              }}>
+              <div
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 4,
+                  background: '#0a66c2',
+                  color: '#fff',
+                  fontSize: 11,
+                  fontWeight: 900,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  letterSpacing: '-0.5px',
+                }}
+              >
+                in
+              </div>
+              <div
+                style={{
+                  width: 100,
+                  height: 24,
+                  background: '#f3f2ef',
+                  borderRadius: 4,
+                  padding: '0 7px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: '#8c8c8c',
+                  fontSize: 10.5,
+                }}
+              >
                 <Search size={10} style={{ flexShrink: 0 }} />
                 <span>Search</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               {DESKTOP_NAV_ITEMS.map(({ icon: Icon, active }, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: active ? '#191919' : '#9ca3af' }}>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2,
+                    color: active ? '#191919' : 'var(--text-subtle)',
+                  }}
+                >
                   <Icon size={14} strokeWidth={active ? 2.2 : 1.7} />
-                  <span style={{ height: 2, width: 12, borderRadius: 1, background: active ? '#191919' : 'transparent' }} />
+                  <span
+                    style={{
+                      height: 2,
+                      width: 12,
+                      borderRadius: 1,
+                      background: active ? '#191919' : 'transparent',
+                    }}
+                  />
                 </div>
               ))}
-              {avatarUrl
-                ? <img src={avatarUrl} alt="" style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover' }} />
-                : <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#e2e8f0' }} />}
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  style={{ width: 20, height: 20, borderRadius: '50%', background: '#e2e8f0' }}
+                />
+              )}
             </div>
           </div>
 
           {/* Feed — height tuned so the full laptop device fits the sticky column */}
-          <div style={{
-            height: 200,
-            overflowY: 'auto', overflowX: 'hidden',
-            background: '#f3f2ef',
-            padding: '10px 12px',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-          }}>
-            <div style={{ maxWidth: 420, margin: '0 auto' }}>{children}</div>
+          <div
+            style={{
+              height: 337,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              background: '#f3f2ef',
+              padding: '10px 12px',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
+            <div style={{ maxWidth: 440, margin: '0 auto' }}>{children}</div>
           </div>
         </div>
       </div>
@@ -292,16 +411,29 @@ function LaptopDeviceFrame({ children, avatarUrl }) {
       <div style={{ height: 2, background: 'linear-gradient(180deg, #1a1a1a, #0a0a0a)' }} />
 
       {/* Keyboard base — wider than lid, black */}
-      <div style={{
-        marginLeft: '-3%', width: '106%',
-        height: 13,
-        background: 'linear-gradient(180deg, #222 0%, #141414 100%)',
-        borderRadius: '0 0 8px 8px',
-        boxShadow: '0 8px 24px -6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
-        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-        paddingTop: 2,
-      }}>
-        <div style={{ width: 36, height: 5, background: '#2a2a2a', borderRadius: '0 0 3px 3px', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6)' }} />
+      <div
+        style={{
+          marginLeft: '-3%',
+          width: '106%',
+          height: 13,
+          background: 'linear-gradient(180deg, #222 0%, #141414 100%)',
+          borderRadius: '0 0 8px 8px',
+          boxShadow: '0 8px 24px -6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          paddingTop: 2,
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 5,
+            background: '#2a2a2a',
+            borderRadius: '0 0 3px 3px',
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6)',
+          }}
+        />
       </div>
     </div>
   );
@@ -336,9 +468,7 @@ function MediaPreview({
   const isGeneratingImage = Boolean(imageGeneration);
 
   const activeStartedAt =
-    carouselGeneration?.startedAt ||
-    infographicGeneration?.startedAt ||
-    imageGeneration?.startedAt;
+    carouselGeneration?.startedAt || infographicGeneration?.startedAt || imageGeneration?.startedAt;
 
   const elapsed = useElapsed(activeStartedAt);
 
@@ -417,7 +547,7 @@ function MediaPreview({
 
 function QualityCheck({ checks, score, hasText }) {
   const [open, setOpen] = useState(false);
-  const displayScore = useCountTo(hasText ? score : 0);
+  const displayScore = hasText ? score : 0;
   const nextCheck = checks.find((c) => !c.ok);
   const tone = !hasText ? 'slate' : score >= 80 ? 'green' : score >= 60 ? 'amber' : 'red';
   const hint = !hasText
@@ -428,13 +558,20 @@ function QualityCheck({ checks, score, hasText }) {
 
   return (
     <div className="cmp-quality">
-      <button type="button" className="cmp-quality-row" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+      <button
+        type="button"
+        className="cmp-quality-row"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
         <ProgressRing value={hasText ? score / 100 : 0} size={40} stroke={4} tone={tone}>
           {hasText ? displayScore : '–'}
         </ProgressRing>
         <span className="min-w-0 flex-1">
-          <span className="cmp-quality-title">{hasText ? `Quality ${displayScore}%` : 'Quality check'}</span>
-          <span key={hint} className="cmp-quality-hint truncate m-fade-in">
+          <span className="cmp-quality-title">
+            {hasText ? `Quality ${displayScore}%` : 'Quality check'}
+          </span>
+          <span key={hint} className="cmp-quality-hint truncate">
             {hint}
           </span>
         </span>
@@ -479,7 +616,7 @@ export default function ComposerPreview({
 }) {
   const { user } = useAuth?.() || {};
   const [internalDevice, setInternalDevice] = useState(device || 'desktop');
-  const activeDevice = onDeviceChange ? (device || 'desktop') : internalDevice;
+  const activeDevice = onDeviceChange ? device || 'desktop' : internalDevice;
   const handleDeviceChange = (v) => {
     setInternalDevice(v);
     onDeviceChange?.(v);
@@ -511,38 +648,52 @@ export default function ComposerPreview({
   const cardElement = (
     <article className="cmp-li-card">
       <header className="p-3.5 flex items-start gap-3">
-        <div key={target} className="flex items-start gap-3 flex-1 min-w-0 m-fade-in">
+        <div key={target} className="flex items-start gap-3 flex-1 min-w-0">
           {author.isCompany ? (
             author.avatar ? (
-              <img src={author.avatar} alt="" className="w-12 h-12 rounded-md object-cover shrink-0" />
+              <img
+                src={author.avatar}
+                alt=""
+                className="w-12 h-12 rounded-md object-cover shrink-0"
+              />
             ) : (
               <span className="w-12 h-12 rounded-md bg-slate-900 text-white flex items-center justify-center text-lg font-semibold shrink-0">
                 {author.name.charAt(0)}
               </span>
             )
           ) : (
-            <img src={author.avatar} alt="" className="w-12 h-12 rounded-full object-cover shrink-0" />
+            <img
+              src={author.avatar}
+              alt=""
+              className="w-12 h-12 rounded-full object-cover shrink-0"
+            />
           )}
           <div className="min-w-0 pt-0.5">
             <p className="text-[14px] font-semibold leading-tight truncate">{author.name}</p>
-            <p className="text-[12px] text-[#666] leading-snug truncate mt-0.5">{author.headline}</p>
-            <p className="flex items-center gap-1 mt-0.5 text-[12px] text-[#666]">
+            <p className="text-[12px] text-[color:var(--text-muted)] leading-snug truncate mt-0.5">
+              {author.headline}
+            </p>
+            <p className="flex items-center gap-1 mt-0.5 text-[12px] text-[color:var(--text-muted)]">
               Now <span aria-hidden="true">·</span> <Globe size={12} aria-hidden="true" />
             </p>
           </div>
         </div>
-        <MoreHorizontal size={20} className="text-[#666] shrink-0" aria-hidden="true" />
+        <MoreHorizontal
+          size={20}
+          className="text-[color:var(--text-muted)] shrink-0"
+          aria-hidden="true"
+        />
       </header>
 
       <div className="px-3.5 pb-3 text-[14px] leading-[1.45] break-words">
         {isGenerating ? (
           <div className="flex flex-col gap-2 py-1" aria-hidden="true">
             {[100, 92, 96, 70].map((w, i) => (
-              <span key={i} className="cmp-skel" style={{ width: `${w}%`, height: 11, '--m-i': i }} />
+              <span key={i} className="cmp-skel" style={{ width: `${w}%`, height: 11 }} />
             ))}
           </div>
         ) : hasText ? (
-          <p key={expanded ? 'full' : 'short'} className="whitespace-pre-wrap m-fade-in">
+          <p key={expanded ? 'full' : 'short'} className="whitespace-pre-wrap">
             {!isTruncated && renderFormatted(composedText)}
             {isTruncated && !expanded && (
               <>
@@ -560,14 +711,18 @@ export default function ComposerPreview({
                 </span>
                 {renderFormatted(composedText.slice(foldIndex))}
                 {'\n'}
-                <button type="button" className="cmp-li-more mt-1" onClick={() => setExpanded(false)}>
+                <button
+                  type="button"
+                  className="cmp-li-more mt-1"
+                  onClick={() => setExpanded(false)}
+                >
                   Show less
                 </button>
               </>
             )}
           </p>
         ) : (
-          <p className="text-[#666]">Your post appears here as you write.</p>
+          <p className="text-[color:var(--text-muted)]">Your post appears here as you write.</p>
         )}
       </div>
 
@@ -596,7 +751,10 @@ export default function ComposerPreview({
         <span className="truncate">Reactions and comments will appear here once you publish</span>
       </div>
 
-      <div className="px-1 py-0.5 border-t border-gray-100 flex items-stretch text-[#666]" aria-hidden="true">
+      <div
+        className="px-1 py-0.5 border-t border-gray-100 flex items-stretch text-[color:var(--text-muted)]"
+        aria-hidden="true"
+      >
         {[
           { icon: ThumbsUp, label: 'Like' },
           { icon: MessageSquare, label: 'Comment' },
@@ -610,7 +768,9 @@ export default function ComposerPreview({
             }`}
           >
             <Icon size={activeDevice === 'mobile' ? 17 : 18} strokeWidth={1.8} />
-            {activeDevice !== 'mobile' && <span className="text-[12px] font-semibold">{label}</span>}
+            {activeDevice !== 'mobile' && (
+              <span className="text-[12px] font-semibold">{label}</span>
+            )}
           </span>
         ))}
       </div>
@@ -618,12 +778,8 @@ export default function ComposerPreview({
   );
 
   return (
-    <section className="cmp-card m-rise" style={{ '--m-i': 2 }} aria-labelledby="cmp-preview-title">
-      <CardHeader icon={Eye} tone="blue" title="Preview" id="cmp-preview-title">
-        <span className="cmp-pill tone-green">
-          <span className="cmp-dot is-live" />
-          Live
-        </span>
+    <section className="cmp-card" aria-labelledby="cmp-preview-title">
+      <CardHeader tone="blue" title="Preview" id="cmp-preview-title">
         <Segmented
           label="Preview device"
           options={DEVICE_OPTIONS}
@@ -645,9 +801,7 @@ export default function ComposerPreview({
               zoom 0.60 on a 320px natural card → 192px effective layout width,
               which matches the ~192px phone content area.
             */}
-            <div style={{ zoom: 0.60, width: 320 }}>
-              {cardElement}
-            </div>
+            <div style={{ zoom: 0.8, width: 320 }}>{cardElement}</div>
           </PhoneDeviceFrame>
         ) : (
           <LaptopDeviceFrame avatarUrl={author.avatar}>
@@ -656,14 +810,18 @@ export default function ComposerPreview({
               viewport without scrolling. zoom (unlike transform:scale) also shrinks
               the layout box, so the feed's scroll container measures the correct height.
             */}
-            <div style={{ zoom: 0.75 }}>
-              {cardElement}
-            </div>
+            <div style={{ zoom: 0.9 }}>{cardElement}</div>
           </LaptopDeviceFrame>
         )}
       </div>
 
-      {quality && <QualityCheck checks={quality.checks} score={quality.score} hasText={Boolean(quality.hasText)} />}
+      {quality && (
+        <QualityCheck
+          checks={quality.checks}
+          score={quality.score}
+          hasText={Boolean(quality.hasText)}
+        />
+      )}
     </section>
   );
 }

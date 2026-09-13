@@ -9,12 +9,7 @@ import ComposerPreview from '@/app/post-creation-composer/components/ComposerPre
  * LinkedIn Feed Preview Modal for AI Generator.
  * Reuses the authentic LinkedIn preview card from ComposerPreview.
  */
-export default function LinkedInPreviewModal({
-  isOpen,
-  onClose,
-  post,
-  onSendToQueue,
-}) {
+export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQueue }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();

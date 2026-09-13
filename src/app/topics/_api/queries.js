@@ -45,20 +45,26 @@ export function useTopicsQuery(filters = {}) {
       let topics = getStoredTopics();
 
       if (filters.series && filters.series !== 'all') {
-        topics = topics.filter((t) => t.seriesId === filters.series || t.seriesName === filters.series);
+        topics = topics.filter(
+          (t) => t.seriesId === filters.series || t.seriesName === filters.series
+        );
       }
       if (filters.account && filters.account !== 'all') {
         topics = topics.filter((t) => t.account === filters.account);
       }
       if (filters.status && filters.status !== 'all') {
-        topics = topics.filter((t) => t.status === filters.status || matchesStatusBucket(t.status, filters.status));
+        topics = topics.filter(
+          (t) => t.status === filters.status || matchesStatusBucket(t.status, filters.status)
+        );
       }
       if (filters.cadence && filters.cadence !== 'all') {
         topics = topics.filter((t) => (t.cadence || 'custom') === filters.cadence);
       }
       if (filters.search) {
         const q = filters.search.toLowerCase();
-        topics = topics.filter((t) => t.title.toLowerCase().includes(q) || t.brief?.toLowerCase().includes(q));
+        topics = topics.filter(
+          (t) => t.title.toLowerCase().includes(q) || t.brief?.toLowerCase().includes(q)
+        );
       }
       if (filters.month) {
         topics = topics.filter((t) => t.publicationDate.startsWith(filters.month));
@@ -69,4 +75,3 @@ export function useTopicsQuery(filters = {}) {
     staleTime: 30000,
   });
 }
-

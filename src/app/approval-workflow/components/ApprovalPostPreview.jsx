@@ -11,10 +11,7 @@ import {
   Send,
 } from 'lucide-react';
 import ProgressRing from '@/components/ui/ProgressRing';
-import {
-  CarouselVisual,
-  InfographicVisual,
-} from '@/components/visuals';
+import { CarouselVisual, InfographicVisual } from '@/components/visuals';
 
 export default function ApprovalPostPreview({
   post,
@@ -171,7 +168,11 @@ export default function ApprovalPostPreview({
               <InfographicVisual data={post.infographicData} isEditable={false} />
             ) : (
               <img
-                src={post.imageUrl || candidateImages?.[0]?.url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80'}
+                src={
+                  post.imageUrl ||
+                  candidateImages?.[0]?.url ||
+                  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80'
+                }
                 alt={post.title || 'Post attachment'}
                 className="w-full max-h-[460px] object-cover bg-slate-100 dark:bg-slate-800 select-none"
                 loading="lazy"

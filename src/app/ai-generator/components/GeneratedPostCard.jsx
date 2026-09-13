@@ -57,7 +57,9 @@ export default function GeneratedPostCard({
               </div>
               <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                 <Clock size={11} />
-                <span>Slot: {post.scheduledDate} at {post.scheduledTime}</span>
+                <span>
+                  Slot: {post.scheduledDate} at {post.scheduledTime}
+                </span>
               </div>
             </div>
           </div>
@@ -83,9 +85,7 @@ export default function GeneratedPostCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-1 text-xs">
-              <span className="font-medium text-slate-500">
-                Post #{index + 1}
-              </span>
+              <span className="font-medium text-slate-500">Post #{index + 1}</span>
               <span className="text-slate-300 dark:text-slate-700">&bull;</span>
               <span className="text-slate-600 dark:text-slate-400">
                 {post.category || 'Thought Leadership'}
@@ -124,11 +124,7 @@ export default function GeneratedPostCard({
           >
             {visualFormat === 'image' && post.imageUrl ? (
               <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100">
-                <img
-                  src={post.imageUrl}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
+                <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
                   <Eye size={14} />
                 </div>
@@ -190,9 +186,7 @@ export default function GeneratedPostCard({
       {isExpanded && (
         <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-800/20 flex flex-col gap-3">
           <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span className="text-[11px] font-medium text-slate-400 block mb-1">
-              Draft text
-            </span>
+            <span className="text-[11px] font-medium text-slate-400 block mb-1">Draft text</span>
             <p className="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed">
               {post.content}
             </p>

@@ -329,8 +329,8 @@ export const BEST_TIME_HEATMAP = {
  */
 export function getTopPostsForRange(range = 'range-30d') {
   // Published posts sorted by impressions or engagement
-  const published = MASTER_POSTS.filter(p => p.status === 'published' || p.impressions);
-  return published.map(p => ({
+  const published = MASTER_POSTS.filter((p) => p.status === 'published' || p.impressions);
+  return published.map((p) => ({
     id: p.id,
     title: p.title,
     excerpt: p.excerpt || p.content.slice(0, 90) + '...',

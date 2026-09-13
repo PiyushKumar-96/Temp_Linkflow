@@ -218,7 +218,10 @@ export default function TopicsListView({
 
                       {/* Status */}
                       <td className="p-3 whitespace-nowrap">
-                        <StatusBadge status={topic.downstreamPostStatus || topic.status} size="sm" />
+                        <StatusBadge
+                          status={topic.downstreamPostStatus || topic.status}
+                          size="sm"
+                        />
                       </td>
 
                       {/* Actions */}

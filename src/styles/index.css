@@ -3,20 +3,74 @@
 @import './composer.css';
 
 /**
- * LinkedFlow Design Tokens
- * Neutral palette, semantic status tokens, and component metrics.
- * Pixel-identical extraction of in-use palette.
+ * LinkedFlow Design Tokens — Source of Truth (Pass 6.5)
  */
 :root {
-  /* Surface & neutral palette */
+  /* Surfaces */
+  --page-bg: #F1F0EC;
+  --card: #FFFFFF;
+  --card-dark: #141821;
+  --rail: #181715;
+  --rail-divider: #2A2824;
+  --border: #E4E2DC;
+  --chip: #F0EFEB;
+  --track: #D3D1C7;
+  --track-warm: #F8F7F4;
+  --bar-inactive: #2B3140;
+
+  /* Brand and accent */
+  --brand: #0A66C2;
+  --brand-hover: #084E96;
+  --brand-tint: #E6F1FB;
+  --accent: #5B5BD6;
+  --accent-hover: #4A4AC4;
+  --accent-on-dark: #9B9BF0;
+  --accent-tint: #EEEDFE;
+  --accent-text: #3C3489;
+
+  /* Status — reserved, never decorative */
+  --success: #0F8A5F;        /* dots, fills, bar segments */
+  --success-text: #0A7550;   /* 5.72:1 on white — labels, icons carrying status */
+  --success-tint: #E6F4EC;
+
+  --warning: #E8A33D;
+  --warning-text: #8A5A10;   /* 5.91:1 — see note below */
+  --warning-tint: #FEF5E7;
+
+  --danger: #D64545;
+  --danger-text: #B83232;    /* 5.93:1 */
+  --danger-tint: #FDECEC;
+
+  --info: #378ADD;
+  --info-text: #1F6FB8;      /* 5.22:1 */
+  --info-tint: #E6F1FB;
+
+  /* Text */
+  --text: #1B1B1F;
+  --text-muted: #6B6B70;
+  --text-subtle: #9A9A9F;
+
+  /* Rail text */
+  --rail-label: #9C9890;
+  --rail-label-hover: #E8E5DE;
+  --rail-label-active: #1A1917;
+  --rail-count-muted: #6B6760;
+  --rail-count-attention: #E8B84B;
+  --rail-count-active: #8A6D1A;
+
+  /* Radius scale */
+  --radius-rail: 28px;
+  --radius-card: 14px;
+  --radius-input: 10px;
+  --radius-icon-btn: 8px;
+
+  /* Surface & neutral legacy fallbacks */
   --bg-app: #f3f6fb;
   --surface-card: #ffffff;
   --surface-muted: #f1f5f9;
   --surface-input: #f8fafc;
   --border-subtle: #e2e8f0;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-subtle: #94a3b8;
+  --text-main: #1B1B1F;
 
   /* Brand accents */
   --brand-primary: #0a66c2;

@@ -1,7 +1,14 @@
 'use client';
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Plus, Filter, Layers } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Plus,
+  Filter,
+  Layers,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { STATUS_BUCKET_LIST, STATUS_FILTER_ORDER, STATUS_META } from '@/lib/post-status';
 
@@ -22,8 +29,18 @@ const SERIES_LIST = [
 ];
 
 const MONTH_NAMES_SHORT = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 export default function CalendarHeader({
@@ -101,7 +118,8 @@ export default function CalendarHeader({
 
           {/* Subtitle description */}
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 max-w-xl font-normal leading-relaxed">
-            Here all your planned events and posts. You will find information for each event as well you can plan a new one.
+            Here all your planned events and posts. You will find information for each event as well
+            you can plan a new one.
           </p>
         </div>
 
@@ -120,7 +138,7 @@ export default function CalendarHeader({
       <div className="flex items-center gap-3 p-2 bg-neutral-50/80 dark:bg-neutral-900/50 border border-neutral-200/80 dark:border-neutral-800 rounded-xl flex-wrap text-xs">
         {/* Series Filter */}
         <div className="flex items-center gap-1.5 text-neutral-500">
-          <Layers size={13} className="text-[var(--cal-accent)]" />
+          <Layers size={13} className="text-[color:var(--cal-accent)]" />
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Series:</span>
           <select
             value={filterSeries}
@@ -137,7 +155,7 @@ export default function CalendarHeader({
 
         {/* Status Filter */}
         <div className="flex items-center gap-1.5 text-neutral-500">
-          <Filter size={13} className="text-[var(--cal-accent)]" />
+          <Filter size={13} className="text-[color:var(--cal-accent)]" />
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">Status:</span>
           <select
             value={filterStatus}
@@ -164,9 +182,7 @@ export default function CalendarHeader({
 
         {/* Member filter pills */}
         <div className="flex items-center gap-1 ml-auto">
-          <span className="text-neutral-400 font-medium mr-1 hidden sm:inline">
-            Member:
-          </span>
+          <span className="text-neutral-400 font-medium mr-1 hidden sm:inline">Member:</span>
           <div className="flex items-center gap-0.5 bg-neutral-200/60 dark:bg-neutral-800 rounded-lg p-0.5">
             {MEMBERS.map((m) => (
               <button

@@ -55,9 +55,7 @@ export default function PostDetailPopover({ post, onClose }) {
                 <AlertTriangle size={13} />
                 <span>Publishing Failure Halted</span>
               </div>
-              <p className="text-[11px] text-destructive leading-snug">
-                {failure.errorMessage}
-              </p>
+              <p className="text-[11px] text-destructive leading-snug">{failure.errorMessage}</p>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground font-mono pt-1 border-t border-border/60 mt-0.5">
                 <span>Attempts: {failure.attemptCount} of 3</span>
                 <span>{failure.requestId}</span>
@@ -109,7 +107,10 @@ export default function PostDetailPopover({ post, onClose }) {
                 >
                   Edit Post
                 </Link>
-                <Link to={`/approval-workflow?post=${post.id}`} className="btn-primary text-xs flex-1 justify-center">
+                <Link
+                  to={`/approval-workflow?post=${post.id}`}
+                  className="btn-primary text-xs flex-1 justify-center"
+                >
                   <ExternalLink size={12} />
                   View in Queue
                 </Link>

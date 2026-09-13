@@ -24,8 +24,8 @@ export function BulkPostPreviewModal({ isOpen, onClose, post, onViewImage }) {
     typeof post.hashtags === 'string'
       ? post.hashtags.split(/\s+/).filter(Boolean)
       : Array.isArray(post.hashtags)
-      ? post.hashtags
-      : [];
+        ? post.hashtags
+        : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
@@ -90,14 +90,11 @@ export function BulkPostPreviewModal({ isOpen, onClose, post, onViewImage }) {
             {post.visualFormat === 'pdf' || post.visualFormat === 'carousel'
               ? '📄 PDF Document Deck'
               : post.imageUrl
-              ? '🖼️ Single Image Post'
-              : '📝 Post'}
+                ? '🖼️ Single Image Post'
+                : '📝 Post'}
           </span>
 
-          <button
-            onClick={onClose}
-            className="btn-primary text-xs py-1.5 px-4 cursor-pointer"
-          >
+          <button onClick={onClose} className="btn-primary text-xs py-1.5 px-4 cursor-pointer">
             Done
           </button>
         </div>

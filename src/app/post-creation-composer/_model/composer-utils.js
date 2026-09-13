@@ -10,10 +10,42 @@ export const TARGETS = [
 // BACKEND: replace planned/goal with the same query the dashboard card uses.
 // `category` keeps old posts and other pages working (they still read post.category).
 export const PILLARS = [
-  { id: 'thought-leadership', label: 'Thought leadership', target: 'personal', category: 'Thought Leadership', tone: 'green', planned: 12, goal: 15 },
-  { id: 'case-studies', label: 'Case studies & proof', target: 'company', category: 'Case Study', tone: 'blue', planned: 6, goal: 8 },
-  { id: 'engineering-culture', label: 'Engineering culture', target: 'company', category: 'Company News', tone: 'violet', planned: 5, goal: 6 },
-  { id: 'industry-insights', label: 'Industry insights', target: 'personal', category: 'Industry Insight', tone: 'amber', planned: 4, goal: 5 },
+  {
+    id: 'thought-leadership',
+    label: 'Thought leadership',
+    target: 'personal',
+    category: 'Thought Leadership',
+    tone: 'green',
+    planned: 12,
+    goal: 15,
+  },
+  {
+    id: 'case-studies',
+    label: 'Case studies & proof',
+    target: 'company',
+    category: 'Case Study',
+    tone: 'blue',
+    planned: 6,
+    goal: 8,
+  },
+  {
+    id: 'engineering-culture',
+    label: 'Engineering culture',
+    target: 'company',
+    category: 'Company News',
+    tone: 'violet',
+    planned: 5,
+    goal: 6,
+  },
+  {
+    id: 'industry-insights',
+    label: 'Industry insights',
+    target: 'personal',
+    category: 'Industry Insight',
+    tone: 'amber',
+    planned: 4,
+    goal: 5,
+  },
 ];
 
 export function getPillar(id) {
@@ -58,14 +90,19 @@ export function getFoldIndex(text, device = 'desktop') {
 }
 
 export function composePostText(content, cta, hashtags) {
-  return [content, cta, (hashtags || []).join(' ')].filter((part) => part && part.trim()).join('\n\n');
+  return [content, cta, (hashtags || []).join(' ')]
+    .filter((part) => part && part.trim())
+    .join('\n\n');
 }
 
 export function getQualityChecks({ content, cta, hashtags, visualFormat, imageUrl, foldIndex }) {
   const text = (content || '').trim();
   const firstLine = text.split('\n')[0].trim();
-  const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-  const contentTags = (text.match(/#[a-zA-Z0-9_\p{L}]+/gu) || []);
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const contentTags = text.match(/#[a-zA-Z0-9_\p{L}]+/gu) || [];
   const allTags = Array.from(new Set([...(hashtags || []), ...contentTags]));
   const tagCount = allTags.length;
   const visualReady = visualFormat === 'image' ? Boolean(imageUrl) : true;
@@ -91,12 +128,18 @@ export function getQualityChecks({ content, cta, hashtags, visualFormat, imageUr
       label: 'Ends with a question or call to action',
       hint: 'Add a question or call to action at the end of your post.',
       weight: 20,
-      ok: Boolean(cta && cta.trim()) || /\?\s*$/.test(text) || /\b(comment|share|thoughts\?|let me know|what do you think)\b/i.test(text),
+      ok:
+        Boolean(cta && cta.trim()) ||
+        /\?\s*$/.test(text) ||
+        /\b(comment|share|thoughts\?|let me know|what do you think)\b/i.test(text),
     },
     {
       id: 'tags',
       label: '3–5 relevant hashtags',
-      hint: missingTags > 0 ? `Add ${missingTags} more hashtag${missingTags === 1 ? '' : 's'} in your post.` : 'Keep hashtags to 5 or fewer.',
+      hint:
+        missingTags > 0
+          ? `Add ${missingTags} more hashtag${missingTags === 1 ? '' : 's'} in your post.`
+          : 'Keep hashtags to 5 or fewer.',
       weight: 15,
       ok: tagCount >= 3 && tagCount <= 5,
     },
@@ -132,5 +175,7 @@ export function formatSlot(date, time) {
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function prefersReducedMotion() {
-  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  );
 }

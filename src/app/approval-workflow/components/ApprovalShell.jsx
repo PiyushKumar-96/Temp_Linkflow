@@ -64,8 +64,10 @@ export default function ApprovalShell() {
     return {
       all: activeQueuePosts.length,
       composer: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'composer').length,
-      ai_generator: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'ai_generator').length,
-      bulk_upload: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'bulk_upload').length,
+      ai_generator: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'ai_generator')
+        .length,
+      bulk_upload: activeQueuePosts.filter((p) => (p.source || 'ai_generator') === 'bulk_upload')
+        .length,
     };
   }, [activeQueuePosts]);
 
@@ -125,7 +127,11 @@ export default function ApprovalShell() {
 
   const handleChangeBrief = (newBrief) => {
     if (!selected) return;
-    changeBriefMutation.mutate({ id: selected.id, newBrief, authorName: user?.name || 'Sarah Reeves' });
+    changeBriefMutation.mutate({
+      id: selected.id,
+      newBrief,
+      authorName: user?.name || 'Sarah Reeves',
+    });
   };
 
   const handleAddComment = (text) => {
@@ -194,7 +200,10 @@ export default function ApprovalShell() {
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-5" style={{ minHeight: 640 }}>
           <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse" />
+              <div
+                key={i}
+                className="h-24 bg-slate-100 dark:bg-slate-800/60 rounded-xl animate-pulse"
+              />
             ))}
           </div>
           <div className="xl:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 h-full min-h-[500px] animate-pulse" />
@@ -209,7 +218,9 @@ export default function ApprovalShell() {
         <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-500 flex items-center justify-center mx-auto mb-3">
           <AlertCircle size={24} />
         </div>
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Failed to load approval queue</h2>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
+          Failed to load approval queue
+        </h2>
         <p className="text-xs text-slate-500 mb-4">
           {error?.message || 'A network error occurred while loading posts.'}
         </p>
@@ -229,11 +240,13 @@ export default function ApprovalShell() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className={`w-[42px] h-[42px] rounded-xl flex items-center justify-center border shadow-2xs shrink-0 ${
-            isRejectedView
-              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border-rose-200/80 dark:border-rose-900/50'
-              : 'bg-blue-50 dark:bg-blue-950/50 text-[#0a66c2] dark:text-blue-400 border-blue-100/80 dark:border-blue-900/50'
-          }`}>
+          <div
+            className={`w-[42px] h-[42px] rounded-xl flex items-center justify-center border shadow-2xs shrink-0 ${
+              isRejectedView
+                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border-rose-200/80 dark:border-rose-900/50'
+                : 'bg-blue-50 dark:bg-blue-950/50 text-[#0a66c2] dark:text-blue-400 border-blue-100/80 dark:border-blue-900/50'
+            }`}
+          >
             {isRejectedView ? <XCircle size={20} /> : <CheckSquare size={20} />}
           </div>
           <div>
@@ -299,7 +312,9 @@ export default function ApprovalShell() {
               <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
                 <CheckSquare size={22} />
               </div>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">No Post Selected</h3>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                No Post Selected
+              </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
                 Select a post from the queue to view audit details, research package, or approve.
               </p>
@@ -309,11 +324,7 @@ export default function ApprovalShell() {
       </div>
 
       {/* Keyboard shortcuts overlay */}
-      <KeyboardShortcutsModal
-        isOpen={shortcutsOpen}
-        onClose={() => setShortcutsOpen(false)}
-      />
+      <KeyboardShortcutsModal isOpen={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   );
 }
-

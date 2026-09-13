@@ -57,8 +57,25 @@ export default function TemplatesShell() {
     setTemplates((prev) => [...prev, dup]);
   };
 
+  const handleCreateNew = () => {
+    setEditingTemplate({
+      id: `tpl-${Date.now()}`,
+      name: '',
+      category: 'Thought Leadership',
+      description: '',
+      body: '',
+      tone: 'professional',
+      hashtags: [],
+      usageCount: 0,
+      lastUsed: '—',
+      author: 'Sarah Reeves',
+      authorInitials: 'SR',
+      isDefault: false,
+    });
+  };
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <TemplatesHeader
         categories={allCategories}
         activeCategory={activeCategory}
@@ -66,7 +83,7 @@ export default function TemplatesShell() {
         search={search}
         onSearchChange={setSearch}
         totalCount={filtered.length}
-        onCreateNew={() => setIsCreating(true)}
+        onCreateNew={handleCreateNew}
       />
 
       <TemplatesGrid
@@ -80,24 +97,9 @@ export default function TemplatesShell() {
         }}
       />
 
-      {(editingTemplate || isCreating) && (
+      {editingTemplate && (
         <TemplateEditModal
-          template={
-            editingTemplate || {
-              id: `tpl-${Date.now()}`,
-              name: '',
-              category: 'Thought Leadership',
-              description: '',
-              body: '',
-              tone: 'professional',
-              hashtags: [],
-              usageCount: 0,
-              lastUsed: '—',
-              author: 'Sarah Reeves',
-              authorInitials: 'SR',
-              isDefault: false,
-            }
-          }
+          template={editingTemplate}
           onSave={handleSave}
           onClose={() => {
             setEditingTemplate(null);

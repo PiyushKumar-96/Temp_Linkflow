@@ -5,7 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { Panel, CornerArrowButton } from './DashboardPrimitives';
 
 const DEFAULT_PILLARS = [
-  { id: 'pillar-1', name: 'Thought leadership', current: 12, target: 15, account: 'Personal profile' },
+  {
+    id: 'pillar-1',
+    name: 'Thought leadership',
+    current: 12,
+    target: 15,
+    account: 'Personal profile',
+  },
   { id: 'pillar-2', name: 'Case studies & proof', current: 6, target: 8, account: 'Company page' },
   { id: 'pillar-3', name: 'Engineering culture', current: 5, target: 6, account: 'Company page' },
   { id: 'pillar-4', name: 'Industry insights', current: 4, target: 5, account: 'Personal profile' },
@@ -23,21 +29,18 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
     <Panel className="flex h-full flex-col p-5 sm:p-6">
       {/* Header: Title + Neutral Corner ↗ button */}
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-base font-semibold tracking-tight text-[#1B1B1F]">
+        <h3 className="text-base font-semibold tracking-tight text-[color:var(--text)]">
           Content pillars
         </h3>
-        <CornerArrowButton
-          onClick={() => navigate('/topics')}
-          label="Manage topics"
-        />
+        <CornerArrowButton onClick={() => navigate('/topics')} label="Manage topics" />
       </div>
 
       {/* Hero number: 79% with muted "of target" */}
       <div className="mt-1.5 flex items-baseline gap-2.5">
-        <span className="text-4xl sm:text-[48px] font-semibold leading-none tabular-nums text-[#1B1B1F] tracking-tight">
+        <span className="text-4xl sm:text-[48px] font-semibold leading-none tabular-nums text-[color:var(--text)] tracking-tight">
           {balance}%
         </span>
-        <span className="text-xs sm:text-sm font-medium text-[#6B6B70]">
+        <span className="text-xs sm:text-sm font-medium text-[color:var(--text-muted)]">
           of target
         </span>
       </div>
@@ -52,27 +55,28 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
               <button
                 type="button"
                 onClick={() => navigate(`/topics?series=${encodeURIComponent(pillar.name)}`)}
-                className="group w-full text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2] rounded-xl p-1 -m-1"
+                className="group w-full text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] rounded-xl p-1 -m-1"
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="truncate text-xs font-semibold text-[#1B1B1F] transition-colors group-hover:text-[#0A66C2]">
+                    <span className="truncate text-xs font-semibold text-[color:var(--text)] transition-colors group-hover:text-[color:var(--brand)]">
                       {pillar.name}
                     </span>
-                    <span className="text-[11px] text-[#6B6B70]">
+                    <span className="text-[11px] text-[color:var(--text-muted)]">
                       {pillar.account}
                     </span>
                   </div>
-                  <span className="shrink-0 text-xs tabular-nums text-[#6B6B70]">
-                    <strong className="font-bold text-[#1B1B1F]">{pillar.current}</strong>/{pillar.target}
+                  <span className="shrink-0 text-xs tabular-nums text-[color:var(--text-muted)]">
+                    <strong className="font-bold text-[color:var(--text)]">{pillar.current}</strong>
+                    /{pillar.target}
                   </span>
                 </div>
 
                 {/* Thick (10px) rounded progress bar: neutral track #D3D1C7, fill #0A66C2 */}
-                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#D3D1C7]">
+                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[color:var(--track)]">
                   <div
                     style={{ width: `${pct}%` }}
-                    className="h-full rounded-full bg-[#0A66C2] transition-[width] duration-600 ease-out"
+                    className="h-full rounded-full bg-[color:var(--brand)] transition-[width] duration-600 ease-out"
                   />
                 </div>
               </button>
@@ -82,11 +86,14 @@ export default function DashboardContentPillars({ pillars = DEFAULT_PILLARS }) {
       </ul>
 
       {/* Footer: 27 of 34 monthly posts planned + Mint pill for Cadence healthy */}
-      <div className="mt-auto flex items-center justify-between border-t border-[#E4E2DC] pt-3 text-xs text-[#6B6760]">
+      <div className="mt-auto flex items-center justify-between border-t border-[color:var(--border)] pt-3 text-xs text-[color:var(--rail-count-muted)]">
         <span>
-          <span className="font-semibold text-[#1B1B1F] tabular-nums">{totalPlanned}</span> of {totalTarget} monthly posts planned
+          <span className="font-semibold text-[color:var(--text)] tabular-nums">
+            {totalPlanned}
+          </span>{' '}
+          of {totalTarget} monthly posts planned
         </span>
-        <span className="inline-flex items-center rounded-full bg-[#E6F4EC] px-2.5 py-0.5 text-[11px] font-semibold text-[#0F8A5F]">
+        <span className="inline-flex items-center rounded-full bg-[color:var(--success-tint)] px-2.5 py-0.5 text-[11px] font-semibold text-[color:var(--success-text)]">
           {healthy ? 'Cadence healthy' : 'Behind plan'}
         </span>
       </div>

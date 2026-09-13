@@ -114,7 +114,9 @@ function PostCard({ device, text, expanded, setExpanded }) {
       <header className="p-3 flex items-start gap-2.5">
         <img src={AVATAR} alt="" className="w-11 h-11 rounded-full object-cover shrink-0" />
         <div className="min-w-0 pt-0.5 flex-1">
-          <p className="text-sm font-semibold leading-tight truncate text-slate-900">Sarah Reeves</p>
+          <p className="text-sm font-semibold leading-tight truncate text-slate-900">
+            Sarah Reeves
+          </p>
           <p className="text-xs text-slate-500 leading-snug mt-0.5 line-clamp-1">
             Growth at Typegrow · Helping you grow on LinkedIn
           </p>
@@ -175,7 +177,10 @@ function PhoneFrame({ children }) {
     <div className="relative mx-auto w-full max-w-xs">
       <div className="relative rounded-3xl p-1 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-600 shadow-2xl">
         <div className="relative rounded-3xl p-1.5 bg-black">
-          <div className="relative overflow-hidden rounded-3xl bg-slate-100 flex flex-col" style={{ height: 600 }}>
+          <div
+            className="relative overflow-hidden rounded-3xl bg-slate-100 flex flex-col"
+            style={{ height: 600 }}
+          >
             {/* status bar */}
             <div className="relative flex items-center justify-between px-5 pt-2.5 pb-1 bg-white border-b border-slate-100 shrink-0">
               <span className="text-xs font-bold">9:41</span>
@@ -210,7 +215,10 @@ function PhoneFrame({ children }) {
             <div className="shrink-0 flex items-stretch justify-between px-1 pt-1.5 pb-0.5 bg-white border-t border-slate-100">
               {tabs.map((tab) =>
                 tab.isPost ? (
-                  <div key="post" className="flex-1 flex flex-col items-center justify-center gap-0.5 py-0.5">
+                  <div
+                    key="post"
+                    className="flex-1 flex flex-col items-center justify-center gap-0.5 py-0.5"
+                  >
                     <span className="w-5 h-5 rounded border-2 border-slate-800 flex items-center justify-center">
                       <Plus size={12} strokeWidth={3} className="text-slate-800" />
                     </span>
@@ -225,7 +233,11 @@ function PhoneFrame({ children }) {
                       tab.active ? 'text-slate-900' : 'text-slate-400'
                     }`}
                   >
-                    <tab.icon size={19} strokeWidth={tab.active ? 2.4 : 1.8} fill={tab.active ? 'currentColor' : 'none'} />
+                    <tab.icon
+                      size={19}
+                      strokeWidth={tab.active ? 2.4 : 1.8}
+                      fill={tab.active ? 'currentColor' : 'none'}
+                    />
                     <span className={tab.active ? 'font-semibold' : ''} style={{ fontSize: 9 }}>
                       {tab.label}
                     </span>
@@ -293,9 +305,14 @@ function LaptopFrame({ children }) {
           </div>
           <div className="flex items-center gap-4 shrink-0">
             {navItems.map(({ icon: Icon, active }, i) => (
-              <div key={i} className={`flex flex-col items-center gap-1 ${active ? 'text-slate-900' : 'text-slate-400'}`}>
+              <div
+                key={i}
+                className={`flex flex-col items-center gap-1 ${active ? 'text-slate-900' : 'text-slate-400'}`}
+              >
                 <Icon size={19} strokeWidth={active ? 2.3 : 1.8} />
-                <span className={`h-0.5 w-5 rounded-full ${active ? 'bg-slate-900' : 'bg-transparent'}`} />
+                <span
+                  className={`h-0.5 w-5 rounded-full ${active ? 'bg-slate-900' : 'bg-transparent'}`}
+                />
               </div>
             ))}
             <img src={AVATAR} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />
@@ -367,7 +384,9 @@ export default function LinkedInPreviewDemo() {
       </div>
 
       <div className="max-w-lg mx-auto">
-        <label className="text-xs font-medium text-slate-500 mb-1 block">Edit the post text to test wrapping</label>
+        <label className="text-xs font-medium text-slate-500 mb-1 block">
+          Edit the post text to test wrapping
+        </label>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}

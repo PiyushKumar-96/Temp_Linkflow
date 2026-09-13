@@ -35,10 +35,10 @@ const RANGES = {
 };
 
 const LEGEND = [
-  { key: 'scheduled', label: 'Scheduled', dot: 'bg-[var(--info)]' },
-  { key: 'published', label: 'Published', dot: 'bg-[var(--success)]' },
-  { key: 'review', label: 'In review', dot: 'bg-[var(--warning)]' },
-  { key: 'failed', label: 'Failed', dot: 'bg-[var(--danger)]' },
+  { key: 'scheduled', label: 'Scheduled', dot: 'bg-[color:var(--info)]' },
+  { key: 'published', label: 'Published', dot: 'bg-[color:var(--success)]' },
+  { key: 'review', label: 'In review', dot: 'bg-[color:var(--warning)]' },
+  { key: 'failed', label: 'Failed', dot: 'bg-[color:var(--danger)]' },
 ];
 
 function buildBars(range) {
@@ -88,13 +88,11 @@ export default function DashboardContentPerformance() {
   const shift = anchor < 20 ? 15 : anchor > 80 ? 85 : 50;
 
   return (
-    <section className="relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-[24px] bg-[var(--card-dark,#141821)] p-6 text-white shadow-[0_1px_3px_rgba(20,24,33,0.12)]">
+    <section className="relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden rounded-[24px] bg-[color:var(--card-dark)] p-6 text-white shadow-[0_1px_3px_rgba(20,24,33,0.12)]">
       {/* Top row: Title + Range selector */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-white">
-            Content performance
-          </h3>
+          <h3 className="text-base font-semibold tracking-tight text-white">Content performance</h3>
         </div>
 
         {/* 14 days dark pill */}
@@ -106,15 +104,18 @@ export default function DashboardContentPerformance() {
               setHoverIdx(null);
             }}
             aria-label="Time range"
-            className="h-8 cursor-pointer appearance-none rounded-full bg-[#1F2432] border border-[#2B3140] pl-3.5 pr-8 text-xs font-semibold text-white outline-none transition-colors hover:bg-[#282F40] focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
+            className="h-8 cursor-pointer appearance-none rounded-full bg-[#1F2432] border border-[color:var(--bar-inactive)] pl-3.5 pr-8 text-xs font-semibold text-white outline-none transition-colors hover:bg-[#282F40] focus-visible:ring-2 focus-visible:ring-[color:var(--brand)]"
           >
             {Object.entries(RANGES).map(([key, r]) => (
-              <option key={key} value={key} className="bg-[var(--card-dark,#141821)] text-white">
+              <option key={key} value={key} className="bg-[color:var(--card-dark)] text-white">
                 {r.label}
               </option>
             ))}
           </select>
-          <ChevronDown size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/70" />
+          <ChevronDown
+            size={13}
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/70"
+          />
         </div>
       </div>
 
@@ -123,19 +124,15 @@ export default function DashboardContentPerformance() {
         <span className="text-4xl sm:text-[48px] font-semibold leading-none tabular-nums tracking-tight text-white">
           {data.impressions}
         </span>
-        <span className="text-xs sm:text-sm font-medium text-[#8F96A3]">
-          impressions
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#3C3489] px-2.5 py-0.5 text-xs font-semibold text-[#9B9BF0]">
+        <span className="text-xs sm:text-sm font-medium text-[#8F96A3]">impressions</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--accent-text)] px-2.5 py-0.5 text-xs font-semibold text-[color:var(--accent-on-dark)]">
           <TrendingUp size={12} strokeWidth={2.5} />
           {data.change}
         </span>
       </div>
 
       {/* Chart quiet caption */}
-      <p className="mt-3 text-xs sm:text-sm font-medium text-[#8F96A3]">
-        Posts published per day
-      </p>
+      <p className="mt-3 text-xs sm:text-sm font-medium text-[#8F96A3]">Posts published per day</p>
 
       {/* Pill bar chart: unselected bars in --bar-inactive (#2B3140), peak in flat --accent-on-dark (#9B9BF0) */}
       <div className="relative my-4 flex-1 pt-10" onMouseLeave={() => setHoverIdx(null)}>
@@ -150,7 +147,7 @@ export default function DashboardContentPerformance() {
                 className="relative whitespace-nowrap rounded-full bg-white px-3 py-1 text-center shadow-lg"
                 style={{ transform: `translateX(-${shift}%)` }}
               >
-                <span className="text-xs font-semibold text-[#1B1B1F]">
+                <span className="text-xs font-semibold text-[color:var(--text)]">
                   {shown.value} posts · {shown.full}
                 </span>
               </div>
@@ -171,16 +168,16 @@ export default function DashboardContentPerformance() {
                   onFocus={() => setHoverIdx(idx)}
                   onBlur={() => setHoverIdx(null)}
                   aria-label={`${bar.full}: ${bar.value} posts`}
-                  className="group flex h-full flex-1 items-end justify-center outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[#0A66C2] rounded-full"
+                  className="group flex h-full flex-1 items-end justify-center outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] rounded-full"
                 >
                   <span
                     style={{ height: `${bar.height}%` }}
                     className={`w-full max-w-[16px] sm:max-w-[20px] rounded-full transition-all duration-150 ${
                       isPeak
-                        ? 'bg-[var(--accent-on-dark,#9B9BF0)]'
+                        ? 'bg-[color:var(--accent-on-dark)]'
                         : active
-                        ? 'bg-[#475168]'
-                        : 'bg-[var(--bar-inactive,#2B3140)] hover:bg-[#384054]'
+                          ? 'bg-[#475168]'
+                          : 'bg-[color:var(--bar-inactive)] hover:bg-[#384054]'
                     }`}
                   />
                 </button>
@@ -211,9 +208,7 @@ export default function DashboardContentPerformance() {
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 border-t border-[#232836] pt-4">
         {LEGEND.map((l) => (
           <div key={l.key} className="flex flex-col">
-            <dt className="order-2 mt-1 truncate text-xs text-[#8F96A3]">
-              {l.label}
-            </dt>
+            <dt className="order-2 mt-1 truncate text-xs text-[#8F96A3]">{l.label}</dt>
             <dd className="order-1 flex items-center gap-2 text-xl sm:text-2xl font-semibold tabular-nums text-white">
               <span className={`size-2 shrink-0 rounded-full ${l.dot}`} />
               <span>{data.legend[l.key]}</span>

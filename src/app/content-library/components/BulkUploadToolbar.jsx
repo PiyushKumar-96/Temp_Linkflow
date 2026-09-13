@@ -1,15 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Upload,
-  Plus,
-  Loader2,
-  Send,
-  Image as ImageIcon,
-  FileText,
-  Sparkles,
-} from 'lucide-react';
+import { Upload, Plus, Loader2, Send, Image as ImageIcon, FileText, Sparkles } from 'lucide-react';
 
 export default function BulkUploadToolbar({
   postsCount,
@@ -25,17 +17,11 @@ export default function BulkUploadToolbar({
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3 flex-wrap">
-        <button
-          onClick={onReupload}
-          className="btn-secondary flex items-center gap-1.5 text-sm"
-        >
+        <button onClick={onReupload} className="btn-secondary flex items-center gap-1.5 text-sm">
           <Upload size={14} />
           Re-upload File
         </button>
-        <button
-          onClick={onAddManual}
-          className="btn-secondary flex items-center gap-1.5 text-sm"
-        >
+        <button onClick={onAddManual} className="btn-secondary flex items-center gap-1.5 text-sm">
           <Plus size={14} />
           Add Row
         </button>
@@ -91,11 +77,7 @@ export default function BulkUploadToolbar({
           className="btn-primary flex items-center gap-1.5 text-sm cursor-pointer shadow-sm font-600"
           title="Submit all posts to Approval Queue for review"
         >
-          {schedulingAll ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Send size={14} />
-          )}
+          {schedulingAll ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
           <span>Send All for Review</span>
         </button>
       </div>

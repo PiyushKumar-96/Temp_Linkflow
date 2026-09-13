@@ -1,8 +1,31 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowUpDown, TrendingUp, TrendingDown, Target, Eye, ThumbsUp, MessageSquare } from 'lucide-react';
+import {
+  ArrowUpDown,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Eye,
+  ThumbsUp,
+  MessageSquare,
+} from 'lucide-react';
 import { getTopPosts } from '@/temp-backend';
+
+function SortBtn({ k, label, sortKey, onSort }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(k)}
+      className={`flex items-center gap-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
+        sortKey === k ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {label}
+      <ArrowUpDown size={11} />
+    </button>
+  );
+}
 
 export default function TopPostsTable({
   range = 'range-30d',
@@ -64,19 +87,6 @@ export default function TopPostsTable({
     }
   };
 
-  const SortBtn = ({ k, label }) => (
-    <button
-      type="button"
-      onClick={() => handleSort(k)}
-      className={`flex items-center gap-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
-        sortKey === k ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-      }`}
-    >
-      {label}
-      <ArrowUpDown size={11} />
-    </button>
-  );
-
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -105,16 +115,16 @@ export default function TopPostsTable({
                 Post
               </th>
               <th className="text-left px-3 py-2.5">
-                <SortBtn k="impressions" label="Impressions" />
+                <SortBtn k="impressions" label="Impressions" sortKey={sortKey} onSort={handleSort} />
               </th>
               <th className="text-left px-3 py-2.5">
-                <SortBtn k="reactions" label="Reactions" />
+                <SortBtn k="reactions" label="Reactions" sortKey={sortKey} onSort={handleSort} />
               </th>
               <th className="text-left px-3 py-2.5">
-                <SortBtn k="comments" label="Comments" />
+                <SortBtn k="comments" label="Comments" sortKey={sortKey} onSort={handleSort} />
               </th>
               <th className="text-left px-3 py-2.5">
-                <SortBtn k="engRate" label="Eng. Rate" />
+                <SortBtn k="engRate" label="Eng. Rate" sortKey={sortKey} onSort={handleSort} />
               </th>
             </tr>
           </thead>
@@ -133,7 +143,9 @@ export default function TopPostsTable({
               </tr>
             ) : (
               sorted.map((post) => {
-                const isHighlighted = highlightPostId && (post.id === highlightPostId || post.id.includes(highlightPostId));
+                const isHighlighted =
+                  highlightPostId &&
+                  (post.id === highlightPostId || post.id.includes(highlightPostId));
 
                 return (
                   <tr
@@ -160,7 +172,9 @@ export default function TopPostsTable({
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span className="text-xs text-muted-foreground">{post.author}</span>
                             <span className="text-muted-foreground">·</span>
-                            <span className="text-xs text-muted-foreground">{post.publishedDate}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {post.publishedDate}
+                            </span>
                             {post.category && (
                               <span className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
                                 {post.category}

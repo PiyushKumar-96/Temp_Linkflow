@@ -34,7 +34,8 @@ export default function DashboardCockpit({
   const closeWorkflow = useCallback(() => setWorkflowOpen(false), []);
 
   const attentionCount =
-    (failedPosts === undefined ? 1 : failedPosts.length) + (pendingPosts === undefined ? 1 : pendingPosts.length > 0 ? 1 : 0);
+    (failedPosts === undefined ? 1 : failedPosts.length) +
+    (pendingPosts === undefined ? 1 : pendingPosts.length > 0 ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-[#F3F6FA] dark:bg-background">
@@ -44,7 +45,10 @@ export default function DashboardCockpit({
         {/* Row 1 — today at a glance */}
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="lg:col-span-2 xl:col-span-1">
-            <DashboardHeroCard onOpenAgenda={() => setAgendaOpen(true)} attentionCount={attentionCount} />
+            <DashboardHeroCard
+              onOpenAgenda={() => setAgendaOpen(true)}
+              attentionCount={attentionCount}
+            />
           </div>
           <DashboardPipelineHealth stats={pipelineStats} />
           <DashboardTodayFocus />

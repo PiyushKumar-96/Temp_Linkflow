@@ -53,10 +53,10 @@ export default function ApprovalDetail({
     (post.author?.includes('Sarah')
       ? AVATARS.sarah
       : post.author?.includes('Marcus')
-      ? AVATARS.marcus
-      : post.author?.includes('Lisa')
-      ? AVATARS.lisa
-      : AVATARS.sarah);
+        ? AVATARS.marcus
+        : post.author?.includes('Lisa')
+          ? AVATARS.lisa
+          : AVATARS.sarah);
 
   const handleApprove = () => {
     if (!isOwner) {

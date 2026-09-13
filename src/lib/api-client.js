@@ -5,7 +5,10 @@
  */
 
 export class ApiError extends Error {
-  constructor(message, { code = 'API_ERROR', status = 500, requestId = null, details = null } = {}) {
+  constructor(
+    message,
+    { code = 'API_ERROR', status = 500, requestId = null, details = null } = {}
+  ) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
@@ -83,7 +86,10 @@ export async function apiClient(endpoint, options = {}) {
   }
 
   // Direct local mock dispatch when using temp-backend
-  if (!endpoint.startsWith('http') && (!DEFAULT_BASE_URL.startsWith('http') || import.meta.env.DEV)) {
+  if (
+    !endpoint.startsWith('http') &&
+    (!DEFAULT_BASE_URL.startsWith('http') || import.meta.env.DEV)
+  ) {
     try {
       const mockResult = await handleMockRequest(endpoint, { ...config, params, body });
       if (mockResult !== null && mockResult !== undefined) {
@@ -130,12 +136,15 @@ export async function apiClient(endpoint, options = {}) {
 
       // Standard backend error envelope: { error: { code, message, requestId } }
       const errPayload = data?.error || data;
-      throw new ApiError(errPayload?.message || `HTTP error ${response.status}: ${response.statusText}`, {
-        code: errPayload?.code || `HTTP_${response.status}`,
-        status: response.status,
-        requestId: errPayload?.requestId || reqHeaders['X-Request-Id'],
-        details: errPayload?.details,
-      });
+      throw new ApiError(
+        errPayload?.message || `HTTP error ${response.status}: ${response.statusText}`,
+        {
+          code: errPayload?.code || `HTTP_${response.status}`,
+          status: response.status,
+          requestId: errPayload?.requestId || reqHeaders['X-Request-Id'],
+          details: errPayload?.details,
+        }
+      );
     }
 
     return data;
@@ -165,9 +174,12 @@ export async function apiClient(endpoint, options = {}) {
  * Convenience methods
  */
 apiClient.get = (endpoint, options) => apiClient(endpoint, { ...options, method: 'GET' });
-apiClient.post = (endpoint, body, options) => apiClient(endpoint, { ...options, method: 'POST', body });
-apiClient.put = (endpoint, body, options) => apiClient(endpoint, { ...options, method: 'PUT', body });
-apiClient.patch = (endpoint, body, options) => apiClient(endpoint, { ...options, method: 'PATCH', body });
+apiClient.post = (endpoint, body, options) =>
+  apiClient(endpoint, { ...options, method: 'POST', body });
+apiClient.put = (endpoint, body, options) =>
+  apiClient(endpoint, { ...options, method: 'PUT', body });
+apiClient.patch = (endpoint, body, options) =>
+  apiClient(endpoint, { ...options, method: 'PATCH', body });
 apiClient.delete = (endpoint, options) => apiClient(endpoint, { ...options, method: 'DELETE' });
 
 export default apiClient;

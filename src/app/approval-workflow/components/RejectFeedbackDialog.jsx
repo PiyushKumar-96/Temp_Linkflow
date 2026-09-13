@@ -41,7 +41,10 @@ export default function RejectFeedbackDialog({ isOpen, onClose, onConfirm, isSub
             <AlertTriangle size={15} className="shrink-0 mt-0.5" />
             <div>
               <span className="font-semibold block mb-0.5">Consequence of Rejection:</span>
-              <span>This draft will be removed from the active publishing schedule and halted. The author will be notified to revise or discard the draft.</span>
+              <span>
+                This draft will be removed from the active publishing schedule and halted. The
+                author will be notified to revise or discard the draft.
+              </span>
             </div>
           </div>
 
@@ -60,11 +63,7 @@ export default function RejectFeedbackDialog({ isOpen, onClose, onConfirm, isSub
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary text-xs py-2 px-3"
-            >
+            <button type="button" onClick={onClose} className="btn-secondary text-xs py-2 px-3">
               Cancel
             </button>
             <button

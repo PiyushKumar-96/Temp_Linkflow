@@ -133,9 +133,7 @@ export default function AIGeneratorForm({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
         <div>
-          <h2 className="text-sm font-semibold text-slate-950 dark:text-white">
-            Post settings
-          </h2>
+          <h2 className="text-sm font-semibold text-slate-950 dark:text-white">Post settings</h2>
           <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-0.5">
             Configure topics, pillars, and visual output for this batch.
           </p>
@@ -149,9 +147,7 @@ export default function AIGeneratorForm({
         {/* 1. Topic */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-slate-800 dark:text-slate-200">
-              Topic
-            </label>
+            <label className="text-xs font-medium text-slate-800 dark:text-slate-200">Topic</label>
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
@@ -277,7 +273,9 @@ export default function AIGeneratorForm({
                     }`}
                   >
                     <span className="truncate">{p}</span>
-                    {isSelected && <Check size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />}
+                    {isSelected && (
+                      <Check size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                    )}
                   </button>
                 );
               })}
@@ -326,7 +324,10 @@ export default function AIGeneratorForm({
             <span className="text-[11px] text-slate-400 font-normal">Optional</span>
           </div>
           <div className="relative">
-            <LinkIcon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <LinkIcon
+              size={14}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
             <input
               type="text"
               value={reference}
@@ -534,12 +535,16 @@ export default function AIGeneratorForm({
           {isGenerating ? (
             <>
               <Loader2 size={14} className="animate-spin" />
-              <span>Generating {postCount} {postCount === 1 ? 'post' : 'posts'}...</span>
+              <span>
+                Generating {postCount} {postCount === 1 ? 'post' : 'posts'}...
+              </span>
             </>
           ) : (
             <>
               <Sparkles size={14} className="text-blue-400 dark:text-white" />
-              <span>Generate {postCount} {postCount === 1 ? 'post' : 'posts'}</span>
+              <span>
+                Generate {postCount} {postCount === 1 ? 'post' : 'posts'}
+              </span>
             </>
           )}
         </button>

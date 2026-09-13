@@ -16,20 +16,26 @@ import {
 const HOOK_EXAMPLES = [
   {
     title: 'The contrarian shift',
-    preview: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
-    topicText: 'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
+    preview:
+      'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
+    topicText:
+      'The conventional wisdom on B2B LinkedIn growth is backwards. Here is what actually worked for our team after 90 days:',
     metric: '96% engagement score',
   },
   {
     title: 'Case breakdown with metric',
-    preview: 'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
-    topicText: 'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
+    preview:
+      'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
+    topicText:
+      'How we reduced onboarding churn by 40% in 90 days without adding more automated emails or complex bots:',
     metric: '94% engagement score',
   },
   {
     title: 'Tactical framework',
-    preview: '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
-    topicText: '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
+    preview:
+      '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
+    topicText:
+      '5 non-obvious rules that saved our distributed engineering team 12 hours a week across asynchronous workflows:',
     metric: '98% engagement score',
   },
 ];
@@ -43,19 +49,21 @@ export default function AIGeneratorEmptyState({
   onGenerateWithHook,
   postCount = 3,
 }) {
-  const formatLabel = {
-    image: '3 image options per post',
-    carousel: '5-slide document deck',
-    infographic: 'Metric cards and 3-step pillar frameworks',
-    none: 'Plain narrative layout',
-  }[visualFormat] || 'Visual options';
+  const formatLabel =
+    {
+      image: '3 image options per post',
+      carousel: '5-slide document deck',
+      infographic: 'Metric cards and 3-step pillar frameworks',
+      none: 'Plain narrative layout',
+    }[visualFormat] || 'Visual options';
 
-  const VisualIcon = {
-    image: ImageIcon,
-    carousel: Layers,
-    infographic: BarChart2,
-    none: FileText,
-  }[visualFormat] || ImageIcon;
+  const VisualIcon =
+    {
+      image: ImageIcon,
+      carousel: Layers,
+      infographic: BarChart2,
+      none: FileText,
+    }[visualFormat] || ImageIcon;
 
   return (
     <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 flex flex-col gap-7 transition-all">
@@ -73,7 +81,7 @@ export default function AIGeneratorEmptyState({
           <span>
             Pillar:{' '}
             <strong className="font-medium text-slate-700 dark:text-slate-200">
-              {topic?.trim() ? (theme || 'General') : 'General'}
+              {topic?.trim() ? theme || 'General' : 'General'}
             </strong>
           </span>
           <span>&bull;</span>
@@ -122,7 +130,8 @@ export default function AIGeneratorEmptyState({
                 Opening hook
               </h5>
               <p className="text-[11.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                Drafts a concise opening hook formatted for the mobile feed fold to maximize engagement.
+                Drafts a concise opening hook formatted for the mobile feed fold to maximize
+                engagement.
               </p>
             </div>
             <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">
@@ -193,7 +202,7 @@ export default function AIGeneratorEmptyState({
               3 image options per post
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-              You'll pick from 3 styles before it goes to review.
+              You&apos;ll pick from 3 styles before it goes to review.
             </p>
           </div>
         )}
@@ -238,19 +247,17 @@ export default function AIGeneratorEmptyState({
           <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400">
             Hooks that performed well
           </h4>
-          <span className="text-[11px] text-slate-400">
-            Click any hook to apply as topic
-          </span>
+          <span className="text-[11px] text-slate-400">Click any hook to apply as topic</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {HOOK_EXAMPLES.map((item) => {
             const isSelected = Boolean(
               topic?.trim() &&
-                (topic.trim() === item.preview.trim() ||
-                  topic.trim() === item.topicText.trim() ||
-                  topic.toLowerCase().includes(item.title.toLowerCase()) ||
-                  item.preview.toLowerCase().startsWith(topic.toLowerCase().slice(0, 35)))
+              (topic.trim() === item.preview.trim() ||
+                topic.trim() === item.topicText.trim() ||
+                topic.toLowerCase().includes(item.title.toLowerCase()) ||
+                item.preview.toLowerCase().startsWith(topic.toLowerCase().slice(0, 35)))
             );
 
             return (
@@ -268,7 +275,10 @@ export default function AIGeneratorEmptyState({
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-1.5 min-w-0">
                       {isSelected && (
-                        <CheckCircle2 size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                        <CheckCircle2
+                          size={13}
+                          className="text-blue-600 dark:text-blue-400 shrink-0"
+                        />
                       )}
                       <span
                         className={`text-xs font-semibold truncate transition-colors ${
@@ -280,9 +290,7 @@ export default function AIGeneratorEmptyState({
                         {item.title}
                       </span>
                     </div>
-                    <span className="text-[11px] text-slate-400 shrink-0">
-                      {item.metric}
-                    </span>
+                    <span className="text-[11px] text-slate-400 shrink-0">{item.metric}</span>
                   </div>
                   <p
                     className={`text-xs leading-relaxed line-clamp-3 ${

@@ -22,12 +22,12 @@ export default function InfographicOptions({
   isGenerating = false,
   content = '',
 }) {
-  const [localGenerating, setLocalGenerating] = useState(false);
+  const [localStartedAt, setLocalStartedAt] = useState(null);
   const [isOver, setIsOver] = useState(false);
   const fileInputRef = useRef(null);
 
-  const pending = Boolean(generation) || localGenerating;
-  const elapsed = useElapsed(generation?.startedAt || (localGenerating ? Date.now() : null));
+  const pending = Boolean(generation) || Boolean(localStartedAt);
+  const elapsed = useElapsed(generation?.startedAt || localStartedAt);
   const step = getGenStep(elapsed, INFOGRAPHIC_GEN_STEPS);
 
   const hasData = Boolean(data && (data.title || data.pillars?.length > 0 || data.imageUrl));
@@ -37,13 +37,17 @@ export default function InfographicOptions({
       onGenerate();
       return;
     }
-    setLocalGenerating(true);
+    setLocalStartedAt(Date.now());
     toast.info('Generating infographic framework with AI...');
 
     setTimeout(() => {
       const lines = content.split('\n').filter((l) => l.trim().length > 0);
-      const title = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 50) || 'B2B Growth Engine Framework';
-      const points = lines.slice(1, 4).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+      const title =
+        lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 50) || 'B2B Growth Engine Framework';
+      const points = lines
+        .slice(1, 4)
+        .map((l) => l.replace(/^[#*\-•\s[color:var(--warning-text)].]+/, '').trim())
+        .filter(Boolean);
 
       const generatedData = {
         title,
@@ -53,7 +57,9 @@ export default function InfographicOptions({
           {
             step: '01',
             title: points[0] ? points[0].slice(0, 30) : 'Audience Validation',
-            desc: points[1] ? points[1].slice(0, 60) : 'Direct feedback loops and customer conversation mapping',
+            desc: points[1]
+              ? points[1].slice(0, 60)
+              : 'Direct feedback loops and customer conversation mapping',
           },
           {
             step: '02',
@@ -70,7 +76,7 @@ export default function InfographicOptions({
       };
 
       onChangeData?.(generatedData);
-      setLocalGenerating(false);
+      setLocalStartedAt(null);
       toast.success('Infographic framework generated with AI!');
     }, 4500);
   };

@@ -11,16 +11,24 @@ const DEFAULT_ACTIVITIES = [
     name: 'Lisa Tran',
     action: 'approved a post',
     time: '2 minutes ago',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80',
+    avatar:
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80',
   },
   {
     id: 'act-2',
     name: 'Mayank Chen',
     action: 'scheduled a post',
     time: '12 minutes ago',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80',
+    avatar:
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80',
   },
-  { id: 'act-3', kind: 'system', name: 'System', action: 'flagged a publishing error', time: '1 hour ago' },
+  {
+    id: 'act-3',
+    kind: 'system',
+    name: 'System',
+    action: 'flagged a publishing error',
+    time: '1 hour ago',
+  },
   { id: 'act-4', name: 'You', action: 'updated topic settings', time: '2 hours ago' },
   { id: 'act-5', name: 'Rohan Mehta', action: 'added a new draft', time: '3 hours ago' },
 ];
@@ -43,7 +51,10 @@ export default function DashboardTeamActivity({ activities = DEFAULT_ACTIVITIES,
           <li key={item.id} className="relative flex gap-3 py-2">
             {/* connector */}
             {idx < arr.length - 1 && (
-              <span aria-hidden="true" className="absolute left-4 top-10 bottom-0 w-px -translate-x-1/2 bg-border/70" />
+              <span
+                aria-hidden="true"
+                className="absolute left-4 top-10 bottom-0 w-px -translate-x-1/2 bg-border/70"
+              />
             )}
 
             {item.kind === 'system' ? (
@@ -56,7 +67,9 @@ export default function DashboardTeamActivity({ activities = DEFAULT_ACTIVITIES,
 
             <div className="min-w-0 pt-0.5">
               <p className="text-[13px] leading-snug text-foreground">
-                <span className={`font-semibold ${item.kind === 'system' ? 'text-rose-600 dark:text-rose-300' : ''}`}>
+                <span
+                  className={`font-semibold ${item.kind === 'system' ? 'text-rose-600 dark:text-rose-300' : ''}`}
+                >
                   {item.name}
                 </span>{' '}
                 <span className="text-muted-foreground">{item.action}</span>

@@ -134,7 +134,11 @@ export default function MarketingImageVisual({
                     : 'border-border opacity-70 hover:opacity-100'
                 }`}
               >
-                <img src={cand.url} alt={cand.title || 'Option'} className="w-full h-full object-cover" />
+                <img
+                  src={cand.url}
+                  alt={cand.title || 'Option'}
+                  className="w-full h-full object-cover"
+                />
                 {isSelected && (
                   <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary text-white flex items-center justify-center">
                     <Check size={10} />
@@ -198,10 +202,7 @@ export default function MarketingImageVisual({
             onChange={(e) => setCustomUrl(e.target.value)}
             className="input text-xs py-1 flex-1"
           />
-          <button
-            onClick={handleApplyCustomUrl}
-            className="btn btn-primary text-xs py-1 px-2.5"
-          >
+          <button onClick={handleApplyCustomUrl} className="btn btn-primary text-xs py-1 px-2.5">
             Apply
           </button>
         </div>

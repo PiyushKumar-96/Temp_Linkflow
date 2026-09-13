@@ -40,8 +40,14 @@ export default function ChangeBriefDialog({ isOpen, onClose, onConfirm, isSubmit
           <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-xs text-foreground flex items-start gap-2">
             <Sparkles size={15} className="text-primary shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold block mb-0.5 text-primary">Consequence of Regeneration:</span>
-              <span className="text-muted-foreground">Current copy and images will be archived to version history. The post status will revert to <strong className="text-foreground">Generating</strong> and cycle back through automated quality review before reappearing here.</span>
+              <span className="font-semibold block mb-0.5 text-primary">
+                Consequence of Regeneration:
+              </span>
+              <span className="text-muted-foreground">
+                Current copy and images will be archived to version history. The post status will
+                revert to <strong className="text-foreground">Generating</strong> and cycle back
+                through automated quality review before reappearing here.
+              </span>
             </div>
           </div>
 
@@ -60,11 +66,7 @@ export default function ChangeBriefDialog({ isOpen, onClose, onConfirm, isSubmit
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary text-xs py-2 px-3"
-            >
+            <button type="button" onClick={onClose} className="btn-secondary text-xs py-2 px-3">
               Cancel
             </button>
             <button

@@ -10,11 +10,7 @@ const TABS = [
   { id: 'bulk_upload', label: 'Bulk Upload', icon: Upload },
 ];
 
-export default function LibrarySourceTabs({
-  activeSource = 'all',
-  onSelectSource,
-  counts = {},
-}) {
+export default function LibrarySourceTabs({ activeSource = 'all', onSelectSource, counts = {} }) {
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
@@ -40,9 +36,7 @@ export default function LibrarySourceTabs({
             <span>{tab.label}</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold ${
-                isActive
-                  ? 'bg-white/25 text-white'
-                  : 'bg-muted text-foreground'
+                isActive ? 'bg-white/25 text-white' : 'bg-muted text-foreground'
               }`}
             >
               {count}

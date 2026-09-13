@@ -13,8 +13,14 @@ export const TopicSchema = z.object({
   account: TargetAccountSchema.default('personal'),
   audience: z.string().default('B2B SaaS Founders'),
   cadence: TopicCadenceSchema.default('custom'),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').optional(),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD')
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD')
+    .optional(),
   publicationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
   brief: z.string().optional().default(''),
   status: PostStatusSchema.default('planned'),
@@ -32,4 +38,3 @@ export const CreateTopicInputSchema = TopicSchema.omit({ id: true, createdAt: tr
 });
 
 export const UpdateTopicInputSchema = CreateTopicInputSchema.partial();
-

@@ -64,8 +64,8 @@ export default function AnalyticsHeader({
           <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          LinkedIn performance for <span className="font-semibold text-foreground">Acme Corp</span> ·
-          Last updated {lastUpdated}
+          LinkedIn performance for <span className="font-semibold text-foreground">Acme Corp</span>{' '}
+          · Last updated {lastUpdated}
         </p>
       </div>
 
@@ -161,10 +161,7 @@ export default function AnalyticsHeader({
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="btn-primary flex items-center gap-1.5 px-3 py-1.5"
-                >
+                <button type="submit" className="btn-primary flex items-center gap-1.5 px-3 py-1.5">
                   <Check size={14} />
                   Apply Range
                 </button>

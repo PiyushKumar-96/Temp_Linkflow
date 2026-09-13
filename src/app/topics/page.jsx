@@ -48,7 +48,13 @@ export default function TopicsPage() {
   const setSearch = (q) => updateParam('q', q);
 
   // Queries & Mutations
-  const { data: topics = [], isLoading, isError, error, refetch } = useTopicsQuery({
+  const {
+    data: topics = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useTopicsQuery({
     series: selectedSeries,
     account: selectedAccount,
     status: selectedStatus,
@@ -161,8 +167,13 @@ export default function TopicsPage() {
         <div className="card p-8 flex flex-col items-center justify-center gap-3 border-destructive/30 bg-destructive/5 text-center">
           <AlertCircle size={28} className="text-destructive" />
           <h3 className="text-sm font-bold text-foreground">Failed to load topics</h3>
-          <p className="text-xs text-muted-foreground max-w-md">{error?.message || 'Network error occurred'}</p>
-          <button onClick={() => refetch()} className="btn btn-outline text-xs mt-2 flex items-center gap-1.5">
+          <p className="text-xs text-muted-foreground max-w-md">
+            {error?.message || 'Network error occurred'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="btn btn-outline text-xs mt-2 flex items-center gap-1.5"
+          >
             <RefreshCw size={12} />
             Retry
           </button>
@@ -226,7 +237,9 @@ export default function TopicsPage() {
         isOpen={isReassignOpen}
         onClose={() => setIsReassignOpen(false)}
         topicIds={reassignTopicIds}
-        onConfirm={(ids, sId, sName) => bulkUpdate.mutate({ ids, updates: { seriesId: sId, seriesName: sName } })}
+        onConfirm={(ids, sId, sName) =>
+          bulkUpdate.mutate({ ids, updates: { seriesId: sId, seriesName: sName } })
+        }
       />
     </div>
   );

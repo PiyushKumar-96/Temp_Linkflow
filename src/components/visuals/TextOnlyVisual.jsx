@@ -20,7 +20,8 @@ export default function TextOnlyVisual({ content = '' }) {
 
         <div className="py-4">
           <p className="text-xs text-muted-foreground italic leading-relaxed">
-            &ldquo;Text-only posts generate up to 2.4x more in-depth comment discussions by placing 100% of reader attention on the written hook and insight.&rdquo;
+            &ldquo;Text-only posts generate up to 2.4x more in-depth comment discussions by placing
+            100% of reader attention on the written hook and insight.&rdquo;
           </p>
         </div>
 

@@ -2,7 +2,18 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Type, Image, Hash, TrendingUp, Copy, Pencil, Check, Layers, LayoutGrid } from 'lucide-react';
+import {
+  FileText,
+  Type,
+  Image,
+  Hash,
+  TrendingUp,
+  Copy,
+  Pencil,
+  Check,
+  Layers,
+  LayoutGrid,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import AppImage from '@/components/ui/AppImage';
@@ -125,7 +136,9 @@ export default function LibraryGrid({ items, selectedIds, onToggleSelect }) {
                       {item.authorInitials}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{item.publishDate || item.savedAt}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {item.publishDate || item.savedAt}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   {item.engagementRate && (

@@ -100,9 +100,7 @@ export default function MonthTopicsModal({
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h3 className="text-base font-bold text-foreground">
-                  {month.name}
-                </h3>
+                <h3 className="text-base font-bold text-foreground">{month.name}</h3>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                   {topics.length} {topics.length === 1 ? 'Topic' : 'Topics Planned'}
                 </span>
@@ -232,7 +230,8 @@ export default function MonthTopicsModal({
               <Calendar size={32} className="text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-semibold text-foreground">No Topics Planned</p>
               <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                There are currently no topics scheduled for {month.name}. Add your first topic or use batch plan.
+                There are currently no topics scheduled for {month.name}. Add your first topic or
+                use batch plan.
               </p>
               <div className="flex items-center justify-center gap-2 mt-4">
                 <button
@@ -290,7 +289,9 @@ export default function MonthTopicsModal({
                       )}
                       <span className="text-[11px] text-muted-foreground font-mono tabular-nums">
                         {topic.startDate ? `${topic.startDate}` : ''}
-                        {topic.endDate && topic.endDate !== topic.startDate ? ` → ${topic.endDate}` : ''}
+                        {topic.endDate && topic.endDate !== topic.startDate
+                          ? ` → ${topic.endDate}`
+                          : ''}
                       </span>
                     </div>
 
@@ -307,7 +308,10 @@ export default function MonthTopicsModal({
 
                   <div className="flex items-center gap-2 shrink-0">
                     <StatusBadge status={topic.downstreamPostStatus || topic.status} size="sm" />
-                    <ChevronRight size={15} className="text-muted-foreground opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight
+                      size={15}
+                      className="text-muted-foreground opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
+                    />
                   </div>
                 </div>
 

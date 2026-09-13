@@ -62,7 +62,9 @@ export default function BestTimeHeatmap() {
           {matrix.length > 0 &&
             days.map((day, di) => (
               <div key={`day-${day}`} className="flex items-center gap-1 mb-1">
-                <span className="text-xs text-muted-foreground font-medium w-7 shrink-0">{day}</span>
+                <span className="text-xs text-muted-foreground font-medium w-7 shrink-0">
+                  {day}
+                </span>
                 {times.map((_, ti) => {
                   const score = matrix[di]?.[ti] ?? 1;
                   return (

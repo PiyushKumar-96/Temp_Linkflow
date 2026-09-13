@@ -8,94 +8,94 @@ import { ArrowUpRight, X } from 'lucide-react';
 /* ------------------------------------------------------------------ */
 /* Revised Tone palette: Warm neutrals + selective color              */
 const DEFAULT_TONE = {
-  pill: 'bg-[#F0EFEB] text-[#1B1B1F]',
-  chip: 'bg-[#F0EFEB] text-[#1B1B1F]',
-  text: 'text-[#6B6B70]',
-  dot: 'bg-[#6B6B70]',
+  pill: 'bg-[color:var(--chip)] text-[color:var(--text)]',
+  chip: 'bg-[color:var(--chip)] text-[color:var(--text)]',
+  text: 'text-[color:var(--text-muted)]',
+  dot: 'bg-[color:var(--text-muted)]',
 };
 
 const BASE_TONES = {
   blue: {
-    pill: 'bg-[#0A66C2] text-white',
-    chip: 'bg-[#0A66C2] text-white',
-    text: 'text-[#0A66C2]',
-    dot: 'bg-[#0A66C2]',
+    pill: 'bg-[color:var(--brand)] text-white',
+    chip: 'bg-[color:var(--brand)] text-white',
+    text: 'text-[color:var(--brand)]',
+    dot: 'bg-[color:var(--brand)]',
   },
   accent: {
-    pill: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
-    chip: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
-    text: 'text-[var(--accent-text)]',
-    dot: 'bg-[var(--accent)]',
+    pill: 'bg-[color:var(--accent-tint)] text-[color:var(--accent-text)]',
+    chip: 'bg-[color:var(--accent-tint)] text-[color:var(--accent-text)]',
+    text: 'text-[color:var(--accent-text)]',
+    dot: 'bg-[color:var(--accent)]',
   },
   lime: {
-    pill: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
-    chip: 'bg-[var(--accent-tint)] text-[var(--accent-text)]',
-    text: 'text-[var(--accent-text)]',
-    dot: 'bg-[var(--accent)]',
+    pill: 'bg-[color:var(--accent-tint)] text-[color:var(--accent-text)]',
+    chip: 'bg-[color:var(--accent-tint)] text-[color:var(--accent-text)]',
+    text: 'text-[color:var(--accent-text)]',
+    dot: 'bg-[color:var(--accent)]',
   },
   violet: DEFAULT_TONE,
   amber: {
-    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
-    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
-    text: 'text-[#E8A33D]',
-    dot: 'bg-[#E8A33D]',
+    pill: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    chip: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    text: 'text-[color:var(--warning-text)]',
+    dot: 'bg-[color:var(--warning)]',
   },
   emerald: {
-    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    text: 'text-[#0F8A5F]',
-    dot: 'bg-[#0F8A5F]',
+    pill: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    chip: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    text: 'text-[color:var(--success-text)]',
+    dot: 'bg-[color:var(--success)]',
   },
   rose: {
-    pill: 'bg-[#FDECEC] text-[#D64545]',
-    chip: 'bg-[#FDECEC] text-[#D64545]',
-    text: 'text-[#D64545]',
-    dot: 'bg-[#D64545]',
+    pill: 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]',
+    chip: 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]',
+    text: 'text-[color:var(--danger-text)]',
+    dot: 'bg-[color:var(--danger)]',
   },
   slate: DEFAULT_TONE,
   lavender: DEFAULT_TONE,
   mint: {
-    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    text: 'text-[#0F8A5F]',
-    dot: 'bg-[#0F8A5F]',
+    pill: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    chip: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    text: 'text-[color:var(--success-text)]',
+    dot: 'bg-[color:var(--success)]',
   },
   butter: {
-    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
-    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
-    text: 'text-[#E8A33D]',
-    dot: 'bg-[#E8A33D]',
+    pill: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    chip: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    text: 'text-[color:var(--warning-text)]',
+    dot: 'bg-[color:var(--warning)]',
   },
   sky: DEFAULT_TONE,
   periwinkle: {
-    pill: 'bg-[#0A66C2] text-white',
-    chip: 'bg-[#0A66C2] text-white',
-    text: 'text-[#0A66C2]',
-    dot: 'bg-[#0A66C2]',
+    pill: 'bg-[color:var(--brand)] text-white',
+    chip: 'bg-[color:var(--brand)] text-white',
+    text: 'text-[color:var(--brand)]',
+    dot: 'bg-[color:var(--brand)]',
   },
   statusGreen: {
-    pill: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    chip: 'bg-[#E6F4EC] text-[#0F8A5F]',
-    text: 'text-[#0F8A5F]',
-    dot: 'bg-[#0F8A5F]',
+    pill: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    chip: 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]',
+    text: 'text-[color:var(--success-text)]',
+    dot: 'bg-[color:var(--success)]',
   },
   statusAmber: {
-    pill: 'bg-[#FEF5E7] text-[#E8A33D]',
-    chip: 'bg-[#FEF5E7] text-[#E8A33D]',
-    text: 'text-[#E8A33D]',
-    dot: 'bg-[#E8A33D]',
+    pill: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    chip: 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)]',
+    text: 'text-[color:var(--warning-text)]',
+    dot: 'bg-[color:var(--warning)]',
   },
   statusRed: {
-    pill: 'bg-[#FDECEC] text-[#D64545]',
-    chip: 'bg-[#FDECEC] text-[#D64545]',
-    text: 'text-[#D64545]',
-    dot: 'bg-[#D64545]',
+    pill: 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]',
+    chip: 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]',
+    text: 'text-[color:var(--danger-text)]',
+    dot: 'bg-[color:var(--danger)]',
   },
   dark: {
-    pill: 'bg-[#1B1B1F] text-white',
-    chip: 'bg-[#1B1B1F] text-white',
+    pill: 'bg-[color:var(--text)] text-white',
+    chip: 'bg-[color:var(--text)] text-white',
     text: 'text-white',
-    dot: 'bg-[#1B1B1F]',
+    dot: 'bg-[color:var(--text)]',
   },
   neutral: DEFAULT_TONE,
 };
@@ -114,11 +114,14 @@ export const TONES = new Proxy(BASE_TONES, {
 /* Buttons                                                              */
 /* ------------------------------------------------------------------ */
 export const buttonStyles = {
-  dark: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#0A66C2] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#084E96] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
-  navy: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#1B1B1F] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#2A2A30] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
-  outline: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white border border-[#E4E2DC] px-4 py-2 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#F0EFEB] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
-  white: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#1B1B1F] transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
-  ghost: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#F0EFEB] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  dark: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--brand)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[color:var(--brand-hover)] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  navy: 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[color:var(--text)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#2A2A30] hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  outline:
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white border border-[color:var(--border)] px-4 py-2 text-xs font-semibold text-[color:var(--text)] transition-colors hover:bg-[color:var(--chip)] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  white:
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-2 text-xs font-semibold text-[color:var(--text)] transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
+  ghost:
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition-colors hover:bg-[color:var(--chip)] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer',
 };
 
 /* ------------------------------------------------------------------ */
@@ -127,7 +130,7 @@ export const buttonStyles = {
 export function Panel({ as: Tag = 'section', className = '', children, ...rest }) {
   return (
     <Tag
-      className={`rounded-[24px] bg-[#FFFFFF] text-[#1B1B1F] shadow-[0_1px_3px_rgba(27,27,31,0.04)] ${className}`}
+      className={`rounded-[24px] bg-[color:var(--card)] text-[color:var(--text)] shadow-[0_1px_3px_rgba(27,27,31,0.04)] ${className}`}
       {...rest}
     >
       {children}
@@ -142,7 +145,7 @@ export function CornerArrowButton({ onClick, label = 'Open', className = '' }) {
       onClick={onClick}
       aria-label={label}
       title={label}
-      className={`size-8 shrink-0 rounded-full bg-[#F0EFEB] hover:bg-[#0A66C2] text-[#1B1B1F] hover:text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer ${className}`}
+      className={`size-8 shrink-0 rounded-full bg-[color:var(--chip)] hover:bg-[color:var(--brand)] text-[color:var(--text)] hover:text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer ${className}`}
     >
       <ArrowUpRight size={15} strokeWidth={2.4} />
     </button>
@@ -153,7 +156,7 @@ export function PanelHeader({ title, badge, action, className = '' }) {
   return (
     <div className={`flex items-center justify-between gap-3 ${className}`}>
       <div className="flex items-center gap-2.5">
-        <h3 className="text-base font-semibold text-[#1B1B1F] tracking-tight">{title}</h3>
+        <h3 className="text-base font-semibold text-[color:var(--text)] tracking-tight">{title}</h3>
         {badge}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
@@ -166,7 +169,7 @@ export function PanelLink({ onClick, children, className = '' }) {
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1 rounded-full bg-[#F0EFEB] px-3 py-1 text-xs font-semibold text-[#1B1B1F] transition-colors hover:bg-[#0A66C2] hover:text-white cursor-pointer ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-[color:var(--chip)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition-colors hover:bg-[color:var(--brand)] hover:text-white cursor-pointer ${className}`}
     >
       <span>{children}</span>
       <ArrowUpRight size={13} strokeWidth={2} />
@@ -174,7 +177,14 @@ export function PanelLink({ onClick, children, className = '' }) {
   );
 }
 
-export function Pill({ tone: toneName = 'neutral', dot = false, pulse = false, icon: Icon, children, className = '' }) {
+export function Pill({
+  tone: toneName = 'neutral',
+  dot = false,
+  pulse = false,
+  icon: Icon,
+  children,
+  className = '',
+}) {
   const t = TONES[toneName] || TONES.neutral;
   return (
     <span
@@ -183,7 +193,9 @@ export function Pill({ tone: toneName = 'neutral', dot = false, pulse = false, i
       {dot && (
         <span className="relative flex size-1.5">
           {pulse && (
-            <span className={`absolute inline-flex size-full animate-ping rounded-full opacity-60 motion-reduce:hidden ${t.dot}`} />
+            <span
+              className={`absolute inline-flex size-full animate-ping rounded-full opacity-60 motion-reduce:hidden ${t.dot}`}
+            />
           )}
           <span className={`relative inline-flex size-1.5 rounded-full ${t.dot}`} />
         </span>
@@ -197,8 +209,8 @@ export function Pill({ tone: toneName = 'neutral', dot = false, pulse = false, i
 export function LiveDot({ label = 'Live' }) {
   return (
     <span className="relative flex size-2 shrink-0" title={label}>
-      <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#0F8A5F] opacity-60 motion-reduce:hidden" />
-      <span className="relative inline-flex size-2 rounded-full bg-[#0F8A5F]" />
+      <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--success)] opacity-60 motion-reduce:hidden" />
+      <span className="relative inline-flex size-2 rounded-full bg-[color:var(--success)]" />
       <span className="sr-only">{label}</span>
     </span>
   );
@@ -211,14 +223,20 @@ export function IconButton({ label, onClick, children, className = '' }) {
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`grid size-7 shrink-0 place-items-center rounded-full text-[#6B6B70] transition-colors hover:bg-[#F0EFEB] hover:text-[#1B1B1F] cursor-pointer ${className}`}
+      className={`grid size-7 shrink-0 place-items-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--chip)] hover:text-[color:var(--text)] cursor-pointer ${className}`}
     >
       {children}
     </button>
   );
 }
 
-export function Avatar({ src, name = '', size = 'size-8', textSize = 'text-[11px]', className = '' }) {
+export function Avatar({
+  src,
+  name = '',
+  size = 'size-8',
+  textSize = 'text-[11px]',
+  className = '',
+}) {
   const initials = name
     .split(' ')
     .filter(Boolean)
@@ -299,27 +317,32 @@ export function ModalShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative flex outline-none max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-[24px] border border-[#E4E2DC] bg-[#FFFFFF] text-[#1B1B1F] shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none`}
+        className={`relative flex outline-none max-h-[90vh] w-full ${maxWidth} flex-col overflow-hidden rounded-[24px] border border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--text)] shadow-2xl animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none`}
       >
-        <div className="flex items-start justify-between gap-4 px-6 pb-3 pt-5 border-b border-[#E4E2DC]">
+        <div className="flex items-start justify-between gap-4 px-6 pb-3 pt-5 border-b border-[color:var(--border)]">
           <div className="flex items-center gap-3">
             {Icon && (
-              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#F0EFEB] text-[#1B1B1F]">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[color:var(--chip)] text-[color:var(--text)]">
                 <Icon size={16} />
               </span>
             )}
             <div>
-              <h2 id={titleId} className="text-base font-semibold tracking-tight text-[#1B1B1F]">
+              <h2
+                id={titleId}
+                className="text-base font-semibold tracking-tight text-[color:var(--text)]"
+              >
                 {title}
               </h2>
-              {subtitle && <p className="mt-0.5 text-xs text-[#6B6B70]">{subtitle}</p>}
+              {subtitle && (
+                <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">{subtitle}</p>
+              )}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="grid size-8 place-items-center rounded-full text-[#6B6B70] transition-colors hover:bg-[#F0EFEB] hover:text-[#1B1B1F] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#0A66C2]"
+            className="grid size-8 place-items-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--chip)] hover:text-[color:var(--text)] cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)]"
           >
             <X size={16} />
           </button>
@@ -328,7 +351,7 @@ export function ModalShell({
         <div className="overflow-y-auto px-6 py-5">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-[#E4E2DC] bg-[#F8F7F4] px-6 py-4">
+          <div className="flex items-center justify-end gap-2 border-t border-[color:var(--border)] bg-[color:var(--track-warm)] px-6 py-4">
             {footer}
           </div>
         )}

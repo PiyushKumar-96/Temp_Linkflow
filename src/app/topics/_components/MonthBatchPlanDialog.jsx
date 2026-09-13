@@ -96,13 +96,14 @@ export default function MonthBatchPlanDialog({
   const handleGenerate = () => {
     const preparedSlots = slots.map((s) => {
       const targetSeriesId = s.seriesId || seriesId;
-      const matchedSeries = DEFAULT_SERIES.find((item) => item.id === targetSeriesId) || DEFAULT_SERIES[0];
+      const matchedSeries =
+        DEFAULT_SERIES.find((item) => item.id === targetSeriesId) || DEFAULT_SERIES[0];
 
       const topicTitle = s.title?.trim()
         ? s.title.trim()
         : themePrefix.trim()
-        ? `${themePrefix}: ${s.label} Focus`
-        : `${matchedSeries.name} ${s.label} Editorial Angle`;
+          ? `${themePrefix}: ${s.label} Focus`
+          : `${matchedSeries.name} ${s.label} Editorial Angle`;
 
       return {
         title: topicTitle,
@@ -137,7 +138,10 @@ export default function MonthBatchPlanDialog({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
             <X size={16} />
           </button>
         </div>
@@ -146,7 +150,9 @@ export default function MonthBatchPlanDialog({
         <div className="p-5 flex flex-col gap-4 overflow-y-auto">
           {/* Cadence Selection */}
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-1.5">Monthly Cadence Strategy</label>
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
+              Monthly Cadence Strategy
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -197,8 +203,14 @@ export default function MonthBatchPlanDialog({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">Target Account</label>
-              <select value={account} onChange={(e) => setAccount(e.target.value)} className="input w-full text-xs bg-input">
+              <label className="block text-xs font-semibold text-foreground mb-1">
+                Target Account
+              </label>
+              <select
+                value={account}
+                onChange={(e) => setAccount(e.target.value)}
+                className="input w-full text-xs bg-input"
+              >
                 <option value="personal">Personal Profile</option>
                 <option value="company">Company Page</option>
               </select>
@@ -222,7 +234,12 @@ export default function MonthBatchPlanDialog({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border bg-card">
-          <button type="button" onClick={onClose} className="btn btn-outline text-xs px-3.5 py-1.5" disabled={isSubmitting}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn btn-outline text-xs px-3.5 py-1.5"
+            disabled={isSubmitting}
+          >
             Cancel
           </button>
           <button

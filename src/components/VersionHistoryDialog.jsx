@@ -45,8 +45,7 @@ export default function VersionHistoryDialog({
 
   if (!isOpen) return null;
 
-  const selectedVersion =
-    allVersions.find((v) => v.id === selectedVersionId) || allVersions[0];
+  const selectedVersion = allVersions.find((v) => v.id === selectedVersionId) || allVersions[0];
 
   // Helper to compute line diff
   const computeDiff = (oldText = '', newText = '') => {
@@ -220,7 +219,10 @@ export default function VersionHistoryDialog({
                     );
                   }
                   return (
-                    <div key={idx} className="text-foreground/80 px-2 py-0.5 flex items-start gap-2">
+                    <div
+                      key={idx}
+                      className="text-foreground/80 px-2 py-0.5 flex items-start gap-2"
+                    >
                       <span className="text-muted-foreground select-none opacity-40"> </span>
                       <span className="flex-1 whitespace-pre-wrap">{line.text || ' '}</span>
                     </div>
@@ -234,7 +236,9 @@ export default function VersionHistoryDialog({
         {/* Modal Footer */}
         <div className="px-6 py-3 border-t border-border bg-card flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            Restoring a version creates an incremental revision (<span className="font-mono">v{allVersions.length + 1}</span>) without destroying history.
+            Restoring a version creates an incremental revision (
+            <span className="font-mono">v{allVersions.length + 1}</span>) without destroying
+            history.
           </span>
           <button onClick={onClose} className="btn btn-outline text-xs py-1 px-4">
             Done

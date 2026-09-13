@@ -41,13 +41,7 @@ export class RouteErrorBoundary extends React.Component {
         /net::ERR_/i.test(error?.message || '');
 
       if (isUnreachableOrNetwork) {
-        return (
-          <NotFoundPage
-            isNetworkError={true}
-            error={error}
-            onRetry={this.handleReset}
-          />
-        );
+        return <NotFoundPage isNetworkError={true} error={error} onRetry={this.handleReset} />;
       }
 
       return (

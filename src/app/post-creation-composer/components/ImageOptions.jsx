@@ -77,7 +77,15 @@ function DevelopingImage({ src, alt, onLoaded }) {
 
 // One tile. Renders the "forming" placeholder until `src` exists AND has loaded,
 // so a slow API and a slow image download look like the same continuous process.
-export function GenTile({ src, alt = '', index = 0, step = 0, reveal = 'develop', className = '', children }) {
+export function GenTile({
+  src,
+  alt = '',
+  index = 0,
+  step = 0,
+  reveal = 'develop',
+  className = '',
+  children,
+}) {
   const [loadedSrc, setLoadedSrc] = useState(null);
   const developed = Boolean(src) && loadedSrc === src;
 
@@ -217,7 +225,14 @@ export default function ImageOptions({
   // Pending placeholders and the generated results share keys (gen-0, gen-1…),
   // so each tile stays mounted and develops in place when its image arrives.
   const tiles = pending
-    ? [...uploads, ...Array.from({ length: placeholderCount }, (_, i) => ({ slotKey: `gen-${i}`, source: 'ai', pending: true }))]
+    ? [
+        ...uploads,
+        ...Array.from({ length: placeholderCount }, (_, i) => ({
+          slotKey: `gen-${i}`,
+          source: 'ai',
+          pending: true,
+        })),
+      ]
     : [...uploads, ...generated];
 
   return (
@@ -228,10 +243,17 @@ export default function ImageOptions({
         tiles.length > 0 && (
           <div className="flex items-center justify-between gap-3 mb-3">
             <p className="text-[13px] cmp-muted">
-              {tiles.length > 1 ? 'Choose the image for your post.' : 'This image will be attached to your post.'}
+              {tiles.length > 1
+                ? 'Choose the image for your post.'
+                : 'This image will be attached to your post.'}
             </p>
             {generated.length > 0 && (
-              <button type="button" className="cmp-link-btn" onClick={onGenerate} disabled={!canGenerate}>
+              <button
+                type="button"
+                className="cmp-link-btn"
+                onClick={onGenerate}
+                disabled={!canGenerate}
+              >
                 <RefreshCw size={14} />
                 Regenerate
               </button>
@@ -244,7 +266,8 @@ export default function ImageOptions({
         {tiles.map((img, i) => {
           const key = img.slotKey || img.id || img.url;
           const selected = !img.pending && img.url === imageUrl;
-          const genIndex = img.source === 'ai' ? Number(String(img.slotKey || '').split('-')[1] || i) : 0;
+          const genIndex =
+            img.source === 'ai' ? Number(String(img.slotKey || '').split('-')[1] || i) : 0;
           return (
             <div key={key} className={`cmp-tile ${selected ? 'is-selected' : ''}`}>
               <GenTile
@@ -284,7 +307,12 @@ export default function ImageOptions({
         })}
 
         {!pending && tiles.length === 0 && (
-          <button type="button" className="cmp-gen-cta" onClick={onGenerate} disabled={!canGenerate}>
+          <button
+            type="button"
+            className="cmp-gen-cta"
+            onClick={onGenerate}
+            disabled={!canGenerate}
+          >
             <span className="cmp-drop-plus" aria-hidden="true">
               <Sparkles size={16} />
             </span>

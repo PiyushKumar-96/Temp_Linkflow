@@ -7,9 +7,9 @@ import { IconTodayFocus } from './DashboardCustomIcons';
 import { ModalShell, Pill, buttonStyles, formatDayLabel } from './DashboardPrimitives';
 
 const PRIORITY = {
-  critical: { label: 'Critical', tone: 'statusRed', dot: 'bg-[#D64545]' },
-  high: { label: 'High', tone: 'statusAmber', dot: 'bg-[#E8A33D]' },
-  normal: { label: 'Normal', tone: 'neutral', dot: 'bg-[#6B6B70]' },
+  critical: { label: 'Critical', tone: 'statusRed', dot: 'bg-[color:var(--danger)]' },
+  high: { label: 'High', tone: 'statusAmber', dot: 'bg-[color:var(--warning)]' },
+  normal: { label: 'Normal', tone: 'neutral', dot: 'bg-[color:var(--text-muted)]' },
 };
 
 const DEFAULT_TASKS = [
@@ -66,11 +66,11 @@ export default function DashboardAgendaModal({ isOpen, onClose, tasks = DEFAULT_
           return (
             <li
               key={task.id}
-              className="flex flex-col justify-between rounded-[18px] bg-[#F8F7F4] border border-[#E4E2DC]/60 p-4 text-[#1B1B1F]"
+              className="flex flex-col justify-between rounded-[18px] bg-[color:var(--track-warm)] border border-[color:color-mix(in_srgb,var(--border)_60%,transparent)] p-4 text-[color:var(--text)]"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[#F0EFEB] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#1B1B1F]">
+                  <span className="rounded-full bg-[color:var(--chip)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--text)]">
                     {task.time}
                   </span>
                   <Pill tone={p.tone}>{p.label}</Pill>
@@ -81,14 +81,19 @@ export default function DashboardAgendaModal({ isOpen, onClose, tasks = DEFAULT_
                     onClose();
                     navigate(task.route);
                   }}
-                  className="group inline-flex items-center gap-1 rounded-full bg-white border border-[#E4E2DC] px-3 py-1 text-xs font-semibold text-[#1B1B1F] shadow-xs transition-colors hover:bg-[#0A66C2] hover:text-white cursor-pointer"
+                  className="group inline-flex items-center gap-1 rounded-full bg-white border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] shadow-xs transition-colors hover:bg-[color:var(--brand)] hover:text-white cursor-pointer"
                 >
                   <span>{task.action}</span>
-                  <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight
+                    size={13}
+                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
                 </button>
               </div>
-              <h4 className="mt-2.5 text-sm font-semibold text-[#1B1B1F]">{task.title}</h4>
-              <p className="mt-0.5 text-xs text-[#6B6B70]">{task.desc}</p>
+              <h4 className="mt-2.5 text-sm font-semibold text-[color:var(--text)]">
+                {task.title}
+              </h4>
+              <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">{task.desc}</p>
             </li>
           );
         })}

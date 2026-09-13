@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, CalendarClock, Check, FolderOpen, GitCommit, History, Save, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowLeft,
+  CalendarClock,
+  Check,
+  FolderOpen,
+  GitCommit,
+  History,
+  Save,
+  Send,
+} from 'lucide-react';
 import { formatSlot } from '../_model/composer-utils';
 
 function SlotChip({ date, time, onClick }) {
@@ -13,7 +23,10 @@ function SlotChip({ date, time, onClick }) {
       onClick={onClick}
       aria-label={`Publishing slot ${slot.day} ${slot.time}. Change slot`}
     >
-      <span className={`cmp-badge is-sm ${slot.isPast ? 'tone-amber' : 'tone-blue'}`} aria-hidden="true">
+      <span
+        className={`cmp-badge is-sm ${slot.isPast ? 'tone-amber' : 'tone-blue'}`}
+        aria-hidden="true"
+      >
         <CalendarClock size={15} />
       </span>
       <span>
@@ -78,11 +91,20 @@ export default function ComposerToolbar({
     <div className="flex items-center gap-2.5 flex-wrap">
       {isEditMode && (
         <>
-          <Link to={returnUrl} className="cmp-btn cmp-btn-outline is-lg" title="Leave without saving and go back to review">
+          <Link
+            to={returnUrl}
+            className="cmp-btn cmp-btn-outline is-lg"
+            title="Leave without saving and go back to review"
+          >
             <ArrowLeft size={15} />
             <span className="hidden sm:inline">Back to review</span>
           </Link>
-          <button type="button" className="cmp-btn cmp-btn-outline is-lg" onClick={onOpenHistory} title="Compare earlier versions">
+          <button
+            type="button"
+            className="cmp-btn cmp-btn-outline is-lg"
+            onClick={onOpenHistory}
+            title="Compare earlier versions"
+          >
             <History size={15} />
             <span className="hidden sm:inline">History</span>
           </button>

@@ -72,7 +72,8 @@ export default function SeriesTab({ series = [], onUpdateSeries }) {
         <div>
           <h2 className="text-base font-700 text-foreground">Content Series & Cadence</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Organize thematic marketing pillars with specific publishing frequencies and brand guidelines
+            Organize thematic marketing pillars with specific publishing frequencies and brand
+            guidelines
           </p>
         </div>
         <button
@@ -109,7 +110,9 @@ export default function SeriesTab({ series = [], onUpdateSeries }) {
                   {item.guidelines}
                 </p>
               ) : (
-                <p className="text-xs text-muted-foreground italic mt-2">No specific guidelines provided</p>
+                <p className="text-xs text-muted-foreground italic mt-2">
+                  No specific guidelines provided
+                </p>
               )}
             </div>
 
@@ -206,7 +209,10 @@ export default function SeriesTab({ series = [], onUpdateSeries }) {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
+                <button
+                  type="submit"
+                  className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5"
+                >
                   <Check size={14} />
                   <span>{editingSeries ? 'Save Changes' : 'Create Series'}</span>
                 </button>

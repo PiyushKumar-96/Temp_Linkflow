@@ -27,7 +27,8 @@ export const TOPICS = [
     startDate: '2026-02-15',
     endDate: '2026-02-22',
     publicationDate: '2026-02-18',
-    brief: 'Framework showing the 4 questions we ask every churned customer and how we map responses to Jira.',
+    brief:
+      'Framework showing the 4 questions we ask every churned customer and how we map responses to Jira.',
     status: 'published',
     downstreamPostId: 'pub-2',
     downstreamPostStatus: 'published',
@@ -78,7 +79,8 @@ export const TOPICS = [
     startDate: '2026-05-15',
     endDate: '2026-05-25',
     publicationDate: '2026-05-19',
-    brief: 'Removing mandatory sales engineer kickoff calls and implementing self-guided interactive sandboxes.',
+    brief:
+      'Removing mandatory sales engineer kickoff calls and implementing self-guided interactive sandboxes.',
     status: 'published',
     downstreamPostId: 'up-3',
     downstreamPostStatus: 'approved',
@@ -112,7 +114,8 @@ export const TOPICS = [
     startDate: '2026-07-22',
     endDate: '2026-07-22',
     publicationDate: '2026-07-22',
-    brief: 'Key friction points: reliability of multi-turn interactions and fear of hallucinations.',
+    brief:
+      'Key friction points: reliability of multi-turn interactions and fear of hallucinations.',
     status: 'published',
     downstreamPostId: 'post-107',
     downstreamPostStatus: 'published',
@@ -163,7 +166,8 @@ export const TOPICS = [
     startDate: '2026-09-21',
     endDate: '2026-09-30',
     publicationDate: '2026-09-25',
-    brief: 'Data breakdown showing exact posting times, carousel slide breakdowns, and comment velocity.',
+    brief:
+      'Data breakdown showing exact posting times, carousel slide breakdowns, and comment velocity.',
     status: 'awaiting_review',
     downstreamPostId: 'post-2',
     downstreamPostStatus: 'awaiting_review',
@@ -197,7 +201,8 @@ export const TOPICS = [
     startDate: '2026-10-18',
     endDate: '2026-10-28',
     publicationDate: '2026-10-22',
-    brief: 'Stop forcing pre-written corporate PR; empower team members with modular templates and guidelines.',
+    brief:
+      'Stop forcing pre-written corporate PR; empower team members with modular templates and guidelines.',
     status: 'planned',
     downstreamPostId: 'up-4',
     downstreamPostStatus: 'approved',

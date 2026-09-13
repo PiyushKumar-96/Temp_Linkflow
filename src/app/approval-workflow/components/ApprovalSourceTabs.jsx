@@ -10,11 +10,7 @@ const TABS = [
   { id: 'bulk_upload', label: 'Bulk Upload', icon: Upload },
 ];
 
-export default function ApprovalSourceTabs({
-  activeSource = 'all',
-  onSelectSource,
-  counts = {},
-}) {
+export default function ApprovalSourceTabs({ activeSource = 'all', onSelectSource, counts = {} }) {
   return (
     <div className="flex items-center gap-2 flex-nowrap shrink-0 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
@@ -36,7 +32,10 @@ export default function ApprovalSourceTabs({
                 : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60'
             }`}
           >
-            <Icon size={13} className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'} />
+            <Icon
+              size={13}
+              className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'}
+            />
             <span>{tab.label}</span>
             <span
               className={`px-1.5 py-0.5 rounded-full text-[10.5px] tabular-nums font-bold leading-none ${

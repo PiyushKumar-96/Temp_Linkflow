@@ -1,16 +1,37 @@
 {
   "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "extends": [
-    "next/core-web-vitals",
     "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended"
   ],
   "plugins": [
+    "react",
+    "react-hooks",
     "prettier"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "prettier/prettier": [
-      "error",
+      "warn",
       {
         "endOfLine": "auto",
         "singleQuote": true,
@@ -31,23 +52,17 @@
     "no-console": [
       "warn",
       {
-        "allow": [
-          "warn",
-          "error",
-          "info"
-        ]
+        "allow": ["warn", "error", "info"]
       }
-    ]
+    ],
+    "react/prop-types": "off",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/set-state-in-effect": "off"
   },
   "ignorePatterns": [
     "node_modules/",
-    ".next/",
-    "out/",
+    "dist/",
     "public/"
-  ],
-  "env": {
-    "browser": true,
-    "node": true,
-    "es6": true
-  }
+  ]
 }

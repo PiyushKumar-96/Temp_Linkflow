@@ -46,7 +46,11 @@ export function useTeamMembers() {
     queryFn: async () => {
       try {
         const data = await apiClient.get('/team/members');
-        const list = Array.isArray(data?.members) ? data.members : (Array.isArray(data) ? data : null);
+        const list = Array.isArray(data?.members)
+          ? data.members
+          : Array.isArray(data)
+            ? data
+            : null;
         if (list && list.length > 0) return list;
       } catch {
         // Fallback below

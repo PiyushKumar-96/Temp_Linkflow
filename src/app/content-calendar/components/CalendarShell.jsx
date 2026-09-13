@@ -17,7 +17,12 @@ export default function CalendarShell() {
   // Synchronize when posts are approved, scheduled, or updated in storage
   useEffect(() => {
     const handleSync = (e) => {
-      if (!e || !e.key || e.key === 'linkedflow_master_posts' || e.key === 'linkedflow_approval_posts') {
+      if (
+        !e ||
+        !e.key ||
+        e.key === 'linkedflow_master_posts' ||
+        e.key === 'linkedflow_approval_posts'
+      ) {
         setVersion((v) => v + 1);
       }
     };
@@ -35,7 +40,7 @@ export default function CalendarShell() {
   const filterSeries = searchParams.get('series') || 'all';
   const filterStatus = searchParams.get('status') || 'all';
   const monthParam = searchParams.get('month'); // 'YYYY-MM'
-  const dateParam = searchParams.get('date');   // 'YYYY-MM-DD'
+  const dateParam = searchParams.get('date'); // 'YYYY-MM-DD'
 
   // Selected viewed month
   const currentDate = useMemo(() => {
@@ -118,7 +123,9 @@ export default function CalendarShell() {
     const approvedAndPublished = combinedStored
       .filter((p) => {
         const s = normalizeStatus(p.status);
-        return s === POST_STATUS.APPROVED || s === POST_STATUS.SCHEDULED || s === POST_STATUS.PUBLISHED;
+        return (
+          s === POST_STATUS.APPROVED || s === POST_STATUS.SCHEDULED || s === POST_STATUS.PUBLISHED
+        );
       })
       .map((p) => {
         const date = p.date || p.scheduledDate || p.dueDate || '2026-09-15';
@@ -203,10 +210,7 @@ export default function CalendarShell() {
 
       {/* Post details popover for deep-dive actions */}
       {selectedPost && (
-        <PostDetailPopover
-          post={selectedPost}
-          onClose={() => setSelectedPost(null)}
-        />
+        <PostDetailPopover post={selectedPost} onClose={() => setSelectedPost(null)} />
       )}
     </div>
   );

@@ -93,7 +93,10 @@ export default function DashboardPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `${(post.title || 'post').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`);
+    link.setAttribute(
+      'download',
+      `${(post.title || 'post').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -103,7 +106,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-[1440px] mx-auto pb-16 text-[#1B1B1F]">
+    <div className="flex flex-col gap-4 max-w-[1440px] mx-auto pb-16 text-[color:var(--text)]">
       {/* Top Cockpit Header */}
       <DashboardCockpitHeader />
 
@@ -121,9 +124,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 2: Workflow (12 cols, shorter height) */}
-      <DashboardWorkflowStepper
-        onOpenWorkflowModal={() => setIsWorkflowModalOpen(true)}
-      />
+      <DashboardWorkflowStepper onOpenWorkflowModal={() => setIsWorkflowModalOpen(true)} />
 
       {/* Row 3: Content performance, dark (7 cols) | Pending review (5 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

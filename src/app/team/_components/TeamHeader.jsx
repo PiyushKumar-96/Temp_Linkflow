@@ -17,7 +17,9 @@ export default function TeamHeader({ memberCount, onOpenInvite, isOwner }) {
       <button
         onClick={onOpenInvite}
         className="btn-primary self-start sm:self-auto"
-        title={!isOwner ? 'Only workspace owners can invite new members' : 'Invite a new team member'}
+        title={
+          !isOwner ? 'Only workspace owners can invite new members' : 'Invite a new team member'
+        }
       >
         <UserPlus size={15} />
         <span>Invite Member</span>

@@ -34,7 +34,10 @@ export function getScheduleSettings() {
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
-        rules: Array.isArray(parsed.rules) && parsed.rules.length > 0 ? parsed.rules : DEFAULT_WEEKLY_RULES,
+        rules:
+          Array.isArray(parsed.rules) && parsed.rules.length > 0
+            ? parsed.rules
+            : DEFAULT_WEEKLY_RULES,
         timezone: parsed.timezone || DEFAULT_TIMEZONE,
       };
     }

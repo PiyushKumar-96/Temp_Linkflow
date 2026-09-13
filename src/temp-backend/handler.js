@@ -56,7 +56,7 @@ export async function handleMockRequest(endpoint, options = {}) {
       return { posts, total: posts.length };
     }
     if (method === 'POST') {
-      const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+      const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
       const created = await createPost(body);
       return created;
     }
@@ -66,13 +66,17 @@ export async function handleMockRequest(endpoint, options = {}) {
   const reviewMatch = cleanPath.match(/^\/posts\/([^/]+)\/reviews$/);
   if (reviewMatch && method === 'POST') {
     const postId = reviewMatch[1];
-    const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+    const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     if (body.decision === 'approve') {
       const post = await approvePost(postId, body.authorName || 'Sarah Reeves');
       return { id: postId, status: 'approved', post };
     }
     if (body.decision === 'reject') {
-      const post = await rejectPost(postId, body.feedback || 'Revision requested', body.authorName || 'Sarah Reeves');
+      const post = await rejectPost(
+        postId,
+        body.feedback || 'Revision requested',
+        body.authorName || 'Sarah Reeves'
+      );
       return { id: postId, status: 'rejected', feedback: body.feedback, post };
     }
   }
@@ -81,7 +85,7 @@ export async function handleMockRequest(endpoint, options = {}) {
   const regenMatch = cleanPath.match(/^\/posts\/([^/]+)\/regenerate$/);
   if (regenMatch && method === 'POST') {
     const postId = regenMatch[1];
-    const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+    const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     const post = await regeneratePost(postId, body.brief || '', body.authorName || 'Sarah Reeves');
     return post;
   }
@@ -90,7 +94,7 @@ export async function handleMockRequest(endpoint, options = {}) {
   const commentMatch = cleanPath.match(/^\/posts\/([^/]+)\/comments$/);
   if (commentMatch && method === 'POST') {
     const postId = commentMatch[1];
-    const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+    const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     const post = await addPostComment(postId, body.text || '', body.authorName || 'Sarah Reeves');
     return post;
   }
@@ -144,14 +148,14 @@ export async function handleMockRequest(endpoint, options = {}) {
   }
 
   if (cleanPath === '/team/invite' && method === 'POST') {
-    const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+    const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     return await inviteTeamMember(body);
   }
 
   const roleMatch = cleanPath.match(/^\/team\/members\/([^/]+)\/role$/);
   if (roleMatch && (method === 'PATCH' || method === 'PUT')) {
     const memberId = roleMatch[1];
-    const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+    const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     return await updateTeamMemberRole(memberId, body.role);
   }
 

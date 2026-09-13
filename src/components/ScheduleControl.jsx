@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Clock, Calendar, Globe, Sparkles, Check, X, AlertCircle, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Clock,
+  Calendar,
+  Globe,
+  Sparkles,
+  Check,
+  X,
+  AlertCircle,
+  Settings as SettingsIcon,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   getScheduleSettings,
@@ -177,7 +186,9 @@ export default function ScheduleControl({
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-foreground block mb-1">Time ({timezone.split('/')[1] || 'Local'})</label>
+          <label className="text-xs font-medium text-foreground block mb-1">
+            Time ({timezone.split('/')[1] || 'Local'})
+          </label>
           <input
             type="time"
             value={currentTime}
@@ -189,7 +200,8 @@ export default function ScheduleControl({
 
       {/* Consequence Note */}
       <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border">
-        Once approved by an Account Owner, this post is locked into this publishing slot. Automated Buffer / LinkedIn dispatch releases it without manual intervention.
+        Once approved by an Account Owner, this post is locked into this publishing slot. Automated
+        Buffer / LinkedIn dispatch releases it without manual intervention.
       </p>
     </div>
   );
@@ -216,9 +228,7 @@ export default function ScheduleControl({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
-          {content}
-        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">{content}</div>
 
         {/* Drawer Footer */}
         <div className="px-5 py-4 border-t border-border flex gap-2">

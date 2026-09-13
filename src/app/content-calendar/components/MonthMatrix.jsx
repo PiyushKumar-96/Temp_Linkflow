@@ -6,8 +6,18 @@ import { normalizeStatus } from '@/lib/post-status';
 
 const DOW_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_FULL = [
-  'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-  'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER',
+  'JANUARY',
+  'FEBRUARY',
+  'MARCH',
+  'APRIL',
+  'MAY',
+  'JUNE',
+  'JULY',
+  'AUGUST',
+  'SEPTEMBER',
+  'OCTOBER',
+  'NOVEMBER',
+  'DECEMBER',
 ];
 
 function getMonDayIndex(date) {
@@ -26,8 +36,11 @@ function getStatusBadgeClass(status) {
   const s = normalizeStatus(status);
   if (s === 'published') return 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
   if (s === 'scheduled') return 'bg-sky-50 text-sky-700 border-sky-200/80';
-  if (s === 'awaiting_review' || s === 'needs_revision') return 'bg-amber-50 text-amber-800 border-amber-200/80';
-  return (s === 'failed' || s === 'rejected') ? 'bg-rose-50 text-rose-700 border-rose-200/80' : 'bg-slate-100 text-slate-700 border-slate-200';
+  if (s === 'awaiting_review' || s === 'needs_revision')
+    return 'bg-amber-50 text-amber-800 border-amber-200/80';
+  return s === 'failed' || s === 'rejected'
+    ? 'bg-rose-50 text-rose-700 border-rose-200/80'
+    : 'bg-slate-100 text-slate-700 border-slate-200';
 }
 
 export default function MonthMatrix({
@@ -63,16 +76,28 @@ export default function MonthMatrix({
       const prevDay = daysInPrevMonth - i;
       const prevM = month === 0 ? 11 : month - 1;
       const prevY = month === 0 ? year - 1 : year;
-      result.push({ dayNum: prevDay, dateStr: `${prevY}-${String(prevM + 1).padStart(2, '0')}-${String(prevDay).padStart(2, '0')}`, isCurrentMonth: false });
+      result.push({
+        dayNum: prevDay,
+        dateStr: `${prevY}-${String(prevM + 1).padStart(2, '0')}-${String(prevDay).padStart(2, '0')}`,
+        isCurrentMonth: false,
+      });
     }
     for (let day = 1; day <= daysInMonth; day++) {
-      result.push({ dayNum: day, dateStr: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`, isCurrentMonth: true });
+      result.push({
+        dayNum: day,
+        dateStr: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+        isCurrentMonth: true,
+      });
     }
     let nextDay = 1;
     while (result.length % 7 !== 0 || result.length < 35) {
       const nextM = month === 11 ? 0 : month + 1;
       const nextY = month === 11 ? year + 1 : year;
-      result.push({ dayNum: nextDay, dateStr: `${nextY}-${String(nextM + 1).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`, isCurrentMonth: false });
+      result.push({
+        dayNum: nextDay,
+        dateStr: `${nextY}-${String(nextM + 1).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`,
+        isCurrentMonth: false,
+      });
       nextDay++;
     }
     return result;
@@ -161,13 +186,17 @@ export default function MonthMatrix({
                   onClick={() => onSelectDate(cell.dateStr)}
                   className={`relative rounded-[16px] sm:rounded-[20px] p-1.5 sm:p-2 flex flex-col justify-between text-left transition-all duration-150 aspect-[4/4.8] sm:aspect-[4/4.5] min-h-[64px] sm:min-h-[76px] ${cellStyle}`}
                 >
-                  <span className={`text-[11px] sm:text-xs font-bold leading-none tabular-nums ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-slate-100'}`}>
+                  <span
+                    className={`text-[11px] sm:text-xs font-bold leading-none tabular-nums ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-slate-100'}`}
+                  >
                     {String(cell.dayNum).padStart(2, '0')}
                   </span>
 
                   {cell.isCurrentMonth && hasPosts && (
                     <div className="flex flex-col mt-auto overflow-hidden">
-                      <span className={`text-[9px] sm:text-[10px] font-bold leading-tight truncate ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-white'}`}>
+                      <span
+                        className={`text-[9px] sm:text-[10px] font-bold leading-tight truncate ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-white'}`}
+                      >
                         {firstPost.series || firstPost.category || 'Post'}
                       </span>
                       {isSelected ? (
@@ -175,7 +204,9 @@ export default function MonthMatrix({
                           {firstPost.time || '10:00'}
                         </span>
                       ) : (
-                        <span className={`text-[8px] sm:text-[9px] font-semibold px-1 py-0.2 rounded border w-fit leading-tight mt-0.5 tabular-nums ${getStatusBadgeClass(firstPost.status)}`}>
+                        <span
+                          className={`text-[8px] sm:text-[9px] font-semibold px-1 py-0.2 rounded border w-fit leading-tight mt-0.5 tabular-nums ${getStatusBadgeClass(firstPost.status)}`}
+                        >
                           {firstPost.time || '10:00'}
                         </span>
                       )}

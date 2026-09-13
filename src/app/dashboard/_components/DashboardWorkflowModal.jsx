@@ -30,7 +30,8 @@ const STEP_MS = 3600;
 const STEPS = [
   {
     title: 'Set slots in settings',
-    description: 'Pick when you publish, like Tuesday and Thursday at 09:00 UTC, and where: personal profile or company page.',
+    description:
+      'Pick when you publish, like Tuesday and Thursday at 09:00 UTC, and where: personal profile or company page.',
     icon: Settings,
     tone: 'blue',
     actionLabel: 'Configure slots',
@@ -38,7 +39,8 @@ const STEPS = [
   },
   {
     title: 'Plan a topic or draft a post',
-    description: 'Plan campaigns in Topics, or draft with AI help: hooks, hashtags, and an image or PDF carousel.',
+    description:
+      'Plan campaigns in Topics, or draft with AI help: hooks, hashtags, and an image or PDF carousel.',
     icon: FileText,
     tone: 'violet',
     actionLabel: 'Open composer',
@@ -64,9 +66,12 @@ const STEPS = [
 
 const STAGE_BG = {
   blue: 'from-blue-100 via-sky-50 to-white dark:from-blue-400/15 dark:via-blue-400/5 dark:to-transparent',
-  violet: 'from-violet-100 via-fuchsia-50 to-white dark:from-violet-400/15 dark:via-violet-400/5 dark:to-transparent',
-  amber: 'from-amber-100 via-orange-50/80 to-white dark:from-amber-400/15 dark:via-amber-400/5 dark:to-transparent',
-  emerald: 'from-emerald-100 via-teal-50/80 to-white dark:from-emerald-400/15 dark:via-emerald-400/5 dark:to-transparent',
+  violet:
+    'from-violet-100 via-fuchsia-50 to-white dark:from-violet-400/15 dark:via-violet-400/5 dark:to-transparent',
+  amber:
+    'from-amber-100 via-orange-50/80 to-white dark:from-amber-400/15 dark:via-amber-400/5 dark:to-transparent',
+  emerald:
+    'from-emerald-100 via-teal-50/80 to-white dark:from-emerald-400/15 dark:via-emerald-400/5 dark:to-transparent',
 };
 
 const PROGRESS_BAR = {
@@ -228,13 +233,20 @@ function SlotsScene() {
         <div className="mt-3 grid grid-cols-[34px_repeat(5,minmax(0,1fr))] gap-1.5">
           <span />
           {days.map((d, i) => (
-            <span key={d} className="text-center text-[10px] font-medium text-muted-foreground" style={anim('fade', 300, 150 + i * 50)}>
+            <span
+              key={d}
+              className="text-center text-[10px] font-medium text-muted-foreground"
+              style={anim('fade', 300, 150 + i * 50)}
+            >
               {d}
             </span>
           ))}
           {times.map((t, r) => (
             <React.Fragment key={t}>
-              <span className="self-center text-[10px] text-muted-foreground tabular-nums" style={anim('fade', 300, 250 + r * 60)}>
+              <span
+                className="self-center text-[10px] text-muted-foreground tabular-nums"
+                style={anim('fade', 300, 250 + r * 60)}
+              >
                 {t}
               </span>
               {days.map((d, c) => {
@@ -271,12 +283,19 @@ function SlotsScene() {
             { label: 'Company page', icon: Building2 },
             { label: 'Personal profile', icon: User },
           ].map((row, i) => (
-            <div key={row.label} className="flex items-center justify-between" style={anim('fade-up', 400, 1550 + i * 120)}>
+            <div
+              key={row.label}
+              className="flex items-center justify-between"
+              style={anim('fade-up', 400, 1550 + i * 120)}
+            >
               <span className="flex items-center gap-1.5 text-[11px] text-foreground">
                 <row.icon size={12} className="text-muted-foreground" />
                 {row.label}
               </span>
-              <span className="relative h-4 w-[30px] rounded-full bg-blue-500" style={anim('track', 320, 1850 + i * 200)}>
+              <span
+                className="relative h-4 w-[30px] rounded-full bg-blue-500"
+                style={anim('track', 320, 1850 + i * 200)}
+              >
                 <span
                   className="absolute left-0.5 top-0.5 size-3 rounded-full bg-white shadow-sm"
                   style={{ transform: 'translateX(14px)', ...anim('knob', 320, 1850 + i * 200) }}
@@ -288,7 +307,9 @@ function SlotsScene() {
       </div>
 
       <span className="absolute right-[4px] top-[2px]" style={anim('pop', 450, 2450, SPRING)}>
-        <FloatingChip tone="emerald" icon={Check}>2 slots set</FloatingChip>
+        <FloatingChip tone="emerald" icon={Check}>
+          2 slots set
+        </FloatingChip>
       </span>
     </>
   );
@@ -307,20 +328,27 @@ function DraftScene() {
       >
         <div className="flex items-center justify-between border-b border-border/60 px-3.5 py-2.5">
           <div className="flex items-center gap-2">
-            <span className="grid size-7 place-items-center rounded-md bg-[#0A66C2] text-[15px] font-black text-white">in</span>
+            <span className="grid size-7 place-items-center rounded-md bg-[color:var(--brand)] text-[15px] font-black text-white">
+              in
+            </span>
             <span className="text-[11px] font-semibold text-foreground">Create a post</span>
           </div>
           <span
             className="rounded-full bg-violet-50 px-2 py-1 text-[9px] font-semibold text-violet-700 dark:bg-violet-400/10 dark:text-violet-300"
             style={anim('pop', 340, 340, SPRING)}
           >
-            <span className="inline-flex items-center gap-1"><Sparkles size={10} /> AI writing</span>
+            <span className="inline-flex items-center gap-1">
+              <Sparkles size={10} /> AI writing
+            </span>
           </span>
         </div>
 
         <div className="px-3.5 pb-3.5 pt-3">
           <div className="flex items-start gap-2.5">
-            <span className="size-8 shrink-0 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400" style={anim('pop', 350, 180, SPRING)} />
+            <span
+              className="size-8 shrink-0 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400"
+              style={anim('pop', 350, 180, SPRING)}
+            />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-semibold text-foreground">Aarav Mehta</span>
@@ -332,8 +360,12 @@ function DraftScene() {
 
           <div className="mt-3 rounded-xl bg-muted/25 p-2.5 ring-1 ring-inset ring-border/60">
             <p className="text-[10px] leading-[1.55] text-foreground/85">
-              <span className="font-semibold">The best automation isn't the one that runs fastest.</span>{' '}
-              <span className="text-foreground/70">It's the one that keeps your team focused on the work that matters.</span>
+              <span className="font-semibold">
+                The best automation isn&apos;t the one that runs fastest.
+              </span>{' '}
+              <span className="text-foreground/70">
+                It&apos;s the one that keeps your team focused on the work that matters.
+              </span>
             </p>
             <p
               className="mt-2 text-[10px] leading-[1.55] text-foreground/75"
@@ -342,7 +374,7 @@ function DraftScene() {
               Schedule the repetitive work. Keep the human judgment.
             </p>
             <p
-              className="mt-2 text-[10px] font-medium text-[#0A66C2]"
+              className="mt-2 text-[10px] font-medium text-[color:var(--brand)]"
               style={anim('fade-up', 330, 1430)}
             >
               #automation&nbsp;&nbsp;#productivity&nbsp;&nbsp;#ai
@@ -359,7 +391,7 @@ function DraftScene() {
               <span>Anyone can comment</span>
             </div>
             <span
-              className="rounded-full bg-[#0A66C2] px-3 py-1 text-[9px] font-bold text-white shadow-sm"
+              className="rounded-full bg-[color:var(--brand)] px-3 py-1 text-[9px] font-bold text-white shadow-sm"
               style={anim('pop', 340, 2050, SPRING)}
             >
               Post
@@ -375,11 +407,15 @@ function DraftScene() {
       />
       <span className="absolute right-[4px] top-[12px]" style={anim('pop', 420, 500, SPRING)}>
         <span className="block" style={{ animation: 'hiw-bob 2.5s ease-in-out 1s infinite' }}>
-          <FloatingChip tone="violet" icon={Sparkles}>Generating post</FloatingChip>
+          <FloatingChip tone="violet" icon={Sparkles}>
+            Generating post
+          </FloatingChip>
         </span>
       </span>
       <span className="absolute bottom-[5px] left-[4px]" style={anim('pop', 400, 2760, SPRING)}>
-        <FloatingChip tone="emerald" icon={Check}>Draft ready for approval</FloatingChip>
+        <FloatingChip tone="emerald" icon={Check}>
+          Draft ready for approval
+        </FloatingChip>
       </span>
     </>
   );
@@ -406,7 +442,9 @@ function ApproveScene() {
       >
         <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
           <div className="flex items-center gap-2">
-            <span className="grid size-6 place-items-center rounded-md bg-[#0A66C2] text-[12px] font-black text-white">in</span>
+            <span className="grid size-6 place-items-center rounded-md bg-[color:var(--brand)] text-[12px] font-black text-white">
+              in
+            </span>
             <span className="text-[10px] font-semibold text-foreground">Approval queue</span>
           </div>
           <span
@@ -421,20 +459,26 @@ function ApproveScene() {
           <div className="flex items-start gap-2">
             <span className="size-7 shrink-0 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400" />
             <div className="min-w-0 flex-1">
-              <div className="text-[9px] font-semibold text-foreground">Aarav Mehta <span className="font-normal text-muted-foreground">• 1st</span></div>
+              <div className="text-[9px] font-semibold text-foreground">
+                Aarav Mehta <span className="font-normal text-muted-foreground">• 1st</span>
+              </div>
               <div className="text-[8px] text-muted-foreground">Product & Growth · Draft</div>
             </div>
           </div>
 
           <div className="mt-2.5 rounded-lg border border-border/60 bg-muted/15 p-2.5">
             <p className="text-[9px] leading-[1.55] text-foreground/85">
-              <span className="font-semibold">The best automation isn't the one that runs fastest.</span>{' '}
-              It's the one that keeps your team focused on what matters.
+              <span className="font-semibold">
+                The best automation isn&apos;t the one that runs fastest.
+              </span>{' '}
+              It&apos;s the one that keeps your team focused on what matters.
             </p>
             <p className="mt-1.5 text-[9px] text-foreground/70">
               Schedule the repetitive work. Keep the human judgment.
             </p>
-            <p className="mt-1.5 text-[9px] font-medium text-[#0A66C2]">#automation&nbsp; #productivity&nbsp; #ai</p>
+            <p className="mt-1.5 text-[9px] font-medium text-[color:var(--brand)]">
+              #automation&nbsp; #productivity&nbsp; #ai
+            </p>
           </div>
 
           <div className="mt-2.5 flex items-center justify-between">
@@ -455,10 +499,14 @@ function ApproveScene() {
         style={{ animation: `hiw-comment-in 460ms ${EASE} 680ms both` }}
       >
         <div className="flex items-start gap-2">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-amber-100 text-[9px] font-bold text-amber-700">LT</span>
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-amber-100 text-[9px] font-bold text-amber-700">
+            LT
+          </span>
           <div>
             <p className="text-[9px] font-semibold text-foreground">Lisa</p>
-            <p className="text-[10px] leading-snug text-muted-foreground">Looks good — ready to publish.</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">
+              Looks good — ready to publish.
+            </p>
           </div>
         </div>
       </div>
@@ -500,7 +548,9 @@ function ApproveScene() {
       </div>
 
       <span className="absolute bottom-[4px] right-[4px]" style={anim('pop', 360, 2920, SPRING)}>
-        <FloatingChip tone="emerald" icon={Check}>Queued for LinkedIn</FloatingChip>
+        <FloatingChip tone="emerald" icon={Check}>
+          Queued for LinkedIn
+        </FloatingChip>
       </span>
     </>
   );
@@ -518,8 +568,12 @@ function PublishScene() {
         style={anim('float-in', 520, 120)}
       >
         <div className="flex items-center gap-2 border-b border-border/60 bg-card px-3 py-2">
-          <span className="grid size-7 place-items-center rounded-md bg-[#0A66C2] text-[15px] font-black text-white">in</span>
-          <span className="h-5 flex-1 rounded-full bg-muted/60 px-2 text-[8px] leading-5 text-muted-foreground">Search</span>
+          <span className="grid size-7 place-items-center rounded-md bg-[color:var(--brand)] text-[15px] font-black text-white">
+            in
+          </span>
+          <span className="h-5 flex-1 rounded-full bg-muted/60 px-2 text-[8px] leading-5 text-muted-foreground">
+            Search
+          </span>
           <span className="size-4 rounded-full bg-muted" />
           <span className="size-4 rounded-full bg-muted" />
         </div>
@@ -545,8 +599,12 @@ function PublishScene() {
               <div className="flex items-start gap-2">
                 <span className="size-7 shrink-0 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-semibold text-foreground">Aarav Mehta <span className="font-normal text-muted-foreground">• 1st</span></div>
-                  <div className="text-[8px] text-muted-foreground">Product & Growth · Just now</div>
+                  <div className="text-[9px] font-semibold text-foreground">
+                    Aarav Mehta <span className="font-normal text-muted-foreground">• 1st</span>
+                  </div>
+                  <div className="text-[8px] text-muted-foreground">
+                    Product & Growth · Just now
+                  </div>
                 </div>
                 <span
                   className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[7px] font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
@@ -557,13 +615,15 @@ function PublishScene() {
               </div>
 
               <p className="mt-2 text-[9px] leading-[1.55] text-foreground/85">
-                <span className="font-semibold">The best automation isn't the one that runs fastest.</span>{' '}
-                It's the one that keeps your team focused on the work that matters.
+                <span className="font-semibold">
+                  The best automation isn&apos;t the one that runs fastest.
+                </span>{' '}
+                It&apos;s the one that keeps your team focused on the work that matters.
               </p>
               <p className="mt-1.5 text-[9px] text-foreground/70">
                 Schedule the repetitive work. Keep the human judgment.
               </p>
-              <p className="mt-1.5 text-[9px] font-medium text-[#0A66C2]">
+              <p className="mt-1.5 text-[9px] font-medium text-[color:var(--brand)]">
                 #automation&nbsp;&nbsp;#productivity&nbsp;&nbsp;#ai
               </p>
 
@@ -605,22 +665,21 @@ function PublishScene() {
         </div>
 
         <span
-          className="pointer-events-none absolute right-[40px] top-[72px] size-16 rounded-full bg-[#0A66C2]/10"
+          className="pointer-events-none absolute right-[40px] top-[72px] size-16 rounded-full bg-[color:color-mix(in_srgb,var(--brand)_10%,transparent)]"
           style={anim('glow', 900, 1880)}
         />
       </div>
 
       {/* Connector makes the automation legible without overpowering the LinkedIn destination. */}
-      <span
-        className="absolute left-[2px] bottom-[7px]"
-        style={anim('pop', 420, 1840, SPRING)}
-      >
-        <FloatingChip tone="emerald" icon={Send}>Published to LinkedIn</FloatingChip>
+      <span className="absolute left-[2px] bottom-[7px]" style={anim('pop', 420, 1840, SPRING)}>
+        <FloatingChip tone="emerald" icon={Send}>
+          Published to LinkedIn
+        </FloatingChip>
       </span>
 
       {/* Small delivery pulse near the destination. */}
       <span
-        className="absolute right-[8px] bottom-[8px] grid size-7 place-items-center rounded-full bg-[#0A66C2] text-white shadow-lg shadow-[#0A66C2]/25"
+        className="absolute right-[8px] bottom-[8px] grid size-7 place-items-center rounded-full bg-[color:var(--brand)] text-white shadow-lg shadow-[color:color-mix(in_srgb,var(--brand)_25%,transparent)]"
         style={anim('pop', 360, 2020, SPRING)}
       >
         <Send size={12} strokeWidth={2.6} />
@@ -676,7 +735,11 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) return undefined;
     const onKey = (e) => {
-      if (e.target instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      if (
+        e.target instanceof HTMLElement &&
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)
+      )
+        return;
       if (e.key === 'ArrowRight') goTo(active + 1);
       if (e.key === 'ArrowLeft') goTo(active - 1);
     };
@@ -688,10 +751,10 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
   const paused = !playing;
 
   const TONE_RINGS = {
-    blue: 'ring-2 ring-inset ring-[#0A66C2] shadow-sm',
+    blue: 'ring-2 ring-inset ring-[color:var(--brand)] shadow-sm',
     violet: 'ring-2 ring-inset ring-[#2E7CC4] shadow-sm',
-    amber: 'ring-2 ring-inset ring-[#E8A33D] shadow-sm',
-    emerald: 'ring-2 ring-inset ring-[#0F8A5F] shadow-sm',
+    amber: 'ring-2 ring-inset ring-[color:var(--warning)] shadow-sm',
+    emerald: 'ring-2 ring-inset ring-[color:var(--success)] shadow-sm',
   };
 
   return (
@@ -718,7 +781,11 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
               Step {active + 1} of {STEPS.length}
             </span>
           </div>
-          <button type="button" onClick={onClose} className={`${buttonStyles.dark} h-9 cursor-pointer`}>
+          <button
+            type="button"
+            onClick={onClose}
+            className={`${buttonStyles.dark} h-9 cursor-pointer`}
+          >
             Got it
           </button>
         </>
@@ -743,7 +810,11 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
           <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(15,23,42,0.07)_1px,transparent_1px)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_75%)] dark:bg-[radial-gradient(circle,rgba(255,255,255,0.06)_1px,transparent_1px)]" />
 
           <div className="absolute left-1/2 top-1/2 h-[270px] w-[320px] -translate-x-1/2 -translate-y-1/2 scale-[0.92] sm:scale-100">
-            <div key={`${active}-${run}`} className="relative h-full w-full" style={anim('scene-in', 450)}>
+            <div
+              key={`${active}-${run}`}
+              className="relative h-full w-full"
+              style={anim('scene-in', 450)}
+            >
               <Scene />
             </div>
           </div>
@@ -761,7 +832,9 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
               <li
                 key={step.title}
                 className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
-                  isActive ? `bg-card ${activeRing}` : 'ring-1 ring-inset ring-border/50 hover:bg-muted/40'
+                  isActive
+                    ? `bg-card ${activeRing}`
+                    : 'ring-1 ring-inset ring-border/50 hover:bg-muted/40'
                 }`}
               >
                 <button
@@ -787,14 +860,21 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
                       }`}
                     >
                       {isDone ? (
-                        <Check key="done" size={16} strokeWidth={3} style={anim('pop', 400, 0, SPRING)} />
+                        <Check
+                          key="done"
+                          size={16}
+                          strokeWidth={3}
+                          style={anim('pop', 400, 0, SPRING)}
+                        />
                       ) : (
                         <Icon size={16} />
                       )}
                     </span>
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[11px] font-medium text-muted-foreground">Step {idx + 1}</span>
+                    <span className="block text-[11px] font-medium text-muted-foreground">
+                      Step {idx + 1}
+                    </span>
                     <span
                       className={`block text-sm font-semibold transition-colors ${
                         isActive ? 'text-foreground' : 'text-foreground/70'
@@ -813,7 +893,9 @@ export default function DashboardWorkflowModal({ isOpen, onClose }) {
                 >
                   <div className="min-h-0 overflow-hidden">
                     <div className="pb-3.5 pl-[60px] pr-3.5">
-                      <p className="text-xs leading-relaxed text-muted-foreground">{step.description}</p>
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        {step.description}
+                      </p>
                       <button
                         type="button"
                         tabIndex={isActive ? 0 : -1}

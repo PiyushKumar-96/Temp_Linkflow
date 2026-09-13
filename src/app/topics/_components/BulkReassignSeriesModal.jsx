@@ -10,12 +10,7 @@ const AVAILABLE_SERIES = [
   { id: 'series-4', name: 'Industry Insights' },
 ];
 
-export default function BulkReassignSeriesModal({
-  isOpen,
-  onClose,
-  topicIds = [],
-  onConfirm,
-}) {
+export default function BulkReassignSeriesModal({ isOpen, onClose, topicIds = [], onConfirm }) {
   const [selectedSeriesId, setSelectedSeriesId] = useState('series-1');
 
   if (!isOpen) return null;
@@ -69,11 +64,7 @@ export default function BulkReassignSeriesModal({
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline text-xs px-4 py-2"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline text-xs px-4 py-2">
               Cancel
             </button>
             <button

@@ -208,7 +208,8 @@ export default function BulkUploadRow({
                       {post.pdfName || `${(post.header || 'Document').slice(0, 18)}.pdf`}
                     </span>
                     <span className="text-[10px] text-muted-foreground">
-                      {post.pdfPages || (post.carouselSlides ? post.carouselSlides.length : 5)} pages · Multi-slide
+                      {post.pdfPages || (post.carouselSlides ? post.carouselSlides.length : 5)}{' '}
+                      pages · Multi-slide
                     </span>
                   </div>
                   <label

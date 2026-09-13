@@ -10,26 +10,23 @@ import { normalizeStatus, STATUS_META } from '@/lib/post-status';
  * @param {boolean} [props.showDot=true] - Display status dot
  * @param {string} [props.className=''] - Additional styling classes
  */
-export default function StatusBadge({
-  status,
-  size = 'md',
-  showDot = true,
-  className = '',
-}) {
+export default function StatusBadge({ status, size = 'md', showDot = true, className = '' }) {
   const canonical = normalizeStatus(status);
   const meta = STATUS_META[canonical] || STATUS_META.planned;
 
-  const sizeClasses = {
-    sm: 'text-[11px] px-2 py-0.5 gap-1.5',
-    md: 'text-xs px-2.5 py-1 gap-1.5',
-    lg: 'text-sm px-3 py-1.5 gap-2',
-  }[size] || 'text-xs px-2.5 py-1 gap-1.5';
+  const sizeClasses =
+    {
+      sm: 'text-[11px] px-2 py-0.5 gap-1.5',
+      md: 'text-xs px-2.5 py-1 gap-1.5',
+      lg: 'text-sm px-3 py-1.5 gap-2',
+    }[size] || 'text-xs px-2.5 py-1 gap-1.5';
 
-  const dotSizeClasses = {
-    sm: 'w-1.5 h-1.5',
-    md: 'w-2 h-2',
-    lg: 'w-2.5 h-2.5',
-  }[size] || 'w-2 h-2';
+  const dotSizeClasses =
+    {
+      sm: 'w-1.5 h-1.5',
+      md: 'w-2 h-2',
+      lg: 'w-2.5 h-2.5',
+    }[size] || 'w-2 h-2';
 
   return (
     <span

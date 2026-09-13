@@ -51,7 +51,11 @@ export default function NotFoundPage({ isNetworkError = false, error = null, onR
   return (
     <div className="lf lf-404" role="main" aria-labelledby="lf-status-title">
       <span className="lf-mark lf-404-mark" aria-hidden="true">
-        {isUnreachable ? <WifiOff size={18} strokeWidth={2.2} /> : <Send size={18} strokeWidth={2.2} />}
+        {isUnreachable ? (
+          <WifiOff size={18} strokeWidth={2.2} />
+        ) : (
+          <Send size={18} strokeWidth={2.2} />
+        )}
       </span>
 
       <ol className="lf-flow" aria-hidden="true">
@@ -82,7 +86,11 @@ export default function NotFoundPage({ isNetworkError = false, error = null, onR
       <div className="lf-404-actions">
         {isUnreachable ? (
           <>
-            <button type="button" onClick={handleRetryClick} className="lf-btn lf-btn-primary cursor-pointer">
+            <button
+              type="button"
+              onClick={handleRetryClick}
+              className="lf-btn lf-btn-primary cursor-pointer"
+            >
               <RotateCcw size={16} />
               Try again
             </button>

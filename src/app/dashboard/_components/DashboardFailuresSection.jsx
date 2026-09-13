@@ -35,7 +35,8 @@ export default function DashboardFailuresSection({
               Publishing Pipeline Operational
             </p>
             <p className="text-[11px] text-muted-foreground">
-              All Buffer workers and LinkedIn API webhooks responding within normal SLAs (0 dispatch failures).
+              All Buffer workers and LinkedIn API webhooks responding within normal SLAs (0 dispatch
+              failures).
             </p>
           </div>
         </div>
@@ -69,7 +70,8 @@ export default function DashboardFailuresSection({
                 </span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {failedPosts.length} post{failedPosts.length > 1 ? 's' : ''} encountered fatal publishing errors and halted before dispatch.
+                {failedPosts.length} post{failedPosts.length > 1 ? 's' : ''} encountered fatal
+                publishing errors and halted before dispatch.
               </p>
             </div>
           </div>

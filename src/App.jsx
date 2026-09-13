@@ -63,14 +63,29 @@ export default function App() {
           <Route path="/" element={withBoundary(OperationsDashboardPage, 'Dashboard')} />
           <Route path="/dashboard" element={withBoundary(OperationsDashboardPage, 'Dashboard')} />
           <Route path="/analytics" element={withBoundary(AnalyticsPage, 'Analytics')} />
-          <Route path="/approval-workflow" element={withBoundary(ApprovalWorkflowPage, 'Approval Workflow')} />
-          <Route path="/post-creation-composer" element={withBoundary(ComposerPage, 'Post Composer')} />
+          <Route
+            path="/approval-workflow"
+            element={withBoundary(ApprovalWorkflowPage, 'Approval Workflow')}
+          />
+          <Route
+            path="/post-creation-composer"
+            element={withBoundary(ComposerPage, 'Post Composer')}
+          />
           <Route path="/composer" element={<Navigate to="/post-creation-composer" replace />} />
           <Route path="/settings" element={withBoundary(SettingsPage, 'Settings')} />
           <Route path="/ai-generator" element={withBoundary(AIGeneratorPage, 'AI Generator')} />
-          <Route path="/content-calendar" element={withBoundary(ContentCalendarPage, 'Content Calendar')} />
-          <Route path="/content-library" element={withBoundary(ContentLibraryPage, 'Content Library')} />
-          <Route path="/post-templates" element={withBoundary(PostTemplatesPage, 'Post Templates')} />
+          <Route
+            path="/content-calendar"
+            element={withBoundary(ContentCalendarPage, 'Content Calendar')}
+          />
+          <Route
+            path="/content-library"
+            element={withBoundary(ContentLibraryPage, 'Content Library')}
+          />
+          <Route
+            path="/post-templates"
+            element={withBoundary(PostTemplatesPage, 'Post Templates')}
+          />
           <Route path="/team" element={withBoundary(TeamPage, 'Team')} />
           <Route path="/topics" element={withBoundary(TopicsPage, 'Topics')} />
         </Route>

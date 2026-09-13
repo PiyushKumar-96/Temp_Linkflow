@@ -118,7 +118,10 @@ export const STATUS_META = Object.freeze({
  */
 export function normalizeStatus(rawStatus) {
   if (!rawStatus) return POST_STATUS.PLANNED;
-  const s = String(rawStatus).toLowerCase().trim().replace(/[\s-]+/g, '_');
+  const s = String(rawStatus)
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]+/g, '_');
 
   switch (s) {
     case 'draft':
@@ -168,10 +171,7 @@ export function isTerminal(status) {
 
 export function isInProgress(status) {
   const canonical = normalizeStatus(status);
-  return (
-    canonical === POST_STATUS.GENERATING ||
-    canonical === POST_STATUS.AUTO_REVIEW
-  );
+  return canonical === POST_STATUS.GENERATING || canonical === POST_STATUS.AUTO_REVIEW;
 }
 
 export function canReview(status) {
@@ -308,4 +308,3 @@ export function matchesStatusBucket(status, bucket) {
   if (!bucket || bucket === 'all' || bucket === STATUS_BUCKET.ALL) return true;
   return getStatusBucket(status) === bucket;
 }
-

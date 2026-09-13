@@ -19,17 +19,71 @@ import {
 } from 'lucide-react';
 
 const PALETTE_ITEMS = [
-  { id: 'composer', label: 'Post Composer', href: '/post-creation-composer', category: 'Content Creation', icon: PenTool },
-  { id: 'approval', label: 'Approval Queue', href: '/approval-workflow', category: 'Review & Approvals', icon: CheckCircle2 },
-  { id: 'calendar', label: 'Content Calendar', href: '/content-calendar', category: 'Planning', icon: Calendar },
+  {
+    id: 'composer',
+    label: 'Post Composer',
+    href: '/post-creation-composer',
+    category: 'Content Creation',
+    icon: PenTool,
+  },
+  {
+    id: 'approval',
+    label: 'Approval Queue',
+    href: '/approval-workflow',
+    category: 'Review & Approvals',
+    icon: CheckCircle2,
+  },
+  {
+    id: 'calendar',
+    label: 'Content Calendar',
+    href: '/content-calendar',
+    category: 'Planning',
+    icon: Calendar,
+  },
   { id: 'topics', label: 'Content Topics', href: '/topics', category: 'Planning', icon: Layers },
-  { id: 'ai', label: 'AI Post Generator', href: '/ai-generator', category: 'AI Tools', icon: Sparkles },
-  { id: 'templates', label: 'Post Templates', href: '/post-templates', category: 'Library', icon: Bookmark },
-  { id: 'library', label: 'Content Library', href: '/content-library', category: 'Library', icon: Bookmark },
-  { id: 'dashboard', label: 'Operations Dashboard', href: '/dashboard', category: 'Analytics', icon: LayoutDashboard },
-  { id: 'analytics', label: 'Performance Analytics', href: '/analytics', category: 'Analytics', icon: BarChart3 },
+  {
+    id: 'ai',
+    label: 'AI Post Generator',
+    href: '/ai-generator',
+    category: 'AI Tools',
+    icon: Sparkles,
+  },
+  {
+    id: 'templates',
+    label: 'Post Templates',
+    href: '/post-templates',
+    category: 'Library',
+    icon: Bookmark,
+  },
+  {
+    id: 'library',
+    label: 'Content Library',
+    href: '/content-library',
+    category: 'Library',
+    icon: Bookmark,
+  },
+  {
+    id: 'dashboard',
+    label: 'Operations Dashboard',
+    href: '/dashboard',
+    category: 'Analytics',
+    icon: LayoutDashboard,
+  },
+  {
+    id: 'analytics',
+    label: 'Performance Analytics',
+    href: '/analytics',
+    category: 'Analytics',
+    icon: BarChart3,
+  },
   { id: 'team', label: 'Team Members & Roles', href: '/team', category: 'Workspace', icon: Users },
-  { id: 'settings', label: 'Account & Workspace Settings', href: '/settings', category: 'Workspace', icon: Settings },
+  {
+    id: 'settings',
+    label: 'Account & Workspace Settings',
+    href: '/settings',
+    category: 'Workspace',
+    icon: Settings,
+  },
 ];
 
 export default function CommandPalette({ open, onClose }) {
@@ -84,7 +138,9 @@ export default function CommandPalette({ open, onClose }) {
       setSelectedIndex((prev) => (filteredItems.length ? (prev + 1) % filteredItems.length : 0));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => (filteredItems.length ? (prev - 1 + filteredItems.length) % filteredItems.length : 0));
+      setSelectedIndex((prev) =>
+        filteredItems.length ? (prev - 1 + filteredItems.length) % filteredItems.length : 0
+      );
     } else if (e.key === 'Enter' && filteredItems[selectedIndex]) {
       e.preventDefault();
       handleSelect(filteredItems[selectedIndex]);
@@ -152,7 +208,12 @@ export default function CommandPalette({ open, onClose }) {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon size={16} className={isSelected ? 'text-[var(--brand,#0A66C2)]' : 'text-[#6B6760]'} />
+                      <Icon
+                        size={16}
+                        className={
+                          isSelected ? 'text-[color:var(--brand,#0A66C2)]' : 'text-[#6B6760]'
+                        }
+                      />
                       <span className="text-[13.5px] font-medium">{item.label}</span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -100,9 +100,15 @@ export default function SettingsShell() {
 
   // Tab 3: Brand Voice
   const [tone, setTone] = useState('Authoritative, data-backed, and conversational');
-  const [bannedKeywords, setBannedKeywords] = useState('synergy, game-changer, revolutionary, guru');
-  const [targetAudience, setTargetAudience] = useState('B2B SaaS Founders, VP Product, and Growth Marketers');
-  const [hookRules, setHookRules] = useState('Start with high-contrast data, a myth debunk, or a personal milestone');
+  const [bannedKeywords, setBannedKeywords] = useState(
+    'synergy, game-changer, revolutionary, guru'
+  );
+  const [targetAudience, setTargetAudience] = useState(
+    'B2B SaaS Founders, VP Product, and Growth Marketers'
+  );
+  const [hookRules, setHookRules] = useState(
+    'Start with high-contrast data, a myth debunk, or a personal milestone'
+  );
 
   // Tab 4: Notification Preferences
   const [notifyOnReview, setNotifyOnReview] = useState(true);
@@ -119,7 +125,10 @@ export default function SettingsShell() {
         if (parsed.rules && Array.isArray(parsed.rules)) {
           const normalized = parsed.rules.map((r, i) => ({
             ...r,
-            slots: Array.isArray(r.slots) && r.slots.length > 0 ? r.slots : (defaultRules[i]?.slots || [defaultSlot('10:00')]),
+            slots:
+              Array.isArray(r.slots) && r.slots.length > 0
+                ? r.slots
+                : defaultRules[i]?.slots || [defaultSlot('10:00')],
           }));
           setRules(normalized);
         }
@@ -243,7 +252,8 @@ export default function SettingsShell() {
         <div>
           <h1 className="text-2xl font-700 text-foreground">Settings & Guidelines</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Configure LinkedIn accounts, schedule windows, marketing series, brand voice rules, and notifications
+            Configure LinkedIn accounts, schedule windows, marketing series, brand voice rules, and
+            notifications
           </p>
         </div>
 
@@ -385,12 +395,7 @@ export default function SettingsShell() {
       )}
 
       {/* TAB 2: SERIES (NEW TAB) */}
-      {activeTab === 'series' && (
-        <SeriesTab
-          series={series}
-          onUpdateSeries={handleUpdateSeries}
-        />
-      )}
+      {activeTab === 'series' && <SeriesTab series={series} onUpdateSeries={handleUpdateSeries} />}
 
       {/* TAB 3: LINKEDIN ACCOUNTS */}
       {activeTab === 'accounts' && (
@@ -494,7 +499,8 @@ export default function SettingsShell() {
               Brand Voice & AI Generation Rules
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              These guidelines are injected into every AI drafting and review prompt to ensure consistent quality
+              These guidelines are injected into every AI drafting and review prompt to ensure
+              consistent quality
             </p>
           </div>
 

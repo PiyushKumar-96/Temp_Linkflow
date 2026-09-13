@@ -42,6 +42,27 @@ const toneSuggestions = [
   },
 ];
 
+function Section({ id, title, icon: Icon, openSection, setOpenSection, children }) {
+  return (
+    <div className="border border-border rounded-lg overflow-hidden">
+      <button
+        onClick={() => setOpenSection(openSection === id ? null : id)}
+        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted/30 hover:bg-muted/60 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Icon size={14} className="text-accent" />
+          <span className="text-sm font-600 text-foreground">{title}</span>
+        </div>
+        <ChevronDown
+          size={14}
+          className={`text-muted-foreground transition-transform duration-200 ${openSection === id ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {openSection === id && <div className="p-3 border-t border-border">{children}</div>}
+    </div>
+  );
+}
+
 export default function ComposerAIPanel({
   content,
   tone,
@@ -87,25 +108,6 @@ export default function ComposerAIPanel({
     'Add more data points',
   ];
 
-  const Section = ({ id, title, icon: Icon, children }) => (
-    <div className="border border-border rounded-lg overflow-hidden">
-      <button
-        onClick={() => setOpenSection(openSection === id ? null : id)}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted/30 hover:bg-muted/60 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <Icon size={14} className="text-accent" />
-          <span className="text-sm font-600 text-foreground">{title}</span>
-        </div>
-        <ChevronDown
-          size={14}
-          className={`text-muted-foreground transition-transform duration-200 ${openSection === id ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {openSection === id && <div className="p-3 border-t border-border">{children}</div>}
-    </div>
-  );
-
   return (
     <div className="card p-4 flex flex-col gap-3 sticky top-20">
       {/* Header */}
@@ -120,7 +122,13 @@ export default function ComposerAIPanel({
       </div>
 
       {/* Hashtag section */}
-      <Section id="hashtags" title="Hashtag Suggestions" icon={Hash}>
+      <Section
+        id="hashtags"
+        title="Hashtag Suggestions"
+        icon={Hash}
+        openSection={openSection}
+        setOpenSection={setOpenSection}
+      >
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">{selectedHashtags.length} selected</span>
           <button
@@ -149,7 +157,13 @@ export default function ComposerAIPanel({
       </Section>
 
       {/* Tone rewrite section */}
-      <Section id="tone" title="Rewrite by Tone" icon={Wand2}>
+      <Section
+        id="tone"
+        title="Rewrite by Tone"
+        icon={Wand2}
+        openSection={openSection}
+        setOpenSection={setOpenSection}
+      >
         <div className="flex flex-col gap-2">
           {toneSuggestions.map(({ tone: t, preview }) => (
             <button
@@ -173,7 +187,13 @@ export default function ComposerAIPanel({
       </Section>
 
       {/* Improve section */}
-      <Section id="improve" title="Improve Post" icon={Sparkles}>
+      <Section
+        id="improve"
+        title="Improve Post"
+        icon={Sparkles}
+        openSection={openSection}
+        setOpenSection={setOpenSection}
+      >
         <div className="flex flex-col gap-1.5">
           {improveOptions.map((opt) => (
             <button

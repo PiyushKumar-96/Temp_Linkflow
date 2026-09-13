@@ -29,7 +29,15 @@ const MOCK_CONTENTS = [
   "We reduced our customer onboarding time by 62% in one quarter.\n\nNot with more automation. Not with complex AI bots.\n\nWith one simple change: we stopped assuming we knew what customers needed and started asking them directly via 15-minute weekly teardowns.\n\nHere's the full breakdown of what we changed:\n\n• Simplified 8 setup steps into 3 mandatory inputs\n• Replaced 40-page manuals with 2-minute Loom walkthroughs\n• Assigned proactive customer success owners on Day 1\n\nHow does your team optimize initial time-to-value?",
 ];
 
-function generateMockPost(topicTitle, theme, reference, visualFormat, index, scheduleDate, scheduleTime) {
+function generateMockPost(
+  topicTitle,
+  theme,
+  reference,
+  visualFormat,
+  index,
+  scheduleDate,
+  scheduleTime
+) {
   const content = MOCK_CONTENTS[index % MOCK_CONTENTS.length];
   const postCategory = theme || 'Thought Leadership';
 
@@ -86,8 +94,16 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
       metricLabel: 'Onboarding Velocity Lift',
       pillars: [
         { step: '01', title: 'Streamlined Setup', desc: 'Reduced friction in user onboarding' },
-        { step: '02', title: 'Async Loom Guides', desc: 'Visual step-by-step contextual walkthroughs' },
-        { step: '03', title: 'Direct Customer SLA', desc: 'Guaranteed 24-hour turnaround on blockers' },
+        {
+          step: '02',
+          title: 'Async Loom Guides',
+          desc: 'Visual step-by-step contextual walkthroughs',
+        },
+        {
+          step: '03',
+          title: 'Direct Customer SLA',
+          desc: 'Guaranteed 24-hour turnaround on blockers',
+        },
       ],
       footerNote: reference ? `Anchored to: ${reference}` : 'Source: LinkedFlow Benchmarks 2026',
     };
@@ -98,7 +114,13 @@ function generateMockPost(topicTitle, theme, reference, visualFormat, index, sch
         {
           id: `cite-${Date.now()}-${index}`,
           sourceName: reference.startsWith('http') ? 'Source document' : 'Context note',
-          domain: reference.startsWith('http') ? new URL(reference.startsWith('http://') || reference.startsWith('https://') ? reference : `https://${reference}`).hostname : 'internal',
+          domain: reference.startsWith('http')
+            ? new URL(
+                reference.startsWith('http://') || reference.startsWith('https://')
+                  ? reference
+                  : `https://${reference}`
+              ).hostname
+            : 'internal',
           url: reference.startsWith('http') ? reference : '#',
           claim: `Incorporated reference: "${reference}"`,
           verifiedDate: '2026',
@@ -241,11 +263,20 @@ export default function AIGeneratorShell() {
         customTopics.length > 0
           ? customTopics[i % customTopics.length]
           : activeTopic || MOCK_TOPICS[i % MOCK_TOPICS.length];
-      const slot = useScheduleRules && sequentialSlots[i]
-        ? sequentialSlots[i]
-        : { date: addDays(startDate, i), time: defaultTime, isSettingsSlot: false };
+      const slot =
+        useScheduleRules && sequentialSlots[i]
+          ? sequentialSlots[i]
+          : { date: addDays(startDate, i), time: defaultTime, isSettingsSlot: false };
 
-      const newPost = generateMockPost(postTopic, theme, reference, visualFormat, i, slot.date, slot.time);
+      const newPost = generateMockPost(
+        postTopic,
+        theme,
+        reference,
+        visualFormat,
+        i,
+        slot.date,
+        slot.time
+      );
 
       setGeneratedPosts((prev) => [...prev, newPost]);
     }
@@ -336,7 +367,9 @@ export default function AIGeneratorShell() {
     );
   };
 
-  const completedCount = generatedPosts.filter((p) => p.status === POST_STATUS.AWAITING_REVIEW).length;
+  const completedCount = generatedPosts.filter(
+    (p) => p.status === POST_STATUS.AWAITING_REVIEW
+  ).length;
 
   return (
     <div className="flex flex-col gap-5 max-w-[1360px] mx-auto pb-14 px-2 sm:px-4">
@@ -346,9 +379,16 @@ export default function AIGeneratorShell() {
       {/* Cockpit Context Bar */}
       <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl flex-wrap">
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <span className="font-medium text-slate-800 dark:text-slate-200">Batch post generator</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
+            Batch post generator
+          </span>
           <span>&bull;</span>
-          <span>Format: <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">{visualFormat}</strong></span>
+          <span>
+            Format:{' '}
+            <strong className="font-medium text-slate-700 dark:text-slate-200 capitalize">
+              {visualFormat}
+            </strong>
+          </span>
           <span>&bull;</span>
           <span>Auto-scheduling enabled</span>
         </div>
@@ -392,7 +432,9 @@ export default function AIGeneratorShell() {
               setCustomTopics((prev) => [...prev, newTopic.trim()]);
               setNewTopic('');
             }}
-            onRemoveCustomTopic={(idx) => setCustomTopics((prev) => prev.filter((_, i) => i !== idx))}
+            onRemoveCustomTopic={(idx) =>
+              setCustomTopics((prev) => prev.filter((_, i) => i !== idx))
+            }
             postCount={postCount}
             onPostCountChange={setPostCount}
             useScheduleRules={useScheduleRules}
@@ -464,9 +506,7 @@ export default function AIGeneratorShell() {
                   {!isGenerating && (
                     <>
                       <span>&bull;</span>
-                      <span>
-                        {completedCount} ready for review
-                      </span>
+                      <span>{completedCount} ready for review</span>
                     </>
                   )}
                 </div>
@@ -491,7 +531,9 @@ export default function AIGeneratorShell() {
                     post={post}
                     index={idx}
                     isExpanded={expandedPost === post.id}
-                    onToggleExpand={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                    onToggleExpand={() =>
+                      setExpandedPost(expandedPost === post.id ? null : post.id)
+                    }
                     onRemove={() => handleRemovePost(post.id)}
                     onSelectImageIndex={(newIdx) => handleSelectImageIndex(post.id, newIdx)}
                     onSendToQueue={handleSendOneToApprovalQueue}

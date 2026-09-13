@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { Clock, AlertTriangle, CheckCircle2, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 
 const PAGE_SIZE = 10;
 
@@ -107,7 +114,11 @@ export default function ApprovalQueue({
                 : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 ring-emerald-600/20'
             }`}
           >
-            {isRejected ? <XCircle size={24} strokeWidth={2} /> : <CheckCircle2 size={24} strokeWidth={2.5} />}
+            {isRejected ? (
+              <XCircle size={24} strokeWidth={2} />
+            ) : (
+              <CheckCircle2 size={24} strokeWidth={2.5} />
+            )}
           </div>
           <p className="text-[14px] font-bold text-slate-900 dark:text-white">
             {isRejected ? 'No rejected posts' : 'Publishing is running smoothly'}
@@ -167,7 +178,9 @@ export default function ApprovalQueue({
                       {post.title}
                     </p>
                     <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-                      <span className="font-medium text-slate-700 dark:text-slate-300">{post.author}</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300">
+                        {post.author}
+                      </span>
                       <span className="flex items-center gap-1">
                         <Clock size={11} className="text-slate-400" />
                         Due {post.dueDate}
@@ -190,7 +203,18 @@ export default function ApprovalQueue({
       {postList.length > 0 && (
         <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <span className="tabular-nums">
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{(safePage - 1) * PAGE_SIZE + 1}</span>–<span className="font-semibold text-slate-700 dark:text-slate-300">{Math.min(safePage * PAGE_SIZE, postList.length)}</span> of <span className="font-semibold text-slate-700 dark:text-slate-300">{postList.length}</span>
+            Showing{' '}
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              {(safePage - 1) * PAGE_SIZE + 1}
+            </span>
+            –
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              {Math.min(safePage * PAGE_SIZE, postList.length)}
+            </span>{' '}
+            of{' '}
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              {postList.length}
+            </span>
           </span>
 
           <div className="flex items-center gap-1.5">

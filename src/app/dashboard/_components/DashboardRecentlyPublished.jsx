@@ -14,14 +14,20 @@ export default function DashboardRecentlyPublished({ publishedPosts = [], limit 
         icon={Send}
         tone="emerald"
         title="Recently published"
-        badge={<span className="hidden text-xs font-medium text-muted-foreground sm:inline">Last 14 days</span>}
+        badge={
+          <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+            Last 14 days
+          </span>
+        }
         action={<PanelLink onClick={() => navigate('/analytics')}>Analytics</PanelLink>}
       />
 
       {publishedPosts.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
           <p className="text-[13px] font-semibold text-foreground">No posts published yet</p>
-          <p className="mt-1 text-xs text-muted-foreground">Results show up here after your first post goes live.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Results show up here after your first post goes live.
+          </p>
         </div>
       ) : (
         <ul className="mt-3 flex flex-col divide-y divide-border/60">
@@ -35,7 +41,9 @@ export default function DashboardRecentlyPublished({ publishedPosts = [], limit 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     {post.category && <Pill tone="slate">{post.category}</Pill>}
-                    <span className="text-[11px] text-muted-foreground">Published {post.publishedDate}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Published {post.publishedDate}
+                    </span>
                   </div>
                   <p className="mt-1 truncate text-[13px] font-semibold text-foreground transition-colors group-hover:text-primary">
                     {post.title}

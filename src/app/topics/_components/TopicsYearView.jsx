@@ -40,7 +40,10 @@ export default function TopicsYearView({
           <div>
             <h2 className="text-sm font-bold text-foreground">2026 Annual Editorial Roadmap</h2>
             <p className="text-xs text-muted-foreground">
-              {coveredMonths} of 12 months scheduled · {gapMonths > 0 ? `${gapMonths} coverage gaps detected` : 'Full 12-month coverage achieved'}
+              {coveredMonths} of 12 months scheduled ·{' '}
+              {gapMonths > 0
+                ? `${gapMonths} coverage gaps detected`
+                : 'Full 12-month coverage achieved'}
             </p>
           </div>
         </div>

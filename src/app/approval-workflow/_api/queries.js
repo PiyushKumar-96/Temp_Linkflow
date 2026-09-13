@@ -47,7 +47,8 @@ export const INITIAL_APPROVAL_POSTS = [
           type: 'Formatting',
           severity: 'low',
           message: 'Paragraph spacing in body section',
-          suggestion: 'Maintain double break between arrow bullet points for optimal mobile scannability',
+          suggestion:
+            'Maintain double break between arrow bullet points for optimal mobile scannability',
         },
         {
           type: 'Call to Action',
@@ -69,7 +70,8 @@ export const INITIAL_APPROVAL_POSTS = [
         sourceName: 'Harvard Business Review',
         domain: 'hbr.org',
         url: 'https://hbr.org/topic/async-productivity',
-        claim: 'Teams switching to async communication report 34% higher employee satisfaction and +3.6 hours of uninterrupted focus time per day.',
+        claim:
+          'Teams switching to async communication report 34% higher employee satisfaction and +3.6 hours of uninterrupted focus time per day.',
         verifiedDate: 'May 2026',
         confidence: 96,
       },
@@ -78,7 +80,8 @@ export const INITIAL_APPROVAL_POSTS = [
         sourceName: 'McKinsey Global Institute',
         domain: 'mckinsey.com',
         url: 'https://mckinsey.com/insights/future-of-work',
-        claim: 'Companies reducing mandatory meeting slots see 42% faster decision velocity in distributed software teams.',
+        claim:
+          'Companies reducing mandatory meeting slots see 42% faster decision velocity in distributed software teams.',
         verifiedDate: 'Jan 2026',
         confidence: 92,
       },
@@ -180,7 +183,8 @@ export const INITIAL_APPROVAL_POSTS = [
         sourceName: 'HubSpot State of Marketing 2026',
         domain: 'hubspot.com',
         url: 'https://hubspot.com/reports/state-of-marketing',
-        claim: 'B2B companies with structured repurposing pipelines generate 2.8x more organic pipeline per writer.',
+        claim:
+          'B2B companies with structured repurposing pipelines generate 2.8x more organic pipeline per writer.',
         verifiedDate: 'Feb 2026',
         confidence: 94,
       },
@@ -312,7 +316,8 @@ export const INITIAL_APPROVAL_POSTS = [
     revisions: 1,
     revisionsList: [],
     failureDetails: {
-      errorMessage: 'Buffer API Error 429: LinkedIn profile quota exceeded for current billing window',
+      errorMessage:
+        'Buffer API Error 429: LinkedIn profile quota exceeded for current billing window',
       failedAt: '2026-09-08 14:15 UTC',
       attemptCount: 3,
       maxAttempts: 3,
@@ -350,7 +355,7 @@ export function useApprovalPosts() {
       let result = null;
       try {
         const data = await apiClient.get('/posts', { params: { queue: 'approval' } });
-        const list = Array.isArray(data?.posts) ? data.posts : (Array.isArray(data) ? data : null);
+        const list = Array.isArray(data?.posts) ? data.posts : Array.isArray(data) ? data : null;
         if (list && list.length > 0) result = list;
       } catch {
         // Fallback below
@@ -374,12 +379,15 @@ export function useApprovalPosts() {
           p.source ||
           (p.id?.startsWith('bulk-') || p.id === 'up-3' || p.id === 'appr-003'
             ? 'bulk_upload'
-            : p.id?.startsWith('comp-') || p.id === 'up-1' || p.id === 'up-4' || p.id === 'appr-002' || p.id === 'appr-004'
-            ? 'composer'
-            : 'ai_generator'),
+            : p.id?.startsWith('comp-') ||
+                p.id === 'up-1' ||
+                p.id === 'up-4' ||
+                p.id === 'appr-002' ||
+                p.id === 'appr-004'
+              ? 'composer'
+              : 'ai_generator'),
       }));
     },
     staleTime: 30 * 1000,
   });
 }
-

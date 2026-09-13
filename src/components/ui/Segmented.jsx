@@ -2,8 +2,19 @@
 
 import React from 'react';
 
-export function Segmented({ options = [], value, onChange, label, size = 'md', inline = false, className = '' }) {
-  const index = Math.max(0, options.findIndex((o) => o.value === value));
+export function Segmented({
+  options = [],
+  value,
+  onChange,
+  label,
+  size = 'md',
+  inline = false,
+  className = '',
+}) {
+  const index = Math.max(
+    0,
+    options.findIndex((o) => o.value === value)
+  );
 
   const onKeyDown = (e) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;

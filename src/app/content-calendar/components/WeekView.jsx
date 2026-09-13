@@ -41,6 +41,16 @@ function toDateStr(d) {
 }
 
 export default function WeekView({ currentDate, posts, selectedPost, onSelectPost }) {
+  const queryClient = useQueryClient();
+
+  const handlePrefetch = (postId) => {
+    queryClient.prefetchQuery({
+      queryKey: ['post', 'detail', postId],
+      queryFn: async () => apiClient.get(`/posts/${postId}`),
+      staleTime: 60 * 1000,
+    });
+  };
+
   const weekDays = getWeekDays(currentDate);
   const todayStr = '2026-09-08';
 

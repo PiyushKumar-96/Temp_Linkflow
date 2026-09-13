@@ -99,11 +99,17 @@ export default function AnalyticsDashboardPage() {
                   Viewing Post Analytics
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  Published: <span className="text-foreground font-medium">{selectedPost.publishedDate || 'Recent'}</span>
+                  Published:{' '}
+                  <span className="text-foreground font-medium">
+                    {selectedPost.publishedDate || 'Recent'}
+                  </span>
                 </span>
                 {selectedPost.targetAccount && (
                   <span className="text-xs text-muted-foreground">
-                    Target: <span className="text-foreground font-medium">{selectedPost.targetAccount}</span>
+                    Target:{' '}
+                    <span className="text-foreground font-medium">
+                      {selectedPost.targetAccount}
+                    </span>
                   </span>
                 )}
               </div>

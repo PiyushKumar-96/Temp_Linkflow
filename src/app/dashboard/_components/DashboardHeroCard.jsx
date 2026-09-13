@@ -13,7 +13,7 @@ export default function DashboardHeroCard({
   const today = formatDayLabel(new Date(), { year: true });
 
   return (
-    <section className="relative isolate flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[14px] bg-[var(--card-dark)] p-6 text-white">
+    <section className="relative isolate flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[14px] bg-[color:var(--card-dark)] p-6 text-white">
       <HeroScene phase={scenePhase} />
 
       {/* Top row: translucent date pill */}
@@ -43,10 +43,10 @@ export default function DashboardHeroCard({
         <button
           type="button"
           onClick={onOpenAgenda}
-          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-xs font-semibold text-[var(--text)] transition-colors hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-xs font-semibold text-[color:var(--text)] transition-colors hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
           <span>View agenda</span>
-          <span className="grid size-5 place-items-center rounded-full bg-[var(--text)] text-white">
+          <span className="grid size-5 place-items-center rounded-full bg-[color:var(--text)] text-white">
             <ArrowUpRight size={12} strokeWidth={2.4} />
           </span>
         </button>

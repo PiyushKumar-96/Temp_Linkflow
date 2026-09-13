@@ -45,7 +45,8 @@ export const TEMPLATES = [
     id: 'tpl-004',
     name: 'Hiring Post',
     category: 'Hiring',
-    description: 'Attract candidates by leading with culture and differentiation, not just the role',
+    description:
+      'Attract candidates by leading with culture and differentiation, not just the role',
     body: `We're looking for a [ROLE] to join our [TEAM] team.\n\nHere's why this role is different from every other [ROLE] job posting:\n\n[3 things that make your company/role unique]\n\nWhat you'll actually do:\n→ [Responsibility 1]\n→ [Responsibility 2]\n→ [Responsibility 3]\n\nWhat we offer:\n→ [Benefit 1]\n→ [Benefit 2]\n\nIf this sounds like you, [CALL TO ACTION].\n\nKnow someone perfect? Tag them below 👇`,
     tone: 'conversational',
     hashtags: ['#Hiring', '#WeAreHiring', '#TechJobs'],

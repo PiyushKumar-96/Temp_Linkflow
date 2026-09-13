@@ -71,8 +71,8 @@ export default function AIGeneratorLoadingState({
                 {stage === 0
                   ? 'Formulating hook & perspective…'
                   : stage === 1
-                  ? 'Writing LinkedIn body & CTA…'
-                  : `Synthesizing ${visualFormat === 'carousel' ? 'carousel slides' : visualFormat === 'infographic' ? 'infographic data' : 'visual asset'}…`}
+                    ? 'Writing LinkedIn body & CTA…'
+                    : `Synthesizing ${visualFormat === 'carousel' ? 'carousel slides' : visualFormat === 'infographic' ? 'infographic data' : 'visual asset'}…`}
               </span>
             </span>
           </div>
@@ -167,21 +167,27 @@ export default function AIGeneratorLoadingState({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-300 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-purple-300" />
             </span>
-            <span>{stage === 0 ? 'Analyzing 35%' : stage === 1 ? 'Generating 72%' : 'Rendering 96%'}</span>
+            <span>
+              {stage === 0 ? 'Analyzing 35%' : stage === 1 ? 'Generating 72%' : 'Rendering 96%'}
+            </span>
           </div>
 
           <span className="cmp-gen-caption">
-            <Sparkles size={13} className="text-purple-600 animate-spin" style={{ animationDuration: '4s' }} />
+            <Sparkles
+              size={13}
+              className="text-purple-600 animate-spin"
+              style={{ animationDuration: '4s' }}
+            />
             <span>
               {stage === 0
                 ? 'Crafting hook & thesis…'
                 : stage === 1
-                ? 'Composing post layout…'
-                : visualFormat === 'carousel'
-                ? 'Generating 5-slide PDF deck…'
-                : visualFormat === 'infographic'
-                ? 'Plotting metric visual charts…'
-                : 'Rendering high-definition visual…'}
+                  ? 'Composing post layout…'
+                  : visualFormat === 'carousel'
+                    ? 'Generating 5-slide PDF deck…'
+                    : visualFormat === 'infographic'
+                      ? 'Plotting metric visual charts…'
+                      : 'Rendering high-definition visual…'}
             </span>
           </span>
         </div>
@@ -212,7 +218,12 @@ export default function AIGeneratorLoadingState({
 
           <p className="cmp-gen-step text-xs font-medium" aria-live="polite">
             <span key={`${postNumber}-${stage}`} className="m-swap">
-              Post {postNumber} of {totalPosts}: {stage === 0 ? 'Formulating hook…' : stage === 1 ? 'Drafting copy & layout…' : 'Synthesizing visual asset…'}
+              Post {postNumber} of {totalPosts}:{' '}
+              {stage === 0
+                ? 'Formulating hook…'
+                : stage === 1
+                  ? 'Drafting copy & layout…'
+                  : 'Synthesizing visual asset…'}
             </span>
           </p>
 
@@ -220,13 +231,16 @@ export default function AIGeneratorLoadingState({
             {Array.from({ length: totalPosts }).map((_, i) => (
               <span
                 key={i}
-                className={i < currentPostIndex ? 'is-done' : i === currentPostIndex ? 'is-current' : ''}
+                className={
+                  i < currentPostIndex ? 'is-done' : i === currentPostIndex ? 'is-current' : ''
+                }
               />
             ))}
           </div>
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Applying brand voice rules for <strong className="text-slate-700 dark:text-slate-300 font-medium">{theme}</strong>
+            Applying brand voice rules for{' '}
+            <strong className="text-slate-700 dark:text-slate-300 font-medium">{theme}</strong>
             {topic ? ` on "${topic}"` : ''}.
           </p>
         </div>

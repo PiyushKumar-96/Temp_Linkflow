@@ -62,16 +62,15 @@ export default function InviteMemberModal({ isOpen, onClose, onInvite, isOwner }
           <div className="p-4 bg-amber-50 border-b border-amber-200 flex items-start gap-2.5 text-amber-800 text-xs">
             <ShieldAlert size={16} className="shrink-0 mt-0.5" />
             <p>
-              Only Account Owners can send binding team invitations. You can preview the invitation flow below.
+              Only Account Owners can send binding team invitations. You can preview the invitation
+              flow below.
             </p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-600 text-foreground mb-1.5">
-              Full Name
-            </label>
+            <label className="block text-xs font-600 text-foreground mb-1.5">Full Name</label>
             <input
               type="text"
               placeholder="e.g. Alex Rivera"
@@ -83,9 +82,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvite, isOwner }
           </div>
 
           <div>
-            <label className="block text-xs font-600 text-foreground mb-1.5">
-              Email Address
-            </label>
+            <label className="block text-xs font-600 text-foreground mb-1.5">Email Address</label>
             <input
               type="email"
               placeholder="alex@acme.corp"
@@ -97,9 +94,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvite, isOwner }
           </div>
 
           <div>
-            <label className="block text-xs font-600 text-foreground mb-1.5">
-              Workspace Role
-            </label>
+            <label className="block text-xs font-600 text-foreground mb-1.5">Workspace Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -112,11 +107,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvite, isOwner }
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary text-xs py-2 px-3"
-            >
+            <button type="button" onClick={onClose} className="btn-secondary text-xs py-2 px-3">
               Cancel
             </button>
             <button

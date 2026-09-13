@@ -2,7 +2,18 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Type, Image, Hash, TrendingUp, Copy, Pencil, Check, Layers, LayoutGrid } from 'lucide-react';
+import {
+  FileText,
+  Type,
+  Image,
+  Hash,
+  TrendingUp,
+  Copy,
+  Pencil,
+  Check,
+  Layers,
+  LayoutGrid,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/ui/StatusBadge';
 

@@ -31,7 +31,8 @@ export default function TopicsHeader({
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Plan your annual content strategy ahead, map audience angles, and generate downstream drafts.
+            Plan your annual content strategy ahead, map audience angles, and generate downstream
+            drafts.
           </p>
         </div>
 
@@ -77,7 +78,10 @@ export default function TopicsHeader({
         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
             <input
               type="text"
               placeholder="Search topics or briefs..."

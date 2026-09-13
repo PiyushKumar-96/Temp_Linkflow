@@ -164,11 +164,7 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-export default function HeroScene({
-  phase: phaseOverride,
-  transitionMs = 1600,
-  className = '',
-}) {
+export default function HeroScene({ phase: phaseOverride, transitionMs = 1600, className = '' }) {
   const [autoPhase, setAutoPhase] = useState(() => getPhase());
   const reducedMotion = usePrefersReducedMotion();
 
@@ -190,7 +186,7 @@ export default function HeroScene({
 
   const ease = useMemo(
     () => (reducedMotion ? '0ms linear' : `${transitionMs}ms cubic-bezier(0.4, 0, 0.2, 1)`),
-    [reducedMotion, transitionMs],
+    [reducedMotion, transitionMs]
   );
 
   const fill = (color, opacity) => ({

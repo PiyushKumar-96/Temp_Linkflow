@@ -72,7 +72,7 @@ export default function DashboardUpcomingPosts({ upcomingPosts = [] }) {
       <div className="divide-y divide-border">
         {filtered.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-xs">
-            No posts scheduled in the next 14 days. Click "Plan Topic" or "New Post" to add content.
+            No posts scheduled in the next 14 days. Click &quot;Plan Topic&quot; or &quot;New Post&quot; to add content.
           </div>
         ) : (
           filtered.map((post) => {
@@ -81,7 +81,11 @@ export default function DashboardUpcomingPosts({ upcomingPosts = [] }) {
             return (
               <div
                 key={post.id}
-                onClick={() => navigate(`/content-calendar?month=${post.scheduledDate?.slice(0, 7) || '2026-09'}`)}
+                onClick={() =>
+                  navigate(
+                    `/content-calendar?month=${post.scheduledDate?.slice(0, 7) || '2026-09'}`
+                  )
+                }
                 className="p-3.5 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
               >
                 <div className="flex items-start gap-3">

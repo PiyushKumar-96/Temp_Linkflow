@@ -8,13 +8,20 @@ import { AVATARS } from '@/temp-backend/data/media';
 import EmptyDayState from './EmptyDayState';
 
 const MONTH_SHORT = [
-  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+  'JAN',
+  'FEB',
+  'MAR',
+  'APR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AUG',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DEC',
 ];
-const DOW_FULL = [
-  'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY',
-  'THURSDAY', 'FRIDAY', 'SATURDAY',
-];
+const DOW_FULL = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
 /**
  * Format date string (YYYY-MM-DD) into reference style: "03'JAN, FRIDAY"
@@ -57,7 +64,12 @@ function formatTimeRange(timeStr) {
   return `${start.str} ${start.ampm} - ${end.str} ${end.ampm}`;
 }
 // Author avatar mapping
-const AUTHOR_AVATARS = { SR: AVATARS.sarah, MC: AVATARS.marcus, JP: AVATARS.jordan, LT: AVATARS.lisa };
+const AUTHOR_AVATARS = {
+  SR: AVATARS.sarah,
+  MC: AVATARS.marcus,
+  JP: AVATARS.jordan,
+  LT: AVATARS.lisa,
+};
 
 function AvatarStack({ post }) {
   const authorImg = AUTHOR_AVATARS[post.authorInitials] || AVATARS.sarah;
@@ -69,18 +81,19 @@ function AvatarStack({ post }) {
   return (
     <div className="flex items-center -space-x-2 shrink-0">
       {avatarList.map((av, idx) => (
-        <img key={idx} src={av.src} alt={av.alt} className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xs" loading="lazy" />
+        <img
+          key={idx}
+          src={av.src}
+          alt={av.alt}
+          className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xs"
+          loading="lazy"
+        />
       ))}
     </div>
   );
 }
 
-export default function DayTimelinePanel({
-  selectedDate,
-  posts = [],
-  selectedPost,
-  onSelectPost,
-}) {
+export default function DayTimelinePanel({ selectedDate, posts = [], selectedPost, onSelectPost }) {
   const navigate = useNavigate();
 
   // Filter and sort posts scheduled for this day

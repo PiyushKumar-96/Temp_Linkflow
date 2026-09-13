@@ -47,7 +47,8 @@ function getStageIndex(status) {
  */
 function getWhatHappensNext(status, post = {}) {
   const canonical = normalizeStatus(status);
-  const scheduledTimeText = post.scheduledDate || post.scheduledFor || post.dueDate || 'scheduled slot';
+  const scheduledTimeText =
+    post.scheduledDate || post.scheduledFor || post.dueDate || 'scheduled slot';
   const timeText = post.scheduledTime ? ` at ${post.scheduledTime}` : '';
 
   switch (canonical) {
@@ -91,7 +92,9 @@ export default function PipelineStageStepper({
   const nextActionLine = getWhatHappensNext(canonical, post);
 
   return (
-    <div className={`p-3 sm:p-3.5 bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/90 dark:border-slate-800 rounded-xl flex flex-col gap-3 ${className}`}>
+    <div
+      className={`p-3 sm:p-3.5 bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/90 dark:border-slate-800 rounded-xl flex flex-col gap-3 ${className}`}
+    >
       {/* Stepper horizontal line */}
       <div className="flex items-center justify-between gap-1 overflow-x-auto py-1 scrollbar-none">
         {PIPELINE_STAGES.map((stage, idx) => {
@@ -106,12 +109,12 @@ export default function PipelineStageStepper({
                     isFailed && isCurrent
                       ? 'bg-rose-600 text-white ring-4 ring-rose-500/20'
                       : isRejected && isCurrent
-                      ? 'bg-rose-600 text-white ring-4 ring-rose-500/20'
-                      : isCompleted
-                      ? 'bg-emerald-500 text-white shadow-2xs'
-                      : isCurrent
-                      ? 'bg-[#0a66c2] text-white ring-4 ring-[#0a66c2]/20 font-bold shadow-2xs'
-                      : 'bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-semibold'
+                        ? 'bg-rose-600 text-white ring-4 ring-rose-500/20'
+                        : isCompleted
+                          ? 'bg-emerald-500 text-white shadow-2xs'
+                          : isCurrent
+                            ? 'bg-[#0a66c2] text-white ring-4 ring-[#0a66c2]/20 font-bold shadow-2xs'
+                            : 'bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-semibold'
                   }`}
                 >
                   {isFailed && isCurrent ? (
@@ -128,8 +131,8 @@ export default function PipelineStageStepper({
                     isCurrent
                       ? 'font-semibold text-slate-950 dark:text-white'
                       : isCompleted
-                      ? 'font-medium text-slate-700 dark:text-slate-300'
-                      : 'font-normal text-slate-500 dark:text-slate-400'
+                        ? 'font-medium text-slate-700 dark:text-slate-300'
+                        : 'font-normal text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {stage.label}

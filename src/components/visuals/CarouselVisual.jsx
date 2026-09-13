@@ -74,8 +74,7 @@ export default function CarouselVisual({
   const handleDownloadPdf = () => {
     const textContent = activeSlides
       .map(
-        (s, i) =>
-          `=== Slide ${i + 1} of ${activeSlides.length} ===\n${s.headline}\n\n${s.body}\n`
+        (s, i) => `=== Slide ${i + 1} of ${activeSlides.length} ===\n${s.headline}\n\n${s.body}\n`
       )
       .join('\n\n');
     const blob = new Blob([textContent], { type: 'text/plain' });

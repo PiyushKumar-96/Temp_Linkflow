@@ -10,11 +10,7 @@ import { LIBRARY_ITEMS } from '@/temp-backend/data/content-library';
 import { getStoredPosts } from '@/temp-backend';
 
 function isApprovedStatus(status) {
-  return (
-    status === 'approved' ||
-    status === 'scheduled' ||
-    status === 'published'
-  );
+  return status === 'approved' || status === 'scheduled' || status === 'published';
 }
 
 export default function LibraryShell() {
@@ -48,7 +44,12 @@ export default function LibraryShell() {
     }
 
     const handleStorage = (e) => {
-      if (!e || !e.key || e.key === 'linkedflow_master_posts' || e.key === 'linkedflow_approval_posts') {
+      if (
+        !e ||
+        !e.key ||
+        e.key === 'linkedflow_master_posts' ||
+        e.key === 'linkedflow_approval_posts'
+      ) {
         setVersion((v) => v + 1);
       }
     };
@@ -88,8 +89,17 @@ export default function LibraryShell() {
       .map((p) => {
         const isPub = p.status === 'published';
         const formattedPublishDate = isPub
-          ? p.publishedDate || (p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Published')
-          : p.scheduledDate ? `${p.scheduledDate}${p.scheduledTime ? ` · ${p.scheduledTime}` : ''}` : 'Scheduled';
+          ? p.publishedDate ||
+            (p.publishedAt
+              ? new Date(p.publishedAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              : 'Published')
+          : p.scheduledDate
+            ? `${p.scheduledDate}${p.scheduledTime ? ` · ${p.scheduledTime}` : ''}`
+            : 'Scheduled';
 
         const safeAuthor =
           !p.author || p.author.toLowerCase().includes('bulk') ? 'Sarah Reeves' : p.author;
@@ -103,10 +113,10 @@ export default function LibraryShell() {
             p.visualFormat === 'carousel'
               ? 'carousel'
               : p.visualFormat === 'infographic'
-              ? 'infographic'
-              : p.imageUrl || (p.mediaUrls && p.mediaUrls.length > 0)
-              ? 'image'
-              : 'post',
+                ? 'infographic'
+                : p.imageUrl || (p.mediaUrls && p.mediaUrls.length > 0)
+                  ? 'image'
+                  : 'post',
           title: p.title || p.excerpt || (p.content || '').slice(0, 50),
           preview: p.content || p.excerpt || '',
           tags: Array.isArray(p.hashtags)
@@ -123,11 +133,13 @@ export default function LibraryShell() {
       });
 
     // 2. Only approved/published items from LIBRARY_ITEMS
-    const fromLibrary = LIBRARY_ITEMS.filter((item) => isApprovedStatus(item.status)).map((item) => ({
-      ...item,
-      source: item.source || 'composer',
-      publishDate: item.savedAt || 'Published',
-    }));
+    const fromLibrary = LIBRARY_ITEMS.filter((item) => isApprovedStatus(item.status)).map(
+      (item) => ({
+        ...item,
+        source: item.source || 'composer',
+        publishDate: item.savedAt || 'Published',
+      })
+    );
 
     // Deduplicate by ID
     const existingIds = new Set(fromPosts.map((p) => p.id));
@@ -135,7 +147,12 @@ export default function LibraryShell() {
   }, [version]);
 
   const sourceCounts = useMemo(() => {
-    const counts = { all: approvedLibraryItems.length, composer: 0, ai_generator: 0, bulk_upload: 0 };
+    const counts = {
+      all: approvedLibraryItems.length,
+      composer: 0,
+      ai_generator: 0,
+      bulk_upload: 0,
+    };
     approvedLibraryItems.forEach((item) => {
       const src = item.source || 'composer';
       if (counts[src] !== undefined) {
@@ -147,8 +164,7 @@ export default function LibraryShell() {
 
   const filtered = useMemo(() => {
     return approvedLibraryItems.filter((item) => {
-      const matchesSource =
-        sourceFilter === 'all' || (item.source || 'composer') === sourceFilter;
+      const matchesSource = sourceFilter === 'all' || (item.source || 'composer') === sourceFilter;
       const matchesSearch =
         !search ||
         item.title.toLowerCase().includes(search.toLowerCase()) ||

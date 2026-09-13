@@ -1,12 +1,6 @@
 'use client';
 
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApprovalPosts } from '@/app/approval-workflow/_api/queries';
@@ -18,7 +12,12 @@ import SidebarUserFooter from './SidebarUserFooter';
 const GROUP_1 = [
   { id: 'nav-composer', label: 'Post composer', href: '/post-creation-composer' },
   { id: 'nav-approval', label: 'Approval queue', href: '/approval-workflow', countKey: 'approval' },
-  { id: 'nav-calendar', label: 'Content calendar', href: '/content-calendar', countKey: 'calendar' },
+  {
+    id: 'nav-calendar',
+    label: 'Content calendar',
+    href: '/content-calendar',
+    countKey: 'calendar',
+  },
   { id: 'nav-topics', label: 'Topics', href: '/topics' },
   { id: 'nav-library', label: 'Library', href: '/content-library' },
   { id: 'nav-ai', label: 'AI generator', href: '/ai-generator' },
@@ -53,13 +52,13 @@ const NavRow = React.memo(function NavRow({
       to={item.href}
       onClick={onNavigate}
       aria-current={isActive ? 'page' : undefined}
-      className="group relative flex h-[38px] w-full items-center rounded-[14px] px-5 text-[13.5px] font-normal select-none focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-[#5B5BD6]/70"
+      className="group relative flex h-[38px] w-full items-center rounded-[14px] px-5 text-[13.5px] font-normal select-none focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_70%,transparent)]"
     >
       <span
         className={`relative z-10 truncate transition-[color,transform] duration-300 ease-out ${
           isActive
-            ? 'text-[#1A1917]'
-            : 'text-[#9C9890] group-hover:translate-x-[3px] group-hover:text-[#E8E5DE]'
+            ? 'text-[color:var(--rail-label-active)]'
+            : 'text-[color:var(--rail-label)] group-hover:translate-x-[3px] group-hover:text-[color:var(--rail-label-hover)]'
         }`}
       >
         {item.label}
@@ -69,10 +68,10 @@ const NavRow = React.memo(function NavRow({
         <span
           className={`relative z-10 ml-auto text-[12px] font-normal tabular-nums transition-colors duration-300 ${
             isActive
-              ? 'text-[#8A6D1A]'
+              ? 'text-[color:var(--rail-count-active)]'
               : countType === 'attention'
-              ? 'text-[#E8B84B]'
-              : 'text-[#6B6760]'
+                ? 'text-[color:var(--rail-count-attention)]'
+                : 'text-[color:var(--rail-count-muted)]'
           }`}
           aria-label={
             countType === 'attention'
@@ -87,11 +86,7 @@ const NavRow = React.memo(function NavRow({
   );
 });
 
-export default function Sidebar({
-  mobileOpen = false,
-  onCloseMobile,
-  onOpenCommandPalette,
-}) {
+export default function Sidebar({ mobileOpen = false, onCloseMobile, onOpenCommandPalette }) {
   const { pathname } = useLocation();
 
   const navRef = useRef(null);
@@ -136,7 +131,7 @@ export default function Sidebar({
       if (href === '/analytics') return pathname === '/analytics';
       return pathname.startsWith(href);
     },
-    [pathname],
+    [pathname]
   );
 
   // Exactly one active id. Longest href wins, so nested routes can't double-match.
@@ -184,7 +179,7 @@ export default function Sidebar({
       if (item.countKey === 'calendar') return scheduledCount;
       return 0;
     },
-    [approvalCount, scheduledCount],
+    [approvalCount, scheduledCount]
   );
 
   const renderRow = useCallback(
@@ -199,7 +194,7 @@ export default function Sidebar({
         registerRef={registerRef}
       />
     ),
-    [activeId, countFor, onCloseMobile, registerRef],
+    [activeId, countFor, onCloseMobile, registerRef]
   );
 
   return (
@@ -213,7 +208,7 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`fixed bottom-0 left-0 top-0 z-50 m-[14px] flex h-[calc(100vh-28px)] w-[196px] flex-col overflow-visible rounded-[28px] border-0 bg-[#181715] pb-3 pt-5 shadow-none transition-transform duration-200 ease-out min-[900px]:transform-none ${
+        className={`fixed bottom-0 left-0 top-0 z-50 m-[14px] flex h-[calc(100vh-28px)] w-[196px] flex-col overflow-visible rounded-[28px] border-0 bg-[color:var(--rail)] pb-3 pt-5 shadow-none transition-transform duration-200 ease-out min-[900px]:transform-none ${
           mobileOpen ? 'translate-x-0' : '-translate-x-[230px]'
         }`}
       >
@@ -221,16 +216,13 @@ export default function Sidebar({
           <Link
             to="/dashboard"
             onClick={onCloseMobile}
-            className="flex items-center rounded text-[16px] font-semibold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5B5BD6]"
+            className="flex items-center rounded text-[16px] font-semibold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
           >
             <span>LinkedFlow</span>
           </Link>
         </div>
 
-        <nav
-          ref={navRef}
-          className="relative flex min-h-0 flex-1 flex-col overflow-visible py-1"
-        >
+        <nav ref={navRef} className="relative flex min-h-0 flex-1 flex-col overflow-visible py-1">
           {pillY !== null && (
             <motion.span
               className="pointer-events-none absolute left-[8px] right-[8px] top-0 z-0 h-[38px] min-[900px]:right-[-18px]"
@@ -248,7 +240,7 @@ export default function Sidebar({
           <div className="flex flex-col">{GROUP_1.map(renderRow)}</div>
 
           <div
-            className="mx-4 my-2 border-t border-[#2A2824]"
+            className="mx-4 my-2 border-t border-[color:var(--rail-divider)]"
             style={{ borderTopWidth: '0.5px' }}
             role="separator"
           />

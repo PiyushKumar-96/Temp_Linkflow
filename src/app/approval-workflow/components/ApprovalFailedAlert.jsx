@@ -4,11 +4,7 @@ import React from 'react';
 import { AlertTriangle, RotateCw, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function ApprovalFailedAlert({
-  post,
-  onChangeBrief,
-  onDownloadManual,
-}) {
+export default function ApprovalFailedAlert({ post, onChangeBrief, onDownloadManual }) {
   return (
     <div className="rounded-xl border-2 border-destructive/50 bg-destructive/10 p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
@@ -21,7 +17,8 @@ export default function ApprovalFailedAlert({
               Publishing Pipeline Dispatch Halted
             </h4>
             <p className="text-xs text-foreground font-medium mt-0.5">
-              {post.failureDetails?.errorMessage || 'Buffer API 429: LinkedIn profile quota exceeded'}
+              {post.failureDetails?.errorMessage ||
+                'Buffer API 429: LinkedIn profile quota exceeded'}
             </p>
           </div>
         </div>

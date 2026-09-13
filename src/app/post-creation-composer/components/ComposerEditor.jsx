@@ -57,9 +57,30 @@ const TARGET_OPTIONS = TARGETS.map((t) => ({
 }));
 
 const LINKEDIN_EMOJIS = [
-  '🚀', '💡', '🔥', '📈', '🎯', '⚡', '🤖', '💻',
-  '👉', '👇', '👏', '🤝', '🙌', '👍', '💬', '✍️',
-  '🤩', '😄', '🤔', '🧠', '🏆', '✨', '🌟', '📌',
+  '🚀',
+  '💡',
+  '🔥',
+  '📈',
+  '🎯',
+  '⚡',
+  '🤖',
+  '💻',
+  '👉',
+  '👇',
+  '👏',
+  '🤝',
+  '🙌',
+  '👍',
+  '💬',
+  '✍️',
+  '🤩',
+  '😄',
+  '🤔',
+  '🧠',
+  '🏆',
+  '✨',
+  '🌟',
+  '📌',
 ];
 
 // ---------- Unicode formatting helpers (render as styled text on LinkedIn) ----------
@@ -179,7 +200,7 @@ function PillarPicker({ value, onChange }) {
               <span className="cmp-bar" aria-hidden="true">
                 <span
                   className={`cmp-bar-fill tone-${pillar.tone}`}
-                  style={{ '--v': Math.min(pillar.planned / pillar.goal, 1), '--m-i': i }}
+                  style={{ '--v': Math.min(pillar.planned / pillar.goal, 1) }}
                 />
               </span>
             </button>
@@ -351,7 +372,11 @@ export default function ComposerEditor({
     withSelection((_, start, end) => {
       const selected = safeContent.substring(start, end);
       if (selected.length > 0) {
-        pushHistory(safeContent.substring(0, start) + clearUnicodeFormatting(selected) + safeContent.substring(end));
+        pushHistory(
+          safeContent.substring(0, start) +
+            clearUnicodeFormatting(selected) +
+            safeContent.substring(end)
+        );
         toast.success('Formatting cleared from the selection');
       } else {
         pushHistory(clearUnicodeFormatting(safeContent));
@@ -379,7 +404,7 @@ export default function ComposerEditor({
       if (selected.length > 0) {
         const replacement = selected
           .split('\n')
-          .map((line, i) => `${i + 1}. ${line.replace(/^\d+\.\s*/, '')}`)
+          .map((line, i) => `${i + 1}. ${line.replace(/^[color:var(--warning-text)]+\.\s*/, '')}`)
           .join('\n');
         pushHistory(safeContent.substring(0, start) + replacement + safeContent.substring(end));
       } else {
@@ -402,37 +427,47 @@ export default function ComposerEditor({
     const before = safeContent;
     setIsEnhancing(true);
 
-    setTimeout(() => {
-      let result = '';
-      if (!before.trim()) {
-        result = `The biggest mistake most B2B companies make on LinkedIn?\n\nThey treat it like a broadcast channel — pushing announcements instead of starting conversations.\n\nHere's what actually works:\n\n→ Share the messy middle, not just polished outcomes\n→ Ask genuine questions your audience cares about\n→ Respond to every comment in the first hour\n→ Write for one person, not your entire market\n\nLinkedIn rewards consistency and authenticity — not perfection.\n\nWhat's your biggest challenge with LinkedIn growth? Let's discuss in the comments 👇`;
-      } else {
-        const lines = before.split('\n').map((l) => l.trim()).filter(Boolean);
-        if (lines.length === 1) {
-          result = `${lines[0]}\n\nHere is why this matters:\n\n→ Focus on high-intent takeaways\n→ Test and iterate weekly\n→ Prioritize substance over vanity metrics\n\nWhat's your take on this? Let me know below 👇`;
+    setTimeout(
+      () => {
+        let result = '';
+        if (!before.trim()) {
+          result = `The biggest mistake most B2B companies make on LinkedIn?\n\nThey treat it like a broadcast channel — pushing announcements instead of starting conversations.\n\nHere's what actually works:\n\n→ Share the messy middle, not just polished outcomes\n→ Ask genuine questions your audience cares about\n→ Respond to every comment in the first hour\n→ Write for one person, not your entire market\n\nLinkedIn rewards consistency and authenticity — not perfection.\n\nWhat's your biggest challenge with LinkedIn growth? Let's discuss in the comments 👇`;
         } else {
-          const first = lines[0];
-          const rest = lines.slice(1);
-          const hasBullets = rest.some((l) => l.startsWith('→') || l.startsWith('•') || l.startsWith('-'));
-          const formattedRest = hasBullets
-            ? rest.map((l) => (l.startsWith('- ') ? `→ ${l.slice(2)}` : l)).join('\n')
-            : rest.map((l) => (l.length < 90 ? `→ ${l}` : l)).join('\n\n');
+          const lines = before
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean);
+          if (lines.length === 1) {
+            result = `${lines[0]}\n\nHere is why this matters:\n\n→ Focus on high-intent takeaways\n→ Test and iterate weekly\n→ Prioritize substance over vanity metrics\n\nWhat's your take on this? Let me know below 👇`;
+          } else {
+            const first = lines[0];
+            const rest = lines.slice(1);
+            const hasBullets = rest.some(
+              (l) => l.startsWith('→') || l.startsWith('•') || l.startsWith('-')
+            );
+            const formattedRest = hasBullets
+              ? rest.map((l) => (l.startsWith('- ') ? `→ ${l.slice(2)}` : l)).join('\n')
+              : rest.map((l) => (l.length < 90 ? `→ ${l}` : l)).join('\n\n');
 
-          const hasQuestion = /\?\s*$/.test(before.trim());
-          const cta = hasQuestion ? '' : '\n\nWhat are your thoughts on this? Let me know below 👇';
-          result = `${first}\n\n${formattedRest}${cta}`;
+            const hasQuestion = /\?\s*$/.test(before.trim());
+            const cta = hasQuestion
+              ? ''
+              : '\n\nWhat are your thoughts on this? Let me know below 👇';
+            result = `${first}\n\n${formattedRest}${cta}`;
+          }
         }
-      }
 
-      pushHistory(result);
-      setIsEnhancing(false);
-      setJustRewritten(true);
-      setTimeout(() => setJustRewritten(false), 1000);
+        pushHistory(result);
+        setIsEnhancing(false);
+        setJustRewritten(true);
+        setTimeout(() => setJustRewritten(false), 1000);
 
-      toast.success(before.trim() ? 'Enhanced with AI' : 'Draft created with AI', {
-        action: { label: 'Undo', onClick: () => onChange && onChange(before) },
-      });
-    }, prefersReducedMotion() ? 0 : 800);
+        toast.success(before.trim() ? 'Enhanced with AI' : 'Draft created with AI', {
+          action: { label: 'Undo', onClick: () => onChange && onChange(before) },
+        });
+      },
+      prefersReducedMotion() ? 0 : 800
+    );
   };
 
   const showFold = foldY != null && foldIndex != null && !isGenerating;
@@ -441,8 +476,8 @@ export default function ComposerEditor({
   return (
     <div className="flex flex-col gap-5">
       {/* ---------- Setup ---------- */}
-      <section className="cmp-card m-rise" style={{ '--m-i': 2 }} aria-labelledby="cmp-setup-title">
-        <CardHeader icon={SlidersHorizontal} tone="blue" title="Post setup" id="cmp-setup-title" />
+      <section className="cmp-card" aria-labelledby="cmp-setup-title">
+        <CardHeader tone="blue" title="Post setup" id="cmp-setup-title" />
         <div className="cmp-card-body grid gap-5 sm:grid-cols-2">
           <div>
             <span className="cmp-label">Publish to</span>
@@ -456,14 +491,17 @@ export default function ComposerEditor({
           </div>
           <div>
             <span className="cmp-label">Content pillar</span>
-            <PillarPicker value={pillar.id} onChange={(id) => onPillarChange && onPillarChange(id)} />
+            <PillarPicker
+              value={pillar.id}
+              onChange={(id) => onPillarChange && onPillarChange(id)}
+            />
           </div>
           <div className="sm:col-span-2">
             <span className="cmp-label" id="cmp-tone-label">
               Tone
             </span>
             <div className="flex flex-wrap gap-2" role="group" aria-labelledby="cmp-tone-label">
-              {TONES.map(({ value, label, icon: Icon }) => (
+              {TONES.map(({ value, label }) => (
                 <button
                   key={value}
                   type="button"
@@ -471,7 +509,6 @@ export default function ComposerEditor({
                   aria-pressed={selectedTone === value}
                   onClick={() => onToneChange && onToneChange(value)}
                 >
-                  <Icon size={14} aria-hidden="true" />
                   {label}
                 </button>
               ))}
@@ -481,31 +518,66 @@ export default function ComposerEditor({
       </section>
 
       {/* ---------- Write ---------- */}
-      <section className="cmp-card m-rise" style={{ '--m-i': 3 }} aria-labelledby="cmp-write-title">
-        <CardHeader icon={PenLine} tone="blue" title="Write" id="cmp-write-title">
+      <section className="cmp-card" aria-labelledby="cmp-write-title">
+        <CardHeader tone="blue" title="Write" id="cmp-write-title">
           <button
             type="button"
             className="cmp-btn cmp-btn-soft tone-violet is-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
             disabled={!safeContent.trim() || isEnhancing || busy}
             onClick={handleEnhance}
-            title={safeContent.trim() ? 'Enhance post with AI' : 'Type some text to enhance with AI'}
+            title={
+              safeContent.trim() ? 'Enhance post with AI' : 'Type some text to enhance with AI'
+            }
           >
-            <Sparkles size={14} className={isEnhancing ? 'cmp-spin text-violet-600' : safeContent.trim() ? 'text-violet-600' : 'text-slate-400'} />
+            <Sparkles
+              size={14}
+              className={
+                isEnhancing
+                  ? 'cmp-spin text-violet-600'
+                  : safeContent.trim()
+                    ? 'text-violet-600'
+                    : 'text-slate-400'
+              }
+            />
             {isEnhancing ? 'Enhancing…' : 'Enhance with AI'}
           </button>
         </CardHeader>
 
         <div className="cmp-toolbar" role="toolbar" aria-label="Formatting">
-          <button type="button" className="cmp-tool font-bold" onClick={() => applyTextTransform(toUnicodeBold, 'Bold text')} title="Bold" aria-label="Bold">
+          <button
+            type="button"
+            className="cmp-tool font-bold"
+            onClick={() => applyTextTransform(toUnicodeBold, 'Bold text')}
+            title="Bold"
+            aria-label="Bold"
+          >
             B
           </button>
-          <button type="button" className="cmp-tool italic font-serif" onClick={() => applyTextTransform(toUnicodeItalic, 'Italic text')} title="Italic" aria-label="Italic">
+          <button
+            type="button"
+            className="cmp-tool italic font-serif"
+            onClick={() => applyTextTransform(toUnicodeItalic, 'Italic text')}
+            title="Italic"
+            aria-label="Italic"
+          >
             I
           </button>
-          <button type="button" className="cmp-tool underline" onClick={() => applyTextTransform(toUnicodeUnderline, 'Underlined')} title="Underline" aria-label="Underline">
+          <button
+            type="button"
+            className="cmp-tool underline"
+            onClick={() => applyTextTransform(toUnicodeUnderline, 'Underlined')}
+            title="Underline"
+            aria-label="Underline"
+          >
             U
           </button>
-          <button type="button" className="cmp-tool line-through" onClick={() => applyTextTransform(toUnicodeStrikethrough, 'Strikethrough')} title="Strikethrough" aria-label="Strikethrough">
+          <button
+            type="button"
+            className="cmp-tool line-through"
+            onClick={() => applyTextTransform(toUnicodeStrikethrough, 'Strikethrough')}
+            title="Strikethrough"
+            aria-label="Strikethrough"
+          >
             S
           </button>
 
@@ -549,31 +621,75 @@ export default function ComposerEditor({
           >
             <Paperclip size={16} />
           </button>
-          <button type="button" className="cmp-tool" title="Insert link" aria-label="Insert link" onClick={() => insertAtCursor(' https://linkedin.com ')}>
+          <button
+            type="button"
+            className="cmp-tool"
+            title="Insert link"
+            aria-label="Insert link"
+            onClick={() => insertAtCursor(' https://linkedin.com ')}
+          >
             <Link2 size={16} />
           </button>
 
           <span className="cmp-tool-sep" aria-hidden="true" />
 
-          <button type="button" className="cmp-tool" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo" aria-label="Undo">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={handleUndo}
+            disabled={historyIndex <= 0}
+            title="Undo"
+            aria-label="Undo"
+          >
             <Undo2 size={16} />
           </button>
-          <button type="button" className="cmp-tool" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo" aria-label="Redo">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={handleRedo}
+            disabled={historyIndex >= history.length - 1}
+            title="Redo"
+            aria-label="Redo"
+          >
             <Redo2 size={16} />
           </button>
-          <button type="button" className="cmp-tool" onClick={handleClearFormatting} title="Clear formatting" aria-label="Clear formatting">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={handleClearFormatting}
+            title="Clear formatting"
+            aria-label="Clear formatting"
+          >
             <Eraser size={16} />
           </button>
 
           <span className="cmp-tool-sep" aria-hidden="true" />
 
-          <button type="button" className="cmp-tool" onClick={formatBulletList} title="Bullet list" aria-label="Bullet list">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={formatBulletList}
+            title="Bullet list"
+            aria-label="Bullet list"
+          >
             <List size={16} />
           </button>
-          <button type="button" className="cmp-tool" onClick={formatNumberedList} title="Numbered list" aria-label="Numbered list">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={formatNumberedList}
+            title="Numbered list"
+            aria-label="Numbered list"
+          >
             <ListOrdered size={16} />
           </button>
-          <button type="button" className="cmp-tool" onClick={formatSpacing} title="Space out paragraphs" aria-label="Space out paragraphs">
+          <button
+            type="button"
+            className="cmp-tool"
+            onClick={formatSpacing}
+            title="Space out paragraphs"
+            aria-label="Space out paragraphs"
+          >
             <AlignLeft size={16} />
           </button>
         </div>
@@ -621,14 +737,13 @@ export default function ComposerEditor({
             className="cmp-editor-text"
             onChange={(e) => {
               const val = e.target.value;
-              if (!isAtLimit || val.length < safeContent.length) pushHistory(val.slice(0, MAX_CHARS));
+              if (!isAtLimit || val.length < safeContent.length)
+                pushHistory(val.slice(0, MAX_CHARS));
             }}
           />
 
           <div className="cmp-fold-line" data-hidden={!showFold} aria-hidden="true">
-            <span className="cmp-fold-label">
-              …more cuts here
-            </span>
+            <span className="cmp-fold-label">…more cuts here</span>
           </div>
 
           {isGenerating && (
@@ -641,7 +756,7 @@ export default function ComposerEditor({
                 w === 0 ? (
                   <span key={`gap-${i}`} className="h-2" />
                 ) : (
-                  <span key={`skel-${i}`} className="cmp-skel" style={{ width: `${w}%`, '--m-i': i }} />
+                  <span key={`skel-${i}`} className="cmp-skel" style={{ width: `${w}%` }} />
                 )
               )}
             </div>
@@ -665,7 +780,7 @@ export default function ComposerEditor({
 
         {/* Integrated Visual & Attachments Section */}
         {imageGeneration ? (
-          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
+          <div className="border-t border-[color:var(--border)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
             <ImageOptions
               images={candidateImages}
               imageUrl={imageUrl}
@@ -680,7 +795,7 @@ export default function ComposerEditor({
             />
           </div>
         ) : carouselGeneration ? (
-          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
+          <div className="border-t border-[color:var(--border)] p-4 bg-slate-50/50 dark:bg-slate-900/30">
             <CarouselOptions
               slides={carouselSlides}
               onChangeSlides={onChangeCarouselSlides}
@@ -693,7 +808,7 @@ export default function ComposerEditor({
             />
           </div>
         ) : uploadedPdfInfo ? (
-          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+          <div className="border-t border-[color:var(--border)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[length:var(--radius-card)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-200/80 dark:border-rose-900/50">
@@ -701,15 +816,16 @@ export default function ComposerEditor({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[260px] sm:max-w-md">
+                    <p className="text-[13.5px] font-semibold text-[color:var(--text)] truncate max-w-[260px] sm:max-w-md">
                       {uploadedPdfInfo.name}
                     </p>
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose-100/90 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 uppercase tracking-wide">
                       PDF
                     </span>
                   </div>
-                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
-                    {uploadedPdfInfo.size || '1.4 MB'} • {uploadedPdfInfo.pageCount || 4} pages • Carousel document
+                  <p className="text-[12px] text-[color:var(--text-muted)] mt-0.5">
+                    {uploadedPdfInfo.size || '1.4 MB'} • {uploadedPdfInfo.pageCount || 4} pages •
+                    Carousel document
                   </p>
                 </div>
               </div>
@@ -746,10 +862,10 @@ export default function ComposerEditor({
             </div>
           </div>
         ) : visualFormat === 'image' && imageUrl ? (
-          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+          <div className="border-t border-[color:var(--border)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[length:var(--radius-card)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-14 h-14 rounded-lg overflow-hidden border border-[var(--cmp-line)] shrink-0 bg-slate-100 dark:bg-slate-800 relative">
+                <div className="w-14 h-14 rounded-lg overflow-hidden border border-[color:var(--border)] shrink-0 bg-slate-100 dark:bg-slate-800 relative">
                   <img
                     src={imageUrl}
                     alt="Attached visual"
@@ -763,31 +879,31 @@ export default function ComposerEditor({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[240px] sm:max-w-md">
+                    <p className="text-[13.5px] font-semibold text-[color:var(--text)] truncate max-w-[240px] sm:max-w-md">
                       {candidateImages.find((img) => img.url === imageUrl)?.alt ||
                         (candidateImages.find((img) => img.url === imageUrl)?.isGif
                           ? 'Animated GIF'
                           : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
-                          ? 'AI Generated Visual'
-                          : 'Attached Image')}
+                            ? 'AI Generated Visual'
+                            : 'Attached Image')}
                     </p>
                     <span
                       className={`text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
                         candidateImages.find((img) => img.url === imageUrl)?.isGif
                           ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                           : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
-                          ? 'bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300'
-                          : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            ? 'bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300'
+                            : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                       }`}
                     >
                       {candidateImages.find((img) => img.url === imageUrl)?.isGif
                         ? 'GIF'
                         : candidateImages.find((img) => img.url === imageUrl)?.source === 'ai'
-                        ? 'AI Visual'
-                        : 'Image'}
+                          ? 'AI Visual'
+                          : 'Image'}
                     </span>
                   </div>
-                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
+                  <p className="text-[12px] text-[color:var(--text-muted)] mt-0.5">
                     Attached to post • Displays full-width in LinkedIn feed
                   </p>
                 </div>
@@ -816,8 +932,8 @@ export default function ComposerEditor({
             </div>
 
             {candidateImages.length > 1 && (
-              <div className="mt-3 pt-3 border-t border-[var(--cmp-line)] flex items-center gap-2">
-                <span className="text-[11.5px] font-medium text-[var(--cmp-muted)] shrink-0">
+              <div className="mt-3 pt-3 border-t border-[color:var(--border)] flex items-center gap-2">
+                <span className="text-[11.5px] font-medium text-[color:var(--text-muted)] shrink-0">
                   Alternative options:
                 </span>
                 <div className="flex items-center gap-2 overflow-x-auto py-0.5">
@@ -828,11 +944,15 @@ export default function ComposerEditor({
                       onClick={() => onSelectImage && onSelectImage(img.url)}
                       className={`w-9 h-9 rounded-md overflow-hidden border-2 shrink-0 transition-all ${
                         img.url === imageUrl
-                          ? 'border-[var(--cmp-navy)] ring-2 ring-[var(--cmp-navy)]/20'
+                          ? 'border-[color:var(--text)] ring-2 ring-[color:color-mix(in_srgb,var(--text)_20%,transparent)]'
                           : 'border-transparent opacity-60 hover:opacity-100'
                       }`}
                     >
-                      <img src={img.url} alt={img.alt || `Option ${idx + 1}`} className="w-full h-full object-cover" />
+                      <img
+                        src={img.url}
+                        alt={img.alt || `Option ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -840,7 +960,7 @@ export default function ComposerEditor({
             )}
           </div>
         ) : visualFormat === 'carousel' && carouselSlides && carouselSlides.length > 0 ? (
-          <div className="border-t border-[var(--cmp-line)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[var(--cmp-radius-card)]">
+          <div className="border-t border-[color:var(--border)] p-4 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-[length:var(--radius-card)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/80 dark:border-indigo-900/50">
@@ -848,14 +968,14 @@ export default function ComposerEditor({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-[13.5px] font-semibold text-[var(--cmp-ink)] truncate max-w-[280px] sm:max-w-md">
+                    <p className="text-[13.5px] font-semibold text-[color:var(--text)] truncate max-w-[280px] sm:max-w-md">
                       AI Carousel Slide Deck
                     </p>
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 uppercase tracking-wide">
                       {carouselSlides.length} SLIDES
                     </span>
                   </div>
-                  <p className="text-[12px] text-[var(--cmp-muted)] mt-0.5">
+                  <p className="text-[12px] text-[color:var(--text-muted)] mt-0.5">
                     Swipeable document deck • Renders interactive cards in preview
                   </p>
                 </div>
@@ -895,7 +1015,7 @@ export default function ComposerEditor({
           </div>
         ) : (
           /* Empty / Default attachment state */
-          <div className="border-t border-[var(--cmp-line)] px-5 py-3.5 bg-slate-50/50 dark:bg-slate-900/20 rounded-b-[var(--cmp-radius-card)]">
+          <div className="border-t border-[color:var(--border)] px-5 py-3.5 bg-slate-50/50 dark:bg-slate-900/20 rounded-b-[length:var(--radius-card)]">
             <div className="flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex flex-wrap items-center gap-2">
                 {/* Add attachment button with explicit format mentions */}
@@ -907,18 +1027,19 @@ export default function ComposerEditor({
                 >
                   <Paperclip size={15} className="text-slate-600 dark:text-slate-400" />
                   <span>Add attachment</span>
-                  <span className="text-[11.5px] text-[var(--cmp-muted)] font-normal ml-0.5">
+                  <span className="text-[11.5px] text-[color:var(--text-muted)] font-normal ml-0.5">
                     (Image, PDF, or GIF)
                   </span>
                 </button>
 
-                <span className="text-slate-300 dark:text-slate-700 text-xs hidden sm:inline mx-1">|</span>
+                <span className="text-slate-300 dark:text-slate-700 text-xs hidden sm:inline mx-1">
+                  |
+                </span>
 
                 {/* Generate Image with AI */}
                 <button
                   type="button"
-                  className="cmp-btn cmp-btn-soft is-sm font-medium gap-1.5"
-                  style={{ '--t': '#f59e0b', '--t-soft': '#fef3c7', '--t-ink': '#92400e', '--t-line': '#fde68a' }}
+                  className="cmp-btn cmp-btn-outline is-sm font-medium gap-1.5 shadow-xs hover:border-slate-400 bg-white border-[color:var(--border)] text-[color:var(--text)]"
                   onClick={() => {
                     if (onVisualFormatChange) onVisualFormatChange('image');
                     if (onGenerateImages) onGenerateImages();
@@ -926,7 +1047,7 @@ export default function ComposerEditor({
                   disabled={isGenerating || Boolean(imageGeneration)}
                   title="Generate realistic image visual with AI"
                 >
-                  <Sparkles size={14} className="text-amber-600" />
+                  <Sparkles size={14} className="text-slate-600 dark:text-slate-400" />
                   <span>Generate Image with AI</span>
                 </button>
               </div>

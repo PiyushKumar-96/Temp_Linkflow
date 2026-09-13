@@ -69,8 +69,8 @@ export default function MonthCard({
               isGap
                 ? 'bg-amber-100 text-amber-800'
                 : count >= 3
-                ? 'bg-emerald-100 text-emerald-800'
-                : 'bg-primary/10 text-primary'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-primary/10 text-primary'
             }`}
           >
             {count} {count === 1 ? 'Topic' : 'Topics'}
@@ -86,14 +86,18 @@ export default function MonthCard({
           title={`Click to view all ${count} topics for ${month.name}`}
         >
           <div className="flex items-center gap-2">
-            {weeklyCount > 0 && <span className="font-medium text-foreground">{weeklyCount} Weekly</span>}
-            {dailyCount > 0 && <span className="font-medium text-foreground">{dailyCount} Daily</span>}
-            {customCount > 0 && <span className="font-medium text-foreground">{customCount} Custom</span>}
+            {weeklyCount > 0 && (
+              <span className="font-medium text-foreground">{weeklyCount} Weekly</span>
+            )}
+            {dailyCount > 0 && (
+              <span className="font-medium text-foreground">{dailyCount} Daily</span>
+            )}
+            {customCount > 0 && (
+              <span className="font-medium text-foreground">{customCount} Custom</span>
+            )}
           </div>
           {count > 2 && (
-            <span className="text-primary font-semibold flex items-center gap-0.5">
-              View all →
-            </span>
+            <span className="text-primary font-semibold flex items-center gap-0.5">View all →</span>
           )}
         </div>
       )}
@@ -147,7 +151,9 @@ export default function MonthCard({
                     </span>
                     <span className="text-muted-foreground font-mono tabular-nums text-[9px]">
                       {topic.startDate ? `${topic.startDate.slice(5)}` : ''}
-                      {topic.endDate && topic.endDate !== topic.startDate ? `→${topic.endDate.slice(5)}` : ''}
+                      {topic.endDate && topic.endDate !== topic.startDate
+                        ? `→${topic.endDate.slice(5)}`
+                        : ''}
                     </span>
                   </div>
 

@@ -4,13 +4,7 @@ import React, { useRef, useState } from 'react';
 import { FileText, Plus, RefreshCw, Sparkles, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { CarouselVisual } from '@/components/visuals';
-import {
-  CAROUSEL_GEN_STEPS,
-  GenProgress,
-  GenTile,
-  getGenStep,
-  useElapsed,
-} from './ImageOptions';
+import { CAROUSEL_GEN_STEPS, GenProgress, GenTile, getGenStep, useElapsed } from './ImageOptions';
 
 export default function CarouselOptions({
   slides = [],
@@ -22,13 +16,13 @@ export default function CarouselOptions({
   isGenerating = false,
   content = '',
 }) {
-  const [localGenerating, setLocalGenerating] = useState(false);
+  const [localStartedAt, setLocalStartedAt] = useState(null);
   const [isOver, setIsOver] = useState(false);
   const [uploadedPdfName, setUploadedPdfName] = useState(null);
   const fileInputRef = useRef(null);
 
-  const pending = Boolean(generation) || localGenerating;
-  const elapsed = useElapsed(generation?.startedAt || (localGenerating ? Date.now() : null));
+  const pending = Boolean(generation) || Boolean(localStartedAt);
+  const elapsed = useElapsed(generation?.startedAt || localStartedAt);
   const step = getGenStep(elapsed, CAROUSEL_GEN_STEPS);
 
   const hasSlides = Array.isArray(slides) && slides.length > 0;
@@ -38,14 +32,18 @@ export default function CarouselOptions({
       onGenerate();
       return;
     }
-    setLocalGenerating(true);
+    setLocalStartedAt(Date.now());
     toast.info('Generating carousel slides with AI...');
 
     setTimeout(() => {
       // Generate intelligent slides extracted from the post content or strategic insights
       const lines = content.split('\n').filter((l) => l.trim().length > 0);
-      const firstLine = lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 60) || 'The Strategic Growth Playbook';
-      const points = lines.slice(1, 5).map((l) => l.replace(/^[#*\-•\s\d.]+/, '').trim()).filter(Boolean);
+      const firstLine =
+        lines[0]?.replace(/^[#*\-•\s]+/, '').slice(0, 60) || 'The Strategic Growth Playbook';
+      const points = lines
+        .slice(1, 5)
+        .map((l) => l.replace(/^[#*\-•\s[color:var(--warning-text)].]+/, '').trim())
+        .filter(Boolean);
 
       const newSlides = [
         {
@@ -58,14 +56,17 @@ export default function CarouselOptions({
         {
           id: `slide-2`,
           headline: points[0] || '1. Focus on Pipeline Velocity',
-          body: points[1] || 'Content that drives high-intent discussions consistently outperforms vanity metrics.',
+          body:
+            points[1] ||
+            'Content that drives high-intent discussions consistently outperforms vanity metrics.',
           tag: 'SLIDE 02 / 04',
           accentColor: '#6366f1',
         },
         {
           id: `slide-3`,
           headline: points[2] || '2. High-Leverage Distribution',
-          body: points[3] || 'Turn each high-performing insight into structured multi-channel assets.',
+          body:
+            points[3] || 'Turn each high-performing insight into structured multi-channel assets.',
           tag: 'SLIDE 03 / 04',
           accentColor: '#8b5cf6',
         },
@@ -80,7 +81,7 @@ export default function CarouselOptions({
 
       onChangeSlides?.(newSlides);
       setUploadedPdfName(null);
-      setLocalGenerating(false);
+      setLocalStartedAt(null);
       toast.success('4-slide carousel generated with AI!');
     }, 4500);
   };
@@ -227,7 +228,9 @@ export default function CarouselOptions({
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               <span>
-                {uploadedPdfName ? `Attached PDF: ${uploadedPdfName}` : `${slides.length}-Slide Carousel Ready`}
+                {uploadedPdfName
+                  ? `Attached PDF: ${uploadedPdfName}`
+                  : `${slides.length}-Slide Carousel Ready`}
               </span>
             </div>
 

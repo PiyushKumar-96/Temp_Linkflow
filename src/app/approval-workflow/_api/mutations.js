@@ -24,7 +24,12 @@ export function useApprovePost() {
           const approvalEntry = {
             id: `cmt-${Date.now()}`,
             author: authorName,
-            authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+            authorInitials: authorName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase(),
             text: 'Approved and authorized for LinkedIn scheduling via Buffer.',
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
             type: 'approval',
@@ -117,7 +122,12 @@ export function useRejectPost() {
           const rejectionComment = {
             id: `cmt-${Date.now()}`,
             author: authorName,
-            authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+            authorInitials: authorName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase(),
             text: feedback,
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
             type: 'rejection',
@@ -209,7 +219,12 @@ export function useChangeBriefPost() {
           const briefComment = {
             id: `cmt-${Date.now()}`,
             author: authorName,
-            authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+            authorInitials: authorName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase(),
             text: `Brief modified: "${newBrief}". Looping back to AI generator.`,
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
             type: 'revision_request',
@@ -275,7 +290,12 @@ export function useAddComment() {
           const newComment = {
             id: `cmt-${Date.now()}`,
             author: authorName,
-            authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+            authorInitials: authorName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase(),
             text,
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
             type: 'comment',

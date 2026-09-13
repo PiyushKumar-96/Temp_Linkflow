@@ -7,7 +7,8 @@ export const MASTER_POSTS = [
     id: 'pub-1',
     slug: 'saas-founders-organic-linkedin',
     title: 'Why Most B2B SaaS Founders Over-index on Organic LinkedIn Too Early',
-    excerpt: 'After advising 40+ early stage SaaS founders, here is the harsh truth: 15 hrs a week writing before $10k MRR is a trap...',
+    excerpt:
+      'After advising 40+ early stage SaaS founders, here is the harsh truth: 15 hrs a week writing before $10k MRR is a trap...',
     content: `Why Most B2B SaaS Founders Over-index on Organic LinkedIn Too Early.\n\nAfter working with 40+ founders in the $0-$1M ARR window, I notice this pattern constantly:\n\n1. Founder spends 15 hours a week writing "thought leadership"\n2. Engagement looks great: 10,000 impressions, 300 likes from peers\n3. Pipeline added: 0 demo calls.\n\nHere is why: at $10k MRR, your job is not distribution. Your job is validation and retention.\n\nOrganic LinkedIn is an accelerator for message-market fit, not a substitute for customer conversations.\n\nWhat should you do instead?\n→ Talk to 5 customers a week on Zoom\n→ Build in public around actual customer blockers\n→ Document solutions, don't invent hot takes.\n\nAgree or disagree? How do you balance content with product discovery?`,
     category: 'Thought Leadership',
     status: POST_STATUS.PUBLISHED,
@@ -34,7 +35,8 @@ export const MASTER_POSTS = [
     id: 'pub-2',
     slug: 'churn-calls-to-product-roadmaps',
     title: 'Our Playbook for Turning Customer Churn Calls into Product Roadmaps',
-    excerpt: 'We asked every customer why they cancelled using 4 specific non-defensive questions. Here is the framework...',
+    excerpt:
+      'We asked every customer why they cancelled using 4 specific non-defensive questions. Here is the framework...',
     content: `Our Playbook for Turning Customer Churn Calls into Product Roadmaps.\n\nMost teams dread cancellation calls. We treat them as our highest-value research lab.\n\nOver the last 6 months, we ran 48 exit interviews. Here are the 4 questions that actually unearth the truth:\n\n1. "What did you expect this product to do on Day 1 that it didn't do on Day 30?"\n2. "What was the exact moment you decided to look for an alternative?"\n3. "If you could change one workflow in the tool tomorrow, which one would save your team the most time?"\n4. "What tool are you replacing us with, and what is the single feature they do better?"\n\nMapping these 4 answers into Jira completely transformed our Q3 roadmap.\n\nFull framework template linked in comments.`,
     category: 'Case Study',
     status: POST_STATUS.PUBLISHED,
@@ -61,7 +63,8 @@ export const MASTER_POSTS = [
     id: 'pub-3',
     slug: 'zero-to-1m-arr-cold-outreach-failures',
     title: 'Zero to $1M ARR: The 3 Cold Outreach Experiments That Failed',
-    excerpt: 'We tested 4 cold outreach outbound strategies over 12 months. 3 failed miserably, but 1 generated $420k pipeline...',
+    excerpt:
+      'We tested 4 cold outreach outbound strategies over 12 months. 3 failed miserably, but 1 generated $420k pipeline...',
     content: `Zero to $1M ARR: The 3 Cold Outreach Experiments That Failed (and 1 That Worked).\n\nOutbound sales in 2026 is brutally saturated. Here is our raw experiment audit:\n\n❌ Experiment 1: Generic automated sequences (0.4% reply rate, damaged domain score)\n❌ Experiment 2: AI-written personalization based on recent LinkedIn posts (felt uncanny, 1.2% reply rate)\n❌ Experiment 3: Cold calling with third-party verified numbers (high burnout, low connect rate)\n\n✅ Experiment 4: 90-second custom interactive Loom video audits showing their exact onboarding bottlenecks.\n→ 18.4% reply rate\n→ 34 qualified demos booked\n→ $420k closed ARR in 90 days\n\nHigh effort, low volume, unbeatable context.`,
     category: 'Thought Leadership',
     status: POST_STATUS.PUBLISHED,
@@ -87,8 +90,10 @@ export const MASTER_POSTS = [
   {
     id: 'post-001',
     slug: '10000-customers-milestone',
-    title: "We just crossed 10,000 customers — here's what we learned about building trust at scale",
-    excerpt: "We just crossed 10,000 customers — here's what we learned about building trust at scale...",
+    title:
+      "We just crossed 10,000 customers — here's what we learned about building trust at scale",
+    excerpt:
+      "We just crossed 10,000 customers — here's what we learned about building trust at scale...",
     content: `We just crossed 10,000 customers.\n\nWhen we started, trust was manual. I personally onboarded our first 100 users on Google Meet.\n\nAt 10,000 customers, trust is systemic. It's in your documentation, your uptime, your transparent release notes, and your refund policy.\n\nHere are the 3 non-negotiables we learned:\n\n1. Public bug tracking wins customer respect every time.\n2. Over-communicate during downtime.\n3. Make cancellation a 1-click experience.\n\nThank you to everyone who believed in us from Day 1. Onwards to 100k! 🚀`,
     category: 'Thought Leadership',
     status: POST_STATUS.PUBLISHED,
@@ -115,7 +120,8 @@ export const MASTER_POSTS = [
     id: 'post-002',
     slug: 'customer-onboarding-reduction',
     title: 'How we reduced our customer onboarding time by 62% in one quarter',
-    excerpt: 'How we reduced our customer onboarding time by 62% in one quarter (full case study inside)...',
+    excerpt:
+      'How we reduced our customer onboarding time by 62% in one quarter (full case study inside)...',
     content: `How we cut customer onboarding time by 62% in 90 days:\n\nOur average time-to-first-value was 14 days. Customers were churn-risks before they even finished setup.\n\nHere was the fix:\n→ Killed mandatory onboarding calls\n→ Replaced 20-page PDF guide with interactive in-app sandbox\n→ Added automated Slack webhook notifications for key milestones\n\nResult: Time-to-value plummeted from 14 days down to 4 hours. Product adoption rose 48%.`,
     category: 'Case Study',
     status: POST_STATUS.PUBLISHED,
@@ -142,7 +148,8 @@ export const MASTER_POSTS = [
     id: 'post-003',
     slug: 'ai-analytics-dashboard-launch',
     title: 'Excited to announce our new AI-powered analytics dashboard',
-    excerpt: 'Excited to announce our new AI-powered analytics dashboard — built for teams who move fast...',
+    excerpt:
+      'Excited to announce our new AI-powered analytics dashboard — built for teams who move fast...',
     content: `Excited to announce our new AI-powered analytics dashboard.\n\nMarketing teams don't need another graph — they need actionable answers.\n\nOur new dashboard doesn't just show clicks; it tells you:\n✅ Which post topics drive highest pipeline\n✅ Optimal posting cadence for your specific audience\n✅ AI-suggested hooks based on last month's top 5% performers\n\nRolling out to all beta users today!`,
     category: 'Product Update',
     status: POST_STATUS.PUBLISHED,
@@ -281,7 +288,8 @@ export const MASTER_POSTS = [
           type: 'Formatting',
           severity: 'low',
           message: 'Paragraph spacing in body section',
-          suggestion: 'Maintain double break between arrow bullet points for optimal mobile scannability',
+          suggestion:
+            'Maintain double break between arrow bullet points for optimal mobile scannability',
         },
         {
           type: 'Call to Action',
@@ -297,14 +305,25 @@ export const MASTER_POSTS = [
         sourceName: 'Harvard Business Review 2025',
         domain: 'hbr.org',
         url: 'https://hbr.org/2025/11/the-real-cost-of-continuous-connectivity',
-        claim: 'Knowledge workers interrupted every 11 minutes take an average of 23 minutes to resume deep focus.',
+        claim:
+          'Knowledge workers interrupted every 11 minutes take an average of 23 minutes to resume deep focus.',
         verifiedDate: 'Aug 2026',
         confidence: 98,
       },
     ],
     activityLog: [
-      { id: 'act-1', actor: 'AI Workflow', action: 'Draft generated', timestamp: 'Sep 7, 2026 14:30' },
-      { id: 'act-2', actor: 'Lisa Tran', action: 'Submitted for stakeholder review', timestamp: 'Sep 7, 2026 14:32' },
+      {
+        id: 'act-1',
+        actor: 'AI Workflow',
+        action: 'Draft generated',
+        timestamp: 'Sep 7, 2026 14:30',
+      },
+      {
+        id: 'act-2',
+        actor: 'Lisa Tran',
+        action: 'Submitted for stakeholder review',
+        timestamp: 'Sep 7, 2026 14:32',
+      },
     ],
     comments: [
       {
@@ -374,14 +393,25 @@ export const MASTER_POSTS = [
         sourceName: 'HubSpot State of Marketing 2026',
         domain: 'hubspot.com',
         url: 'https://hubspot.com/reports/state-of-marketing',
-        claim: 'B2B companies with structured repurposing pipelines generate 2.8x more organic pipeline per writer.',
+        claim:
+          'B2B companies with structured repurposing pipelines generate 2.8x more organic pipeline per writer.',
         verifiedDate: 'Feb 2026',
         confidence: 94,
       },
     ],
     activityLog: [
-      { id: 'act-3', actor: 'AI Workflow', action: 'Draft generated', timestamp: 'Sep 8, 2026 10:10' },
-      { id: 'act-4', actor: 'Marcus Chen', action: 'Submitted for stakeholder review', timestamp: 'Sep 8, 2026 10:15' },
+      {
+        id: 'act-3',
+        actor: 'AI Workflow',
+        action: 'Draft generated',
+        timestamp: 'Sep 8, 2026 10:10',
+      },
+      {
+        id: 'act-4',
+        actor: 'Marcus Chen',
+        action: 'Submitted for stakeholder review',
+        timestamp: 'Sep 8, 2026 10:15',
+      },
     ],
     comments: [],
   },
@@ -507,10 +537,12 @@ export const MASTER_POSTS = [
     category: 'Thought Leadership',
     visualFormat: 'image',
     imageUrl: STOCK_IMAGES.modernWorkspace.url,
-    failureReason: 'Buffer API rate limit: Rate limit exceeded for personal profile token (code 429). Target profile: Sarah Reeves (Profile ID: prf_88921).',
+    failureReason:
+      'Buffer API rate limit: Rate limit exceeded for personal profile token (code 429). Target profile: Sarah Reeves (Profile ID: prf_88921).',
     failedAt: '2026-09-06 09:15 UTC',
     failureDetails: {
-      errorMessage: 'Buffer API Error 429: LinkedIn profile quota exceeded for current billing window',
+      errorMessage:
+        'Buffer API Error 429: LinkedIn profile quota exceeded for current billing window',
       failedAt: '2026-09-08 14:15 UTC',
       attemptCount: 3,
       maxAttempts: 3,
@@ -532,7 +564,12 @@ export const MASTER_POSTS = [
     },
     citations: [],
     activityLog: [
-      { id: 'act-5', actor: 'Buffer Worker', action: 'Dispatch failed with 429 Too Many Requests', timestamp: 'Sep 6, 2026 09:15' },
+      {
+        id: 'act-5',
+        actor: 'Buffer Worker',
+        action: 'Dispatch failed with 429 Too Many Requests',
+        timestamp: 'Sep 6, 2026 09:15',
+      },
     ],
     comments: [],
   },
@@ -705,4 +742,3 @@ export const CALENDAR_POSTS = [
     series: 'Product Transparency',
   },
 ];
-

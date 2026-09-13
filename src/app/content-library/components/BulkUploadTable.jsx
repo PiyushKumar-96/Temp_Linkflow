@@ -138,7 +138,9 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
       imageUrl: null,
       imageAlt: null,
       imageStatus: 'ready',
-      carouselSlides: generateMockCarousel((post && post.header) || file.name.replace(/\.pdf$/i, '')),
+      carouselSlides: generateMockCarousel(
+        (post && post.header) || file.name.replace(/\.pdf$/i, '')
+      ),
     });
     toast.success(`PDF document uploaded: ${file.name}`);
     e.target.value = '';
@@ -203,8 +205,8 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
           typeof p.hashtags === 'string'
             ? p.hashtags.split(/\s+/).filter(Boolean)
             : Array.isArray(p.hashtags)
-            ? p.hashtags
-            : [],
+              ? p.hashtags
+              : [],
         scheduledDate: p.scheduledDate || '2026-09-25',
         scheduledTime: p.scheduledTime || '09:00',
         dueDate: p.scheduledDate || '2026-09-25',
@@ -212,7 +214,7 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         imageUrl: isPdf ? null : p.imageUrl,
         pdfName: isPdf ? p.pdfName : null,
         pdfPages: isPdf ? p.pdfPages : null,
-        carouselSlides: isPdf ? (p.carouselSlides || generateMockCarousel(p.header)) : null,
+        carouselSlides: isPdf ? p.carouselSlides || generateMockCarousel(p.header) : null,
         infographicData: null,
         status: 'awaiting_review',
         source: 'bulk_upload',
@@ -258,7 +260,10 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
       const stored = localStorage.getItem('linkedflow_approval_posts');
       const approvalPosts = stored ? JSON.parse(stored) : [];
       const newIds = new Set(formattedBulkPosts.map((p) => p.id));
-      const nextApproval = [...formattedBulkPosts, ...approvalPosts.filter((p) => !newIds.has(p.id))];
+      const nextApproval = [
+        ...formattedBulkPosts,
+        ...approvalPosts.filter((p) => !newIds.has(p.id)),
+      ];
       localStorage.setItem('linkedflow_approval_posts', JSON.stringify(nextApproval));
 
       const masterPosts = getStoredPosts();
@@ -313,7 +318,10 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
             <Upload size={14} />
             Upload Excel / CSV
           </button>
-          <button onClick={handleAddManual} className="btn-secondary flex items-center gap-2 text-sm">
+          <button
+            onClick={handleAddManual}
+            className="btn-secondary flex items-center gap-2 text-sm"
+          >
             <Plus size={14} />
             Add Manually
           </button>

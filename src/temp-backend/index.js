@@ -127,7 +127,8 @@ export async function getPostById(id) {
 export async function getUpcomingPosts() {
   const posts = getStoredPosts();
   const upcoming = posts.filter(
-    (p) => p.status === POST_STATUS.SCHEDULED || (p.status === POST_STATUS.APPROVED && p.scheduledDate)
+    (p) =>
+      p.status === POST_STATUS.SCHEDULED || (p.status === POST_STATUS.APPROVED && p.scheduledDate)
   );
   const seen = new Set();
   return upcoming.filter((p) => {
@@ -207,7 +208,12 @@ export async function approvePost(id, authorName = 'Sarah Reeves') {
   const approvalEntry = {
     id: `cmt-${Date.now()}`,
     author: authorName,
-    authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    authorInitials: authorName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase(),
     text: 'Approved and authorized for LinkedIn scheduling via Buffer.',
     timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
     type: 'approval',
@@ -237,7 +243,12 @@ export async function rejectPost(id, feedback, authorName = 'Sarah Reeves') {
   const rejectionComment = {
     id: `cmt-${Date.now()}`,
     author: authorName,
-    authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    authorInitials: authorName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase(),
     text: feedback,
     timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
     type: 'rejection',
@@ -268,7 +279,12 @@ export async function regeneratePost(id, brief, authorName = 'Sarah Reeves') {
   const briefComment = {
     id: `cmt-${Date.now()}`,
     author: authorName,
-    authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    authorInitials: authorName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase(),
     text: `Revision brief requested: "${brief}"`,
     timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
     type: 'revision_request',
@@ -298,7 +314,12 @@ export async function addPostComment(id, text, authorName = 'Sarah Reeves', type
   const newComment = {
     id: `cmt-${Date.now()}`,
     author: authorName,
-    authorInitials: authorName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+    authorInitials: authorName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase(),
     text,
     timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
     type,
@@ -411,14 +432,24 @@ export async function saveTeamMembers(members) {
 export async function inviteTeamMember(memberData) {
   const members = await getTeamMembers();
   const initials = memberData.name
-    ? memberData.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    ? memberData.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
     : 'TU';
   const newMember = {
     id: `usr-${Date.now()}`,
     name: memberData.name,
     email: memberData.email,
     role: memberData.role || 'marketing',
-    title: memberData.role === 'owner' ? 'Account Owner' : memberData.role === 'reviewer' ? 'Content Reviewer' : 'Marketing Contributor',
+    title:
+      memberData.role === 'owner'
+        ? 'Account Owner'
+        : memberData.role === 'reviewer'
+          ? 'Content Reviewer'
+          : 'Marketing Contributor',
     status: 'pending',
     initials,
     joinedAt: new Date().toISOString().slice(0, 10),

@@ -173,12 +173,14 @@ export function useStartTopicGenerationMutation() {
           stage: 'analyzing',
           author: topic.account === 'company' ? 'Acme Corp' : 'Sarah Reeves',
           authorRole: topic.account === 'company' ? 'Company Page' : 'Founder',
-          authorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
+          authorAvatar:
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
           authorInitials: 'SR',
           qualityScore: 88,
           readTime: '2 min read',
           visualFormat: 'image',
-          imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+          imageUrl:
+            'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
           revisions: 1,
           revisionsList: [
             {
@@ -191,7 +193,10 @@ export function useStartTopicGenerationMutation() {
             },
           ],
         };
-        localStorage.setItem('linkedflow_approval_posts', JSON.stringify([newApprovalPost, ...approvalPosts]));
+        localStorage.setItem(
+          'linkedflow_approval_posts',
+          JSON.stringify([newApprovalPost, ...approvalPosts])
+        );
       } catch {
         // Ignore
       }
