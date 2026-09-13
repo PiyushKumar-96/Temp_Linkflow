@@ -34,13 +34,15 @@ function SparkleStar({ className = 'w-5 h-5' }) {
 
 function getStatusBadgeClass(status) {
   const s = normalizeStatus(status);
-  if (s === 'published') return 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
-  if (s === 'scheduled') return 'bg-sky-50 text-sky-700 border-sky-200/80';
+  if (s === 'published')
+    return 'bg-[color:var(--success-tint)] text-[color:var(--success-text)] border-[color:color-mix(in_srgb,var(--success-text)_25%,transparent)]';
+  if (s === 'scheduled')
+    return 'bg-[color:var(--info-tint)] text-[color:var(--info-text)] border-[color:color-mix(in_srgb,var(--info-text)_25%,transparent)]';
   if (s === 'awaiting_review' || s === 'needs_revision')
-    return 'bg-amber-50 text-amber-800 border-amber-200/80';
-  return s === 'failed' || s === 'rejected'
-    ? 'bg-rose-50 text-rose-700 border-rose-200/80'
-    : 'bg-slate-100 text-slate-700 border-slate-200';
+    return 'bg-[color:var(--warning-tint)] text-[color:var(--warning-text)] border-[color:color-mix(in_srgb,var(--warning-text)_25%,transparent)]';
+  if (s === 'failed' || s === 'rejected')
+    return 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)] border-[color:color-mix(in_srgb,var(--danger-text)_25%,transparent)]';
+  return 'bg-[color:var(--chip)] text-[color:var(--text-muted)] border-[color:var(--border)]';
 }
 
 export default function MonthMatrix({
@@ -112,27 +114,24 @@ export default function MonthMatrix({
 
   return (
     <div className="w-full flex flex-col select-none">
-      {/* Top Header: Star + CALENDAR + Chevrons */}
+      {/* Top Header: Content calendar + Chevrons */}
       <div className="flex items-center justify-between mb-6 pl-1 pr-1">
-        <div className="flex items-center gap-2.5">
-          <SparkleStar className="w-6 h-6" />
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            CALENDAR
-          </h2>
-        </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[color:var(--text)] tracking-tight">
+          Content calendar
+        </h2>
 
         {onNavigate && (
           <div className="flex items-center gap-1">
             <button
               onClick={() => navMonth(-1)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--chip)] transition-colors cursor-pointer"
               aria-label="Previous month"
             >
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={() => navMonth(1)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--chip)] transition-colors cursor-pointer"
               aria-label="Next month"
             >
               <ChevronRight size={16} />
@@ -145,10 +144,10 @@ export default function MonthMatrix({
       <div className="flex items-stretch gap-2 sm:gap-4">
         <div className="flex items-center justify-center pr-1 sm:pr-2 shrink-0">
           <span
-            className="text-lg sm:text-2xl font-extrabold tracking-[0.25em] text-slate-800 dark:text-slate-200 uppercase"
+            className="text-lg sm:text-2xl font-extrabold tracking-[0.25em] text-[color:var(--text)] uppercase"
             style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
           >
-            {monthName}
+            {monthName} {year}
           </span>
         </div>
 
@@ -157,7 +156,7 @@ export default function MonthMatrix({
             {DOW_HEADERS.map((dow) => (
               <div
                 key={dow}
-                className="text-center text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 py-1"
+                className="text-center text-[11px] sm:text-xs font-semibold text-[color:var(--text-muted)] py-1"
               >
                 {dow}
               </div>
@@ -172,22 +171,22 @@ export default function MonthMatrix({
               const firstPost = dayPosts[0];
 
               const cellStyle = !cell.isCurrentMonth
-                ? 'border border-slate-200/50 dark:border-slate-800 text-slate-300 dark:text-slate-600 bg-transparent'
+                ? 'border border-[color:var(--border)] text-[color:var(--text-subtle)] opacity-40 bg-transparent'
                 : isSelected
-                  ? 'bg-[#FBBF24] text-slate-950 border-2 border-slate-950 shadow-md font-bold'
+                  ? 'bg-[color:var(--rail-count-attention)] text-[color:var(--text)] border-2 border-[color:var(--text)] shadow-md font-bold'
                   : hasPosts
-                    ? 'bg-white dark:bg-slate-800/90 border-[1.5px] border-slate-800 dark:border-slate-400 text-slate-900 dark:text-slate-100 hover:bg-slate-50/80 shadow-xs'
-                    : 'bg-white/80 dark:bg-slate-800/50 border-[1.5px] border-slate-700/70 dark:border-slate-500/70 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800';
+                    ? 'bg-[color:var(--card)] border-[1.5px] border-[color:var(--text)] text-[color:var(--text)] hover:bg-[color:var(--chip)]'
+                    : 'bg-[color:var(--card)] border-[1.5px] border-[color:var(--border)] text-[color:var(--text)] hover:bg-[color:var(--chip)]';
 
               return (
                 <button
                   type="button"
                   key={cell.dateStr}
                   onClick={() => onSelectDate(cell.dateStr)}
-                  className={`relative rounded-[16px] sm:rounded-[20px] p-1.5 sm:p-2 flex flex-col justify-between text-left transition-all duration-150 aspect-[4/4.8] sm:aspect-[4/4.5] min-h-[64px] sm:min-h-[76px] ${cellStyle}`}
+                  className={`relative rounded-[16px] sm:rounded-[20px] p-1.5 sm:p-2 flex flex-col justify-between text-left transition-all duration-150 aspect-[4/4.8] sm:aspect-[4/4.5] min-h-[64px] sm:min-h-[76px] cursor-pointer ${cellStyle}`}
                 >
                   <span
-                    className={`text-[11px] sm:text-xs font-bold leading-none tabular-nums ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-slate-100'}`}
+                    className={`text-[11px] sm:text-xs font-bold leading-none tabular-nums ${isSelected ? 'text-[color:var(--text)]' : 'text-[color:var(--text)]'}`}
                   >
                     {String(cell.dayNum).padStart(2, '0')}
                   </span>
@@ -195,12 +194,12 @@ export default function MonthMatrix({
                   {cell.isCurrentMonth && hasPosts && (
                     <div className="flex flex-col mt-auto overflow-hidden">
                       <span
-                        className={`text-[9px] sm:text-[10px] font-bold leading-tight truncate ${isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-white'}`}
+                        className={`text-[9px] sm:text-[10px] font-bold leading-tight truncate ${isSelected ? 'text-[color:var(--text)]' : 'text-[color:var(--text)]'}`}
                       >
                         {firstPost.series || firstPost.category || 'Post'}
                       </span>
                       {isSelected ? (
-                        <span className="text-[8px] sm:text-[9px] font-semibold text-slate-800 tabular-nums">
+                        <span className="text-[8px] sm:text-[9px] font-semibold text-[color:var(--text)] tabular-nums">
                           {firstPost.time || '10:00'}
                         </span>
                       ) : (

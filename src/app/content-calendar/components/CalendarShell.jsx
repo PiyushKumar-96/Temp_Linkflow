@@ -56,10 +56,22 @@ export default function CalendarShell() {
     if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
       return dateParam;
     }
-    // Default to Sept 8, 2026 or current month 8th
-    const y = currentDate.getFullYear();
-    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
-    return `${y}-${m}-08`;
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const viewYear = currentDate.getFullYear();
+    const viewMonth = currentDate.getMonth();
+
+    if (todayYear === viewYear && todayMonth === viewMonth) {
+      const y = String(todayYear);
+      const m = String(todayMonth + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    const y = String(viewYear);
+    const m = String(viewMonth + 1).padStart(2, '0');
+    return `${y}-${m}-01`;
   }, [dateParam, currentDate]);
 
   const [selectedPost, setSelectedPost] = useState(null);
@@ -174,12 +186,12 @@ export default function CalendarShell() {
   }, [allCalendarPosts, filterMember, filterSeries, filterStatus]);
 
   return (
-    <div className="flex flex-col gap-6 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-6 lg:p-8 border border-slate-200/80 dark:border-slate-800 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_12px_28px_-12px_rgba(15,23,42,0.06)]">
+    <div className="flex flex-col gap-6 bg-[color:var(--card)] rounded-2xl sm:rounded-3xl p-6 lg:p-8 border border-[color:var(--border)]">
       {/* Main Content Area */}
       {view === 'month' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
           {/* Left Column: Month Matrix (Spans 7 cols on lg, 7 cols on xl) */}
-          <div className="lg:col-span-7 xl:col-span-7 pr-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-slate-200/80 dark:border-slate-800 pb-8 lg:pb-0">
+          <div className="lg:col-span-7 xl:col-span-7 pr-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-[color:var(--border)] pb-8 lg:pb-0">
             <MonthMatrix
               currentDate={currentDate}
               selectedDate={selectedDate}

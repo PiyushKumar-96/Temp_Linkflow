@@ -54,7 +54,7 @@ export const STATUS_META = Object.freeze({
     description: 'Changes requested by reviewer or automated check',
   },
   [POST_STATUS.AWAITING_REVIEW]: {
-    label: 'Awaiting Review',
+    label: 'Awaiting review',
     token: 'status-awaiting-review',
     badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
     dotClass: 'bg-blue-500',
