@@ -1246,10 +1246,9 @@
   border: 1.5px dashed var(--border);
   border-radius: 16px;
   background: var(--page-bg);
-  height: 400px;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  justify-content: center;
 }
 
 .cmp .cmp-li-frame { max-width: 560px; margin: 0 auto; transition: max-width 360ms var(--m-ease); }

@@ -799,7 +799,7 @@ export default function ComposerShell() {
           />
         </div>
 
-        <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-20">
+        <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-4">
           <ComposerPreview
             composedText={composedText}
             foldIndex={foldIndex}
