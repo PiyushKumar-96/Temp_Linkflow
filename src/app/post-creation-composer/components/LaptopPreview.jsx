@@ -18,10 +18,9 @@ const DESKTOP_NAV_ITEMS = [
  * frame is a fixed height, so the device growing or shrinking never moves anything
  * below it on the page.
  */
-// The lid interior is 464px wide, so a true MacBook 16:10 screen is 290px tall.
-// The LinkedIn nav takes 38 of that, leaving 252 for the feed. Going taller than
-// this makes the lid read as a monitor rather than a laptop.
-const FEED_H = 252;
+// The lid interior is 384px wide, so a true MacBook 16:10 screen is 240px tall.
+// The LinkedIn nav takes 38 of that, leaving 202 for the feed.
+const FEED_H = 202;
 
 /** Feed filler, so a single short draft doesn't sit above empty grey. */
 function GhostPost() {
@@ -60,20 +59,19 @@ export function LaptopPreview({ children, avatarUrl }) {
       style={{
         position: 'relative',
         margin: '0 auto',
-        width: 480,
+        width: 400,
         maxWidth: '100%',
       }}
     >
-      {/* ── MacBook Space Black lid casing ── */}
+      {/* ── MacBook Silver Aluminium lid casing ── */}
       <div
         style={{
-          background: 'linear-gradient(175deg, #2a2a2a 0%, #1a1a1a 55%, #111 100%)',
+          background: 'linear-gradient(175deg, #e4e4e7 0%, #d4d4d8 50%, #a1a1aa 100%)',
           borderRadius: '12px 12px 0 0',
           padding: '6px 8px 0 8px',
           boxShadow:
-            'inset 0 1px 0 rgba(255,255,255,0.08),' +
-            '0 -1px 0 rgba(0,0,0,0.5),' +
-            '0 22px 52px -14px rgba(0,0,0,0.55)',
+            'inset 0 1px 0 rgba(255,255,255,0.45),' +
+            '0 12px 28px -6px rgba(0,0,0,0.60)',
         }}
       >
         {/* Camera */}
@@ -213,17 +211,19 @@ export function LaptopPreview({ children, avatarUrl }) {
       </div>
 
       {/* Hinge */}
-      <div style={{ height: 2, background: 'linear-gradient(180deg, #1a1a1a, #0a0a0a)' }} />
+      <div style={{ height: 2, background: 'linear-gradient(180deg, #a1a1aa, #71717a)' }} />
 
-      {/* Keyboard base — wider than lid, black */}
+      {/* Keyboard base — wider than lid, silver */}
       <div
         style={{
           marginLeft: '-3%',
           width: '106%',
           height: 13,
-          background: 'linear-gradient(180deg, #222 0%, #141414 100%)',
+          background: 'linear-gradient(180deg, #e4e4e7 0%, #d4d4d8 50%, #a1a1aa 100%)',
           borderRadius: '0 0 8px 8px',
-          boxShadow: '0 8px 24px -6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+          boxShadow:
+            'inset 0 1px 0 rgba(255,255,255,0.35),' +
+            '0 8px 20px -4px rgba(0,0,0,0.60)',
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'center',
@@ -234,9 +234,9 @@ export function LaptopPreview({ children, avatarUrl }) {
           style={{
             width: 36,
             height: 5,
-            background: '#2a2a2a',
+            background: '#8e8e93',
             borderRadius: '0 0 3px 3px',
-            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6)',
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.35)',
           }}
         />
       </div>

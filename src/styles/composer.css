@@ -69,6 +69,17 @@
   border-radius: var(--cmp-radius-card);
 }
 
+.cmp .cmp-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 12px 0;
+  padding: 14px;
+  background: var(--card-dark);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+}
+
 .cmp .cmp-card-head {
   display: flex;
   align-items: center;
@@ -202,6 +213,14 @@
 
 .cmp .cmp-btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
 
+.cmp .cmp-btn-primary:disabled,
+.cmp .cmp-btn-primary.cmp-send:disabled {
+  background: var(--chip);
+  color: var(--text-subtle);
+  box-shadow: none;
+  opacity: 1;
+}
+
 .cmp .cmp-btn-outline {
   color: var(--cmp-ink);
   background: #fff;
@@ -300,9 +319,11 @@
 /* ---------- Workflow strip (compact version of the dashboard strip) ---------- */
 
 .cmp .cmp-flow-wrap {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 18px;
+  width: fit-content;
+  max-width: 100%;
   padding: 10px 18px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -420,13 +441,13 @@
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  color: var(--cmp-muted);
+  color: var(--text-muted);
   transition: color var(--m-base) var(--m-ease);
 }
 
 .cmp .cmp-seg-btn:hover { color: var(--cmp-text); }
 .cmp .cmp-seg-btn.is-active { color: var(--cmp-ink); }
-.cmp .cmp-seg.is-sm .cmp-seg-btn { height: 28px; padding: 0 9px; }
+.cmp .cmp-seg.is-sm .cmp-seg-btn { height: 28px; padding: 0 9px; font-size: 12px; }
 .cmp .cmp-seg.is-lg .cmp-seg-btn { height: 44px; }
 
 /* Narrow screens: icon-only, label kept for screen readers */
@@ -523,14 +544,14 @@
   height: 6px;
   margin-top: 8px;
   border-radius: 999px;
-  background: #eef2f6;
+  background: var(--track);
 }
 
 .cmp .cmp-bar-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--t);
+  background: var(--brand);
   transform: scaleX(var(--v));
   transform-origin: left;
   transition: transform 640ms var(--m-ease);
@@ -659,7 +680,7 @@
 .cmp textarea.cmp-editor-text {
   position: relative;
   z-index: 1;
-  min-height: 240px;
+  min-height: 300px;
   overflow: hidden;
   resize: none;
   border: 0;
@@ -1239,17 +1260,6 @@
 }
 
 .cmp .cmp-note-close:hover { background: #fef3c7; }
-
-.cmp .cmp-stage {
-  margin: 14px 20px 0;
-  padding: 16px;
-  border: 1.5px dashed var(--border);
-  border-radius: 16px;
-  background: var(--page-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .cmp .cmp-li-frame { max-width: 560px; margin: 0 auto; transition: max-width 360ms var(--m-ease); }
 .cmp .cmp-li-frame[data-device='mobile'] { max-width: 340px; }

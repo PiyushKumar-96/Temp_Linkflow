@@ -706,25 +706,25 @@ export default function ComposerShell() {
 
   return (
     <div className="cmp flex flex-col gap-4">
-      {/* Editorial Hero Header matching Dashboard Theme & Reference Image 2 */}
-      <ComposerHeader isEditMode={isEditMode} activePost={activePost} />
-
-      {/* Top Action Bar */}
-      <div className="flex items-center justify-end gap-3 px-3 py-2 bg-card/70 backdrop-blur-sm border border-border/70 rounded-xl shadow-sm flex-wrap">
-        <ComposerToolbar
-          onSaveDraft={handleSaveDraft}
-          onViewDrafts={() => setShowDraftsModal(true)}
-          onSubmitReview={handleSubmitForReview}
-          onSchedule={() => setShowScheduleDrawer(true)}
-          onOpenHistory={() => setShowHistoryModal(true)}
-          hasContent={content.trim().length > 0}
-          isEditMode={isEditMode}
-          returnUrl="/approval-workflow"
-          scheduledDate={scheduledDate}
-          scheduledTime={scheduledTime}
-          saveState={saveState}
-          submitState={submitState}
-        />
+      {/* Top Header + Toolbar row sitting directly on background */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <ComposerHeader isEditMode={isEditMode} activePost={activePost} />
+        <div className="flex items-center justify-start lg:justify-end gap-3 shrink-0 pb-1">
+          <ComposerToolbar
+            onSaveDraft={handleSaveDraft}
+            onViewDrafts={() => setShowDraftsModal(true)}
+            onSubmitReview={handleSubmitForReview}
+            onSchedule={() => setShowScheduleDrawer(true)}
+            onOpenHistory={() => setShowHistoryModal(true)}
+            hasContent={content.trim().length > 0}
+            isEditMode={isEditMode}
+            returnUrl="/approval-workflow"
+            scheduledDate={scheduledDate}
+            scheduledTime={scheduledTime}
+            saveState={saveState}
+            submitState={submitState}
+          />
+        </div>
       </div>
 
       {isEditMode && activePost ? (
@@ -747,7 +747,7 @@ export default function ComposerShell() {
           />
         </>
       ) : (
-        <div>
+        <div className="flex justify-start">
           <WorkflowMini activeIndex={submitState === 'sent' ? 2 : 1} />
         </div>
       )}

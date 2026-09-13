@@ -71,9 +71,8 @@ export function PhonePreview({ children }) {
           padding: 3,
           background: 'linear-gradient(150deg, #e4e4e7 0%, #a1a1aa 50%, #52525b 100%)',
           boxShadow:
-            '0 0 0 1px #27272a,' +
-            '0 20px 48px -10px rgba(0,0,0,0.40),' +
-            'inset 0 1px 0 rgba(255,255,255,0.28)',
+            'inset 0 1px 0 rgba(255,255,255,0.28),' +
+            '0 12px 32px -8px rgba(0,0,0,0.55)',
         }}
       >
         {/* Inner black bezel */}

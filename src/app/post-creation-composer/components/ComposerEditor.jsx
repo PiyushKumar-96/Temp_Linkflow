@@ -40,7 +40,7 @@ import { PILLARS, TARGETS, getPillar, prefersReducedMotion } from '../_model/com
 
 const MAX_CHARS = APP_CONFIG.maxPostCharacters || 3000;
 const LINE_HEIGHT = 24; // keep in sync with .cmp-editor-text in composer.css
-const MIN_EDITOR_HEIGHT = 240;
+const MIN_EDITOR_HEIGHT = 300;
 
 const TONES = [
   { value: 'professional', label: 'Professional', icon: Briefcase },
@@ -199,7 +199,7 @@ function PillarPicker({ value, onChange }) {
               </span>
               <span className="cmp-bar" aria-hidden="true">
                 <span
-                  className={`cmp-bar-fill tone-${pillar.tone}`}
+                  className="cmp-bar-fill"
                   style={{ '--v': Math.min(pillar.planned / pillar.goal, 1) }}
                 />
               </span>
@@ -478,7 +478,7 @@ export default function ComposerEditor({
       {/* ---------- Setup ---------- */}
       <section className="cmp-card" aria-labelledby="cmp-setup-title">
         <CardHeader tone="blue" title="Post setup" id="cmp-setup-title" />
-        <div className="cmp-card-body grid gap-5 sm:grid-cols-2">
+        <div className="cmp-card-body !py-3.5 grid gap-4 sm:grid-cols-2">
           <div>
             <span className="cmp-label">Publish to</span>
             <Segmented
