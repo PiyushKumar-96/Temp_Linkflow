@@ -5,80 +5,113 @@ import { Upload, Plus, Loader2, Send, Image as ImageIcon, FileText, Sparkles } f
 
 export default function BulkUploadToolbar({
   postsCount,
-  counts,
+  readyCount,
+  outstandingCount,
   bulkGenerating,
   schedulingAll,
   onGenerateAllImages,
-  onSetAllPdf,
+  onSetAllFormat,
   onReupload,
   onAddManual,
   onSendForReview,
 }) {
+  const isAllReady = postsCount > 0 && outstandingCount === 0;
+
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3 flex-wrap">
-        <button onClick={onReupload} className="btn-secondary flex items-center gap-1.5 text-sm">
+        <button
+          type="button"
+          onClick={onReupload}
+          className="lib-btn flex items-center gap-1.5 text-sm"
+        >
           <Upload size={14} />
-          Re-upload File
+          Re-upload file
         </button>
-        <button onClick={onAddManual} className="btn-secondary flex items-center gap-1.5 text-sm">
+        <button
+          type="button"
+          onClick={onAddManual}
+          className="lib-btn flex items-center gap-1.5 text-sm"
+        >
           <Plus size={14} />
-          Add Row
+          Add row
         </button>
 
-        {/* Media Breakdown: Images & PDFs only */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-lg border border-border/50 flex-wrap">
-          <span className="font-600 text-foreground">{postsCount} posts:</span>
-          <span className="text-emerald-600 font-600 flex items-center gap-1">
-            <ImageIcon size={11} />
-            {counts.images} Images
-          </span>
-          <span>·</span>
-          <span className="text-red-600 font-600 flex items-center gap-1">
-            <FileText size={11} />
-            {counts.pdfs} PDFs
-          </span>
-        </div>
+        {/* Readiness Status Chip with Status Dot */}
+        {postsCount > 0 && (
+          <div
+            className={`lib-readiness-chip ${
+              isAllReady ? 'lib-readiness-chip-ready' : 'lib-readiness-chip-outstanding'
+            }`}
+            aria-live="polite"
+          >
+            <span className="lib-readiness-dot" aria-hidden="true" />
+            <span className="lib-readiness-label">
+              {isAllReady
+                ? `All ${postsCount} posts ready to send`
+                : `${outstandingCount} ${
+                    outstandingCount === 1 ? 'post' : 'posts'
+                  } outstanding`}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Bulk Format Quick Actions */}
-        <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border/60">
-          <button
-            type="button"
-            onClick={onGenerateAllImages}
-            disabled={bulkGenerating}
-            className="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1 hover:text-emerald-600 font-600 cursor-pointer disabled:opacity-50"
-            title="Generate AI images for image posts"
-          >
-            {bulkGenerating ? (
-              <Loader2 size={11} className="animate-spin" />
-            ) : (
-              <Sparkles size={11} className="text-emerald-500" />
-            )}
-            <span>Generate All Images</span>
-          </button>
-          <button
-            type="button"
-            onClick={onSetAllPdf}
-            disabled={bulkGenerating}
-            className="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1 hover:text-red-600 font-600 cursor-pointer disabled:opacity-50"
-            title="Switch all posts to PDF format"
-          >
-            <FileText size={11} className="text-red-500" />
-            <span>Set All to PDF</span>
-          </button>
-        </div>
-
-        {/* Send All for Review Button (Replaces Schedule All) */}
+        {/* Bulk Format Quick Actions — Outlined Neutral Secondaries */}
         <button
+          type="button"
+          onClick={onGenerateAllImages}
+          disabled={bulkGenerating}
+          className="lib-btn text-xs h-8 px-2.5 flex items-center gap-1.5 disabled:opacity-50"
+          title="Generate AI images for image posts"
+        >
+          {bulkGenerating ? (
+            <Loader2 size={12} className="animate-spin" />
+          ) : (
+            <Sparkles size={12} className="text-[color:var(--text-subtle)]" />
+          )}
+          <span>Generate all images</span>
+        </button>
+
+        {/* Format Setter dropdown / selector covering all three */}
+        <select
+          className="lib-select text-xs h-8 py-0 pl-2.5 pr-7 font-normal"
+          defaultValue=""
+          onChange={(e) => {
+            if (e.target.value) {
+              onSetAllFormat(e.target.value);
+              e.target.value = '';
+            }
+          }}
+          aria-label="Set all format"
+        >
+          <option value="" disabled>
+            Set all format…
+          </option>
+          <option value="post">Set all to Text only</option>
+          <option value="image">Set all to Image</option>
+          <option value="pdf">Set all to PDF</option>
+        </select>
+
+        {/* Single Primary Action: Send all for review (Matching New Post & Approve & Schedule) */}
+        <button
+          type="button"
           onClick={onSendForReview}
-          disabled={schedulingAll}
-          className="btn-primary flex items-center gap-1.5 text-sm cursor-pointer shadow-sm font-600"
-          title="Submit all posts to Approval Queue for review"
+          disabled={!isAllReady || schedulingAll}
+          className="lib-btn lib-btn-primary text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+          title={
+            isAllReady
+              ? 'Submit all posts to Approval Queue for review'
+              : `Cannot send: ${outstandingCount} ${outstandingCount === 1 ? 'post is' : 'posts are'} outstanding`
+          }
         >
           {schedulingAll ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-          <span>Send All for Review</span>
+          <span>
+            {isAllReady
+              ? 'Send all for review'
+              : `Send all for review (${outstandingCount} left)`}
+          </span>
         </button>
       </div>
     </div>

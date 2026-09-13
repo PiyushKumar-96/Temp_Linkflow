@@ -67,17 +67,17 @@ export function generateMockInfographic(topicTitle) {
 
 export const SAMPLE_POSTS = [
   {
+    id: 'sample-1',
     header: 'Milestone: 10K Customers',
     content:
       "We just crossed 10,000 customers — here's what we learned about building trust at scale...",
     hashtags: '#milestone #growth #saas',
     scheduledDate: '2026-09-15',
     scheduledTime: '09:00',
-    visualFormat: 'image',
-    imageUrl: MOCK_IMAGE_URLS[0],
-    imageStatus: 'ready',
+    visualFormat: 'post',
   },
   {
+    id: 'sample-2',
     header: 'Remote Work Insights',
     content:
       'After 3 years of async-first culture, here are the 5 habits that changed everything for our team...',
@@ -91,6 +91,7 @@ export const SAMPLE_POSTS = [
     imageStatus: 'ready',
   },
   {
+    id: 'sample-3',
     header: 'Product Launch Announcement',
     content:
       'Excited to announce our new AI-powered analytics dashboard — built for teams who move fast...',
@@ -102,6 +103,7 @@ export const SAMPLE_POSTS = [
     imageStatus: 'ready',
   },
   {
+    id: 'sample-4',
     header: 'LinkedIn Growth Strategy',
     content:
       'The 5 LinkedIn habits that helped us grow from 800 to 22,000 followers in 18 months...',
@@ -115,12 +117,14 @@ export const SAMPLE_POSTS = [
     imageStatus: 'ready',
   },
   {
+    id: 'sample-5',
     header: 'Customer Success Story',
     content: 'How one of our customers reduced onboarding time by 62% using our platform...',
     hashtags: '#customersuccess #casestudy #saas',
     scheduledDate: '2026-09-24',
     scheduledTime: '10:00',
     visualFormat: 'image',
+    imageUrl: null,
     imageStatus: 'none',
   },
 ];

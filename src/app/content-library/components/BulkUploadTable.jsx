@@ -47,7 +47,7 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
       hashtags: '',
       scheduledDate: '2026-09-25',
       scheduledTime: '09:00',
-      visualFormat: 'image',
+      visualFormat: 'post',
       imageStatus: 'none',
     };
     onPostsChange([...posts, newPost]);
@@ -61,7 +61,7 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
     onPostsChange(posts.filter((p) => p.id !== id));
   };
 
-  // Format Switcher: Image vs PDF
+  // Format Switcher: Text only vs Image vs PDF
   const handleSelectFormat = (id, format) => {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
@@ -76,8 +76,8 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         pdfPages: post.pdfPages || 5,
         carouselSlides: post.carouselSlides || generateMockCarousel(post.header),
       });
-      toast.info('Switched to PDF format. Please upload your PDF document.');
-    } else {
+      toast.info('Switched to PDF format.');
+    } else if (format === 'image') {
       updatePost(id, {
         visualFormat: 'image',
         pdfName: null,
@@ -86,6 +86,17 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         imageStatus: post.imageUrl ? 'ready' : 'none',
       });
       toast.info('Switched to Image format.');
+    } else {
+      updatePost(id, {
+        visualFormat: 'post',
+        imageUrl: null,
+        imageAlt: null,
+        pdfName: null,
+        pdfPages: null,
+        carouselSlides: null,
+        imageStatus: 'none',
+      });
+      toast.info('Switched to Text only format.');
     }
   };
 
@@ -171,21 +182,49 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
     toast.success('Generated AI images for all posts');
   };
 
-  // Bulk action: Set all to PDF
-  const handleSetAllPdf = () => {
-    onPostsChange(
-      posts.map((p) => ({
-        ...p,
-        visualFormat: 'pdf',
-        imageUrl: null,
-        imageAlt: null,
-        imageStatus: 'ready',
-        pdfName: p.pdfName || `${(p.header || 'Document').replace(/\s+/g, '-')}.pdf`,
-        pdfPages: p.pdfPages || 5,
-        carouselSlides: p.carouselSlides || generateMockCarousel(p.header),
-      }))
-    );
-    toast.info('Switched all posts to PDF format');
+  // Bulk action: Set all format covering Text only, Image, PDF
+  const handleSetAllFormat = (format) => {
+    if (format === 'pdf') {
+      onPostsChange(
+        posts.map((p) => ({
+          ...p,
+          visualFormat: 'pdf',
+          imageUrl: null,
+          imageAlt: null,
+          imageStatus: 'ready',
+          pdfName: p.pdfName || `${(p.header || 'Document').replace(/\s+/g, '-')}.pdf`,
+          pdfPages: p.pdfPages || 5,
+          carouselSlides: p.carouselSlides || generateMockCarousel(p.header),
+        }))
+      );
+      toast.info('Switched all posts to PDF format');
+    } else if (format === 'image') {
+      onPostsChange(
+        posts.map((p) => ({
+          ...p,
+          visualFormat: 'image',
+          pdfName: null,
+          pdfPages: null,
+          carouselSlides: null,
+          imageStatus: p.imageUrl ? 'ready' : 'none',
+        }))
+      );
+      toast.info('Switched all posts to Image format');
+    } else if (format === 'post') {
+      onPostsChange(
+        posts.map((p) => ({
+          ...p,
+          visualFormat: 'post',
+          imageUrl: null,
+          imageAlt: null,
+          pdfName: null,
+          pdfPages: null,
+          carouselSlides: null,
+          imageStatus: 'none',
+        }))
+      );
+      toast.info('Switched all posts to Text only format');
+    }
   };
 
   // Send all posts to Approval Queue for review
@@ -196,6 +235,8 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
 
     const formattedBulkPosts = posts.map((p, idx) => {
       const isPdf = p.visualFormat === 'pdf';
+      const isImage = p.visualFormat === 'image';
+      const finalVisualFormat = isPdf ? 'carousel' : isImage ? 'image' : 'post';
 
       return {
         id: p.id || `bulk-${Date.now()}-${idx}`,
@@ -210,8 +251,8 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         scheduledDate: p.scheduledDate || '2026-09-25',
         scheduledTime: p.scheduledTime || '09:00',
         dueDate: p.scheduledDate || '2026-09-25',
-        visualFormat: isPdf ? 'carousel' : 'image',
-        imageUrl: isPdf ? null : p.imageUrl,
+        visualFormat: finalVisualFormat,
+        imageUrl: isImage ? p.imageUrl : null,
         pdfName: isPdf ? p.pdfName : null,
         pdfPages: isPdf ? p.pdfPages : null,
         carouselSlides: isPdf ? p.carouselSlides || generateMockCarousel(p.header) : null,
@@ -286,15 +327,59 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
     }
   };
 
-  // Summary counts for Images vs PDFs
-  const counts = useMemo(() => {
-    let images = 0;
-    let pdfs = 0;
-    posts.forEach((p) => {
-      if (p.visualFormat === 'pdf') pdfs++;
-      else images++;
+  // Helper function: Evaluate post readiness and missing fields
+  const getPostReadiness = (post) => {
+    const hasHeader = Boolean(post.header && post.header.trim());
+    const hasContent = Boolean(post.content && post.content.trim());
+    const hasSlot = Boolean(
+      post.scheduledDate && post.scheduledDate.trim() && post.scheduledTime && post.scheduledTime.trim()
+    );
+
+    let hasMedia = true;
+    if (post.visualFormat === 'image') {
+      hasMedia = Boolean(post.imageUrl && post.imageUrl.trim());
+    } else if (post.visualFormat === 'pdf') {
+      hasMedia = Boolean(
+        post.pdfName || (post.carouselSlides && post.carouselSlides.length > 0)
+      );
+    }
+
+    const missingFields = {
+      header: !hasHeader,
+      content: !hasContent,
+      slot: !hasSlot,
+      media: !hasMedia,
+    };
+
+    const isReady = hasHeader && hasContent && hasSlot && hasMedia;
+    return { isReady, missingFields };
+  };
+
+  // Compute readiness stats and stably sort outstanding posts to the top
+  const { sortedPosts, readyCount, outstandingCount } = useMemo(() => {
+    const items = posts.map((post, originalIndex) => {
+      const { isReady, missingFields } = getPostReadiness(post);
+      return {
+        post,
+        originalIndex,
+        isReady,
+        isOutstanding: !isReady,
+        missingFields,
+      };
     });
-    return { images, pdfs };
+
+    const readyCount = items.filter((item) => item.isReady).length;
+    const outstandingCount = items.length - readyCount;
+
+    // Stable sort: outstanding first, then ready; keep original order within each bucket
+    const sorted = [...items].sort((a, b) => {
+      if (a.isOutstanding !== b.isOutstanding) {
+        return a.isOutstanding ? -1 : 1;
+      }
+      return a.originalIndex - b.originalIndex;
+    });
+
+    return { sortedPosts: sorted, readyCount, outstandingCount };
   }, [posts]);
 
   if (posts.length === 0) {
@@ -313,17 +398,17 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="btn-primary flex items-center gap-2 text-sm"
+            className="lib-btn flex items-center gap-2 text-sm bg-[color:var(--brand)] text-white hover:bg-[color:var(--brand)]/90 border-transparent font-medium"
           >
             <Upload size={14} />
-            Upload Excel / CSV
+            Upload Excel or CSV
           </button>
           <button
             onClick={handleAddManual}
-            className="btn-secondary flex items-center gap-2 text-sm"
+            className="lib-btn lib-btn-quiet flex items-center gap-2 text-sm font-medium"
           >
             <Plus size={14} />
-            Add Manually
+            Add manually
           </button>
         </div>
         <input
@@ -342,50 +427,47 @@ export default function BulkUploadTable({ posts, onPostsChange }) {
       {/* Top Toolbar */}
       <BulkUploadToolbar
         postsCount={posts.length}
-        counts={counts}
+        readyCount={readyCount}
+        outstandingCount={outstandingCount}
         bulkGenerating={bulkGenerating}
         schedulingAll={sendingReview}
         onGenerateAllImages={handleGenerateAllImages}
-        onSetAllPdf={handleSetAllPdf}
+        onSetAllFormat={handleSetAllFormat}
         onReupload={() => fileInputRef.current?.click()}
         onAddManual={handleAddManual}
         onSendForReview={handleSendAllForReview}
       />
 
-      {/* Spacious Uncramped Table with Smooth Scroll */}
-      <div className="card overflow-x-auto p-0 border border-border shadow-xs">
-        <table className="w-full min-w-[1240px] text-left border-collapse">
+      {/* Table with Pinned Actions and Responsive Fit */}
+      <div className="overflow-x-auto p-0 border border-[color:var(--border)] rounded-[var(--radius-card)] bg-[color:var(--card)] shadow-xs">
+        <table className="lib-bulk-table">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider w-10 text-center">
-                #
+            <tr>
+              <th className="lib-bulk-th-title">
+                Header / title
               </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[190px]">
-                Header / Title
+              <th className="lib-bulk-th-content">
+                Post content
               </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[340px]">
-                Post Content
+              <th className="lib-bulk-th-slot">
+                Scheduled slot
               </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[150px]">
-                Hashtags
+              <th className="lib-bulk-th-format">
+                Format & media
               </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[150px]">
-                Scheduled Slot
-              </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[260px]">
-                Format & Media
-              </th>
-              <th className="px-3 py-3 text-xs font-600 text-muted-foreground uppercase tracking-wider min-w-[110px] text-right">
+              <th className="lib-bulk-th-actions">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {posts.map((post, idx) => (
+            {sortedPosts.map(({ post, isOutstanding, missingFields }, idx) => (
               <BulkUploadRow
                 key={post.id}
                 post={post}
                 idx={idx}
+                isOutstanding={isOutstanding}
+                missingFields={missingFields}
                 generatingId={generatingId}
                 onUpdatePost={updatePost}
                 onRemovePost={removePost}

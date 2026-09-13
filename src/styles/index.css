@@ -1,6 +1,7 @@
 @import './tailwind.css';
 @import './motion.css';
 @import './composer.css';
+@import './library.css';
 
 /**
  * LinkedFlow Design Tokens — Source of Truth (Pass 6.5)
@@ -128,6 +129,12 @@
   --status-manual-bg: #fff7ed;
   --status-manual-fg: #c2410c;
   --status-manual-border: #fed7aa;
+
+  /* Pillar colors for text-post bands */
+  --pillar-thought: #E3DCCB;      /* thought leadership */
+  --pillar-case: #DCE4E0;         /* case studies & proof */
+  --pillar-engineering: #DEDCEA;  /* engineering culture */
+  --pillar-industry: #DCE3EC;     /* industry insights */
 }
 
 /* Post lifecycle status utility classes */

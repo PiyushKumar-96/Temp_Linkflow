@@ -2,8 +2,6 @@
 
 import React from 'react';
 import {
-  Calendar,
-  Clock,
   Image as ImageIcon,
   Loader2,
   Eye,
@@ -17,6 +15,8 @@ export default function BulkUploadRow({
   post,
   idx,
   generatingId,
+  isOutstanding,
+  missingFields = {},
   onUpdatePost,
   onRemovePost,
   onSelectFormat,
@@ -25,85 +25,105 @@ export default function BulkUploadRow({
   onPdfFileUpload,
   onPreviewPost,
 }) {
-  const currentFormat = post.visualFormat === 'pdf' ? 'pdf' : 'image';
+  const currentFormat =
+    post.visualFormat === 'pdf' ? 'pdf' : post.visualFormat === 'image' ? 'image' : 'post';
 
   return (
-    <tr className="hover:bg-muted/15 transition-colors align-top">
-      {/* # Column */}
-      <td className="px-3 py-3.5 text-xs text-muted-foreground tabular-nums text-center font-600">
-        {idx + 1}
-      </td>
-
+    <tr
+      className={`transition-colors ${
+        isOutstanding ? 'lib-row-outstanding' : 'hover:bg-[color:var(--track-warm)]'
+      }`}
+    >
       {/* Header / Title */}
-      <td className="px-3 py-3.5">
-        <input
-          type="text"
-          value={post.header}
-          onChange={(e) => onUpdatePost(post.id, { header: e.target.value })}
-          placeholder="Post header / title..."
-          className="w-full bg-transparent text-sm font-600 text-foreground outline-none border-b border-transparent hover:border-border focus:border-primary transition-colors py-1"
-        />
-      </td>
-
-      {/* Post Content */}
-      <td className="px-3 py-3.5">
-        <textarea
-          value={post.content}
-          onChange={(e) => onUpdatePost(post.id, { content: e.target.value })}
-          placeholder="Write post content hook & body..."
-          rows={3}
-          className="w-full bg-transparent text-xs text-foreground outline-none border border-transparent hover:border-border/80 focus:border-primary focus:bg-background rounded-md p-1.5 transition-colors resize-none leading-relaxed"
-        />
-      </td>
-
-      {/* Hashtags */}
-      <td className="px-3 py-3.5">
-        <input
-          type="text"
-          value={post.hashtags}
-          onChange={(e) => onUpdatePost(post.id, { hashtags: e.target.value })}
-          placeholder="#milestone #saas..."
-          className="w-full bg-transparent text-xs text-primary font-500 outline-none border-b border-transparent hover:border-border focus:border-primary transition-colors py-1"
-        />
-      </td>
-
-      {/* Scheduled Slot (Date & Time merged) */}
-      <td className="px-3 py-3.5">
-        <div className="flex flex-col gap-1.5 w-full max-w-[140px]">
-          <div className="flex items-center gap-1.5 text-xs text-foreground bg-muted/40 px-2 py-1 rounded-md border border-border/50">
-            <Calendar size={11} className="text-muted-foreground shrink-0" />
-            <input
-              type="date"
-              value={post.scheduledDate}
-              onChange={(e) => onUpdatePost(post.id, { scheduledDate: e.target.value })}
-              className="bg-transparent text-xs text-foreground outline-none w-full font-500 cursor-pointer"
-            />
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-foreground bg-muted/40 px-2 py-1 rounded-md border border-border/50">
-            <Clock size={11} className="text-muted-foreground shrink-0" />
-            <input
-              type="time"
-              value={post.scheduledTime}
-              onChange={(e) => onUpdatePost(post.id, { scheduledTime: e.target.value })}
-              className="bg-transparent text-xs text-foreground outline-none w-full font-500 cursor-pointer"
-            />
-          </div>
+      <td className="lib-bulk-cell-title">
+        <div className="flex flex-col gap-1">
+          <input
+            type="text"
+            value={post.header}
+            onChange={(e) => onUpdatePost(post.id, { header: e.target.value })}
+            placeholder="Post header / title..."
+            className="w-full bg-transparent text-sm font-semibold text-[color:var(--text)] outline-none border-b border-transparent hover:border-[color:var(--border)] focus:border-[color:var(--brand)] transition-colors py-0.5"
+          />
+          {missingFields.header && (
+            <span className="lib-cell-hint">Needs a title</span>
+          )}
         </div>
       </td>
 
-      {/* Format & Media (Only Image and PDF options) */}
-      <td className="px-3 py-3.5 min-w-[260px]">
-        <div className="flex flex-col gap-2.5">
-          {/* Format Toggle Buttons: Image vs PDF */}
-          <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border/60 w-fit">
+      {/* Post Content & Hashtags */}
+      <td className="lib-bulk-cell-content">
+        <div className="flex flex-col gap-1.5">
+          <textarea
+            value={post.content}
+            onChange={(e) => onUpdatePost(post.id, { content: e.target.value })}
+            placeholder="Write post content hook & body..."
+            rows={3}
+            className="w-full bg-transparent text-xs text-[color:var(--text)] outline-none border border-transparent hover:border-[color:var(--border)] focus:border-[color:var(--brand)] focus:bg-[color:var(--card)] rounded-[var(--radius-input)] p-1.5 transition-colors resize-none leading-relaxed"
+          />
+          {missingFields.content && (
+            <span className="lib-cell-hint">Needs post content</span>
+          )}
+          <input
+            type="text"
+            value={post.hashtags}
+            onChange={(e) => onUpdatePost(post.id, { hashtags: e.target.value })}
+            placeholder="#hashtags..."
+            className="w-full bg-transparent text-[11px] text-[color:var(--text-muted)] font-medium outline-none border-b border-transparent hover:border-[color:var(--border)] focus:border-[color:var(--brand)] transition-colors px-1 py-0.5"
+          />
+        </div>
+      </td>
+
+      {/* Scheduled Slot (Single Box Container with Divider) */}
+      <td className="lib-bulk-cell-slot">
+        <div className="flex flex-col gap-1">
+          <div className="lib-slot-container">
+            <input
+              type="date"
+              value={post.scheduledDate || ''}
+              onChange={(e) => onUpdatePost(post.id, { scheduledDate: e.target.value })}
+              className="lib-slot-date"
+              aria-label="Scheduled date"
+            />
+            <span className="lib-slot-divider" aria-hidden="true" />
+            <input
+              type="time"
+              value={post.scheduledTime || ''}
+              onChange={(e) => onUpdatePost(post.id, { scheduledTime: e.target.value })}
+              className="lib-slot-time"
+              aria-label="Scheduled time"
+            />
+          </div>
+          {missingFields.slot && (
+            <span className="lib-cell-hint">
+              {!post.scheduledDate && !post.scheduledTime
+                ? 'No slot set'
+                : !post.scheduledDate
+                  ? 'No date set'
+                  : 'No time set'}
+            </span>
+          )}
+        </div>
+      </td>
+
+      {/* Format & Media (Text only, Image, PDF) */}
+      <td className="lib-bulk-cell-format">
+        <div className="flex flex-col gap-2">
+          {/* Neutral Format Toggle: Text only vs Image vs PDF */}
+          <div className="lib-format-toggle" role="group" aria-label="Visual format">
+            <button
+              type="button"
+              onClick={() => onSelectFormat(post.id, 'post')}
+              className="lib-format-btn"
+              aria-pressed={currentFormat === 'post'}
+              title="Post with text only (no media)"
+            >
+              <span>Text only</span>
+            </button>
             <button
               type="button"
               onClick={() => onSelectFormat(post.id, 'image')}
-              className={`px-2.5 py-1 rounded text-xs font-600 transition-all cursor-pointer flex items-center gap-1.5 ${
-                currentFormat === 'image'
-                  ? 'bg-emerald-600 text-white shadow-2xs'
-                  : 'text-muted-foreground hover:text-emerald-600'
-              }`}
+              className="lib-format-btn"
+              aria-pressed={currentFormat === 'image'}
               title="Post with single image visual"
             >
               <ImageIcon size={12} />
@@ -112,11 +132,8 @@ export default function BulkUploadRow({
             <button
               type="button"
               onClick={() => onSelectFormat(post.id, 'pdf')}
-              className={`px-2.5 py-1 rounded text-xs font-600 transition-all cursor-pointer flex items-center gap-1.5 ${
-                currentFormat === 'pdf'
-                  ? 'bg-red-600 text-white shadow-2xs'
-                  : 'text-muted-foreground hover:text-red-600'
-              }`}
+              className="lib-format-btn"
+              aria-pressed={currentFormat === 'pdf'}
               title="Post with multi-page PDF document"
             >
               <FileText size={12} />
@@ -124,15 +141,22 @@ export default function BulkUploadRow({
             </button>
           </div>
 
+          {/* Outstanding in-place hint for media */}
+          {missingFields.media && (
+            <span className="lib-cell-hint">
+              {currentFormat === 'image' ? 'Needs an image' : 'Needs a PDF'}
+            </span>
+          )}
+
           {/* Loading status */}
           {generatingId === post.id && (
-            <div className="flex items-center gap-1 text-xs text-primary font-500">
-              <Loader2 size={11} className="animate-spin" />
+            <div className="flex items-center gap-1.5 text-xs text-[color:var(--text-muted)] font-medium">
+              <Loader2 size={12} className="animate-spin text-[color:var(--text-subtle)]" />
               <span>Generating AI image...</span>
             </div>
           )}
 
-          {/* IMAGE Mode: Options to Generate AI Image OR Upload Image Manually */}
+          {/* IMAGE Mode */}
           {generatingId !== post.id && currentFormat === 'image' && (
             <div className="flex items-center gap-2 flex-wrap">
               {post.imageUrl ? (
@@ -140,14 +164,14 @@ export default function BulkUploadRow({
                   <img
                     src={post.imageUrl}
                     alt={post.imageAlt || 'Post image'}
-                    className="w-9 h-9 rounded-md object-cover border border-border shrink-0 bg-muted shadow-2xs"
+                    className="w-9 h-9 rounded-[var(--radius-input)] object-cover border border-[color:var(--border)] shrink-0 bg-[color:var(--chip)]"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xs text-emerald-600 font-600">
-                      {post.imageStatus === 'provided' ? 'Uploaded Image' : 'AI Image Ready'}
+                    <span className="text-xs text-[color:var(--text)] font-semibold">
+                      {post.imageStatus === 'provided' ? 'Uploaded image' : 'AI image ready'}
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <label className="text-[11px] text-muted-foreground hover:text-primary cursor-pointer flex items-center gap-0.5 font-500">
+                      <label className="text-[11px] text-[color:var(--text-muted)] hover:text-[color:var(--text)] cursor-pointer flex items-center gap-0.5 font-medium">
                         <Upload size={10} />
                         <span>Upload</span>
                         <input
@@ -157,15 +181,15 @@ export default function BulkUploadRow({
                           onChange={(e) => onImageFileUpload(post.id, e)}
                         />
                       </label>
-                      <span className="text-muted-foreground/40">·</span>
+                      <span className="text-[color:var(--text-subtle)]">·</span>
                       <button
                         type="button"
                         onClick={() => onGenerateImage(post.id)}
-                        className="text-[11px] text-muted-foreground hover:text-emerald-600 cursor-pointer flex items-center gap-0.5 font-500"
+                        className="text-[11px] text-[color:var(--text-muted)] hover:text-[color:var(--text)] cursor-pointer flex items-center gap-0.5 font-medium"
                         title="Regenerate with AI"
                       >
                         <Sparkles size={10} />
-                        <span>AI Gen</span>
+                        <span>Regenerate</span>
                       </button>
                     </div>
                   </div>
@@ -175,14 +199,14 @@ export default function BulkUploadRow({
                   <button
                     type="button"
                     onClick={() => onGenerateImage(post.id)}
-                    className="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-600 cursor-pointer shadow-2xs"
+                    className="lib-btn text-xs h-7 px-2.5 flex items-center gap-1 font-medium shadow-xs"
                   >
-                    <Sparkles size={11} />
+                    <Sparkles size={11} className="text-[color:var(--text-subtle)]" />
                     <span>Generate AI</span>
                   </button>
-                  <label className="btn-secondary text-xs py-1 px-2.5 flex items-center gap-1 text-foreground font-600 cursor-pointer shadow-2xs">
-                    <Upload size={11} />
-                    <span>Upload Image</span>
+                  <label className="lib-btn text-xs h-7 px-2.5 flex items-center gap-1 font-medium cursor-pointer shadow-xs">
+                    <Upload size={11} className="text-[color:var(--text-subtle)]" />
+                    <span>Upload image</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -195,25 +219,25 @@ export default function BulkUploadRow({
             </div>
           )}
 
-          {/* PDF Mode: Manual PDF File Upload Only */}
+          {/* PDF Mode */}
           {generatingId !== post.id && currentFormat === 'pdf' && (
             <div>
               {post.pdfName || (post.carouselSlides && post.carouselSlides.length > 0) ? (
-                <div className="flex items-center gap-2 bg-red-50/70 border border-red-200/80 px-2.5 py-1.5 rounded-lg shadow-2xs">
-                  <div className="w-7 h-7 rounded bg-red-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-xs">
+                <div className="lib-attached-chip">
+                  <div className="lib-attached-badge">
                     PDF
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-600 text-foreground truncate max-w-[130px]">
+                    <span className="text-xs font-semibold text-[color:var(--text)] truncate max-w-[130px]">
                       {post.pdfName || `${(post.header || 'Document').slice(0, 18)}.pdf`}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-[color:var(--text-muted)] tabular-nums">
                       {post.pdfPages || (post.carouselSlides ? post.carouselSlides.length : 5)}{' '}
-                      pages · Multi-slide
+                      pages
                     </span>
                   </div>
                   <label
-                    className="text-[11px] text-red-600 hover:underline cursor-pointer flex items-center gap-0.5 ml-auto font-600 shrink-0"
+                    className="text-[11px] text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:underline cursor-pointer flex items-center gap-0.5 ml-auto font-medium shrink-0"
                     title="Upload different PDF file"
                   >
                     <Upload size={10} />
@@ -227,9 +251,9 @@ export default function BulkUploadRow({
                   </label>
                 </div>
               ) : (
-                <label className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 border-dashed border-red-300 hover:border-red-500 bg-red-50/40 text-red-700 hover:bg-red-50 transition-all font-600 cursor-pointer shadow-2xs w-fit">
-                  <FileText size={13} className="text-red-600" />
-                  <span>Upload PDF Document</span>
+                <label className="lib-btn text-xs h-8 px-3 flex items-center gap-1.5 font-medium cursor-pointer shadow-xs w-fit">
+                  <FileText size={13} className="text-[color:var(--text-subtle)]" />
+                  <span>Upload PDF</span>
                   <input
                     type="file"
                     accept=".pdf,application/pdf"
@@ -243,25 +267,25 @@ export default function BulkUploadRow({
         </div>
       </td>
 
-      {/* Actions (Only Preview and Delete — View button removed) */}
-      <td className="px-3 py-3.5">
+      {/* Actions (Pinned right) */}
+      <td className="lib-bulk-cell-actions">
         <div className="flex items-center gap-1.5 justify-end">
           <button
             type="button"
             onClick={() => onPreviewPost(post)}
-            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1 hover:text-primary hover:border-primary/40 transition-colors shadow-2xs cursor-pointer font-600"
+            className="lib-btn text-xs h-8 px-3 flex items-center gap-1.5 hover:border-[color:var(--brand)] transition-colors shadow-xs cursor-pointer font-medium"
             title="Preview how this post looks on LinkedIn"
           >
-            <Eye size={12} className="text-primary" />
+            <Eye size={12} className="text-[color:var(--text-subtle)]" />
             <span>Preview</span>
           </button>
           <button
             type="button"
             onClick={() => onRemovePost(post.id)}
-            className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+            className="p-1.5 rounded-[var(--radius-icon-btn)] hover:bg-[color:var(--chip)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] transition-colors cursor-pointer"
             title="Delete row"
           >
-            <Trash2 size={13} />
+            <Trash2 size={14} />
           </button>
         </div>
       </td>

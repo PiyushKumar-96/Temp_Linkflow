@@ -2,200 +2,162 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  FileText,
-  Type,
-  Image,
-  Hash,
-  TrendingUp,
-  Copy,
-  Pencil,
-  Check,
-  Layers,
-  LayoutGrid,
-} from 'lucide-react';
+import { Check, Copy, Pencil, FileText } from 'lucide-react';
 import { toast } from 'sonner';
-import StatusBadge from '@/components/ui/StatusBadge';
 import AppImage from '@/components/ui/AppImage';
+import { hookOf, hookLength } from './libraryFace';
 
-const typeIcons = {
-  post: FileText,
-  caption: Type,
-  image: Image,
-  carousel: Layers,
-  infographic: LayoutGrid,
-  hashtag_set: Hash,
-};
+function getPillar(item) {
+  const text = `${item.category || ''} ${(item.tags || []).join(' ')} ${item.title || ''}`.toLowerCase();
+  if (text.includes('thought') || text.includes('leadership') || text.includes('culture')) return 'thought';
+  if (text.includes('case') || text.includes('study') || text.includes('metric') || text.includes('growth')) return 'case';
+  if (text.includes('engineer') || text.includes('tech') || text.includes('remote')) return 'engineering';
+  if (text.includes('industry') || text.includes('insight') || text.includes('marketing') || text.includes('product')) return 'industry';
+  return 'default';
+}
 
-const typeColors = {
-  post: 'bg-primary/10 text-primary',
-  caption: 'bg-accent/10 text-accent',
-  image: 'bg-emerald-50 text-emerald-600',
-  carousel: 'bg-indigo-50 text-indigo-600',
-  infographic: 'bg-purple-50 text-purple-600',
-  hashtag_set: 'bg-amber-50 text-amber-600',
-};
+function getFormatMarker(item) {
+  if (item.type === 'carousel' || item.visualFormat === 'carousel') {
+    const slides = item.slideCount || 5;
+    return `PDF · ${slides} slides`;
+  }
+  if (item.type === 'gif' || (item.imageUrl && item.imageUrl.endsWith('.gif'))) {
+    return 'GIF';
+  }
+  return null;
+}
 
 export default function LibraryGrid({ items, selectedIds, onToggleSelect }) {
   const navigate = useNavigate();
-  if (items.length === 0) {
-    return (
-      <div className="card flex items-center justify-center py-16">
-        <div className="text-center">
-          <BookImage className="mx-auto mb-3 text-muted-foreground" size={32} />
-          <p className="text-sm font-600 text-foreground mb-1">No assets found</p>
-          <p className="text-xs text-muted-foreground">Try adjusting your search or filters</p>
-        </div>
-      </div>
-    );
-  }
+
+  if (items.length === 0) return <EmptyState />;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-      {items.map((item) => {
-        const Icon = typeIcons[item.type];
-        const isSelected = selectedIds.includes(item.id);
-
-        return (
-          <div
-            key={item.id}
-            className={`card flex flex-col overflow-hidden transition-all duration-150 hover:card-shadow-md group cursor-pointer ${isSelected ? 'ring-2 ring-primary ring-offset-1' : ''}`}
-            onClick={() => onToggleSelect(item.id)}
-          >
-            {/* Image preview or type icon header */}
-            {item.type === 'image' && item.imageUrl ? (
-              <div className="relative h-36 overflow-hidden bg-muted">
-                <AppImage
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-
-                <div
-                  className={`absolute top-2 left-2 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary border-primary' : 'bg-white/80 border-white/60'}`}
-                >
-                  {isSelected && <Check size={11} className="text-white" />}
-                </div>
-              </div>
-            ) : (
-              <div
-                className={`h-24 flex items-center justify-center relative ${typeColors[item.type]} bg-opacity-30`}
-                style={{
-                  background:
-                    item.type === 'post'
-                      ? 'linear-gradient(135deg, rgba(10,102,194,0.06) 0%, rgba(10,102,194,0.02) 100%)'
-                      : undefined,
-                }}
-              >
-                <Icon size={28} className="opacity-40" />
-                <div
-                  className={`absolute top-2 left-2 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary border-primary' : 'bg-white border-border'}`}
-                >
-                  {isSelected && <Check size={11} className="text-white" />}
-                </div>
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="p-3 flex flex-col gap-2 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`text-xs font-600 px-1.5 py-0.5 rounded-full capitalize ${typeColors[item.type]}`}
-                >
-                  {item.type.replace('_', ' ')}
-                </span>
-                <StatusBadge status={item.status} size="sm" />
-              </div>
-
-              <p className="text-sm font-600 text-foreground line-clamp-1">{item.title}</p>
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {item.preview}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1">
-                {item.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={`tag-${item.id}-${tag}`}
-                    className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {item.tags.length > 3 && (
-                  <span className="text-xs text-muted-foreground">+{item.tags.length - 3}</span>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between mt-auto pt-1 border-t border-border">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full gradient-primary flex items-center justify-center">
-                    <span className="text-white font-700" style={{ fontSize: 8 }}>
-                      {item.authorInitials}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {item.publishDate || item.savedAt}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {item.engagementRate && (
-                    <span className="text-xs font-600 text-success flex items-center gap-0.5">
-                      <TrendingUp size={10} />
-                      {item.engagementRate}%
-                    </span>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (navigator?.clipboard) {
-                        navigator.clipboard.writeText(item.preview);
-                      }
-                      toast.success('Asset content copied to clipboard');
-                    }}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground transition-colors"
-                    title="Copy content"
-                  >
-                    <Copy size={12} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/post-creation-composer?id=${item.id}&mode=edit`);
-                    }}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground transition-colors"
-                    title="Open in Composer"
-                  >
-                    <Pencil size={12} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+    <div className="lib-grid">
+      {items.map((item) => (
+        <Card
+          key={item.id}
+          item={item}
+          isSelected={selectedIds.includes(item.id)}
+          onToggleSelect={onToggleSelect}
+          navigate={navigate}
+        />
+      ))}
     </div>
   );
 }
 
-function BookImage(props) {
+function Card({ item, isSelected, onToggleSelect, navigate }) {
+  const open = () => navigate(`/post-creation-composer?id=${item.id}&mode=edit`);
+
+  const copy = (e) => {
+    e.stopPropagation();
+    if (navigator?.clipboard) navigator.clipboard.writeText(item.preview || '');
+    toast.success('Post copied to clipboard');
+  };
+
+  const toggle = (e) => {
+    e.stopPropagation();
+    onToggleSelect(item.id);
+  };
+
+  const formatMarker = getFormatMarker(item);
+  const dateStr = item.publishDate || item.savedAt || 'Not scheduled';
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={props.size || 24}
-      height={props.size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={props.className}
-    >
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
+    <div className="lib-card" data-selected={isSelected} onClick={open}>
+      {/* 16:10 Media Band */}
+      <div className="lib-band">
+        <button
+          type="button"
+          className="lib-check"
+          data-on={isSelected}
+          onClick={toggle}
+          aria-pressed={isSelected}
+          aria-label={isSelected ? `Deselect ${item.title}` : `Select ${item.title}`}
+        >
+          {isSelected && <Check size={13} strokeWidth={3} />}
+        </button>
+
+        <div className="lib-actions">
+          <button type="button" className="lib-icon-btn" onClick={copy} title="Copy post text">
+            <Copy size={13} />
+          </button>
+          <button
+            type="button"
+            className="lib-icon-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              open();
+            }}
+            title="Open in composer"
+          >
+            <Pencil size={13} />
+          </button>
+        </div>
+
+        <MediaBandContent item={item} />
+      </div>
+
+      {/* Card Body */}
+      <div className="lib-card-body">
+        <span className="lib-card-title">{item.title}</span>
+        <div className="lib-card-meta">
+          <span>{dateStr}</span>
+          {formatMarker && (
+            <>
+              <span className="lib-card-meta-sep">·</span>
+              <span className="lib-card-format">{formatMarker}</span>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MediaBandContent({ item }) {
+  const isCarousel = item.type === 'carousel' || item.visualFormat === 'carousel';
+  const isPhoto = Boolean(item.imageUrl);
+
+  if (isPhoto) {
+    return (
+      <div className="lib-band-photo w-full h-full">
+        <AppImage src={item.imageUrl} alt={item.title} className="lib-band-img" />
+      </div>
+    );
+  }
+
+  if (isCarousel) {
+    const slides = item.slideCount || 5;
+    return (
+      <div className="lib-band-carousel w-full h-full">
+        <span className="lib-band-slide-count">1 / {slides}</span>
+        <span className="lib-band-carousel-title">{item.title}</span>
+      </div>
+    );
+  }
+
+  const pillar = getPillar(item);
+  const hook = hookOf(item);
+
+  return (
+    <div className="lib-band-text w-full h-full" data-pillar={pillar}>
+      <span className="lib-band-hook" data-len={hookLength(hook)}>
+        {hook}
+      </span>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="lib-empty">
+      <FileText size={22} strokeWidth={1.5} color="var(--text-subtle)" />
+      <p className="lib-empty-title">Nothing saved yet</p>
+      <p className="lib-empty-body">
+        Posts land here once you approve them in the queue. Approve one and it will show up.
+      </p>
+    </div>
   );
 }
