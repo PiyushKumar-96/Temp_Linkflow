@@ -18,12 +18,18 @@ export function ProgressRing({
 
   return (
     <span
-      className={`cmp-ring tone-${tone} ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 cmp-ring tone-${tone} ${className}`}
       style={{ width: size, height: size }}
       role={label ? 'img' : undefined}
       aria-label={label}
     >
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="absolute inset-0"
+        aria-hidden="true"
+      >
         <circle
           cx={center}
           cy={center}
@@ -31,6 +37,7 @@ export function ProgressRing({
           fill="none"
           strokeWidth={stroke}
           className="cmp-ring-track"
+          style={{ stroke: 'var(--track, #e8edf3)' }}
         />
         <circle
           cx={center}
@@ -43,11 +50,14 @@ export function ProgressRing({
           strokeDashoffset={circumference * (1 - clamped)}
           transform={`rotate(-90 ${center} ${center})`}
           className="cmp-ring-value"
-          style={{ '--ring-c': circumference }}
+          style={{
+            '--ring-c': circumference,
+            stroke: tone === 'green' ? 'var(--success)' : tone === 'amber' ? 'var(--warning)' : 'var(--brand)',
+          }}
         />
       </svg>
       {children && (
-        <span className="cmp-ring-label" aria-hidden="true">
+        <span className="relative z-10 font-bold tabular-nums cmp-ring-label flex items-center justify-center" aria-hidden="true">
           {children}
         </span>
       )}

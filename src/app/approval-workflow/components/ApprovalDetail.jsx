@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { POST_STATUS, normalizeStatus } from '@/lib/post-status';
 import { toast } from 'sonner';
 import { AVATARS, STOCK_IMAGES } from '@/temp-backend/data/media';
+import { formatSlot } from '@/app/dashboard/_components/DashboardPrimitives';
 
 import RejectFeedbackDialog from './RejectFeedbackDialog';
 import ChangeBriefDialog from './ChangeBriefDialog';
@@ -115,14 +116,14 @@ export default function ApprovalDetail({
     ],
   };
 
-  const targetSlotText = post.scheduledDate
-    ? `${post.scheduledDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
-    : post.dueDate
-      ? `${post.dueDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
-      : 'Scheduled Slot';
+  const rawDate = post.scheduledDate || post.dueDate;
+  const formattedDate = rawDate ? formatSlot(rawDate) : null;
+  const targetSlotText = formattedDate
+    ? `${formattedDate}${post.scheduledTime ? ` at ${post.scheduledTime}` : ''}`
+    : rawDate || 'Scheduled slot';
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col h-full overflow-hidden">
+    <div className="rounded-[var(--radius-card)] border border-[color:var(--border)] bg-[color:var(--card)] flex flex-col h-full overflow-hidden">
       {/* Header bar */}
       <ApprovalDetailHeader
         post={post}

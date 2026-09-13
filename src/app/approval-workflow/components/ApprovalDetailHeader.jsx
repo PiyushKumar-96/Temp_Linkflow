@@ -12,50 +12,35 @@ export default function ApprovalDetailHeader({
   onOpenReject,
   onApprove,
 }) {
+  const sourceLabel =
+    post.source === 'composer'
+      ? 'Post composer'
+      : post.source === 'bulk_upload'
+        ? 'Bulk upload'
+        : 'AI generator';
+
   return (
-    <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <div className="px-6 py-4 border-b border-[color:var(--border)] bg-[color:var(--card)]">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        {/* Post Meta Badges */}
+        {/* Post Meta */}
         <div className="flex items-center gap-2 flex-wrap">
-          {post.source === 'composer' && (
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800">
-              ✍️ Post Composer
-            </span>
-          )}
-          {post.source === 'bulk_upload' && (
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800">
-              📁 Bulk Upload
-            </span>
-          )}
-          {(!post.source || post.source === 'ai_generator') && (
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200/80 dark:border-violet-800">
-              🤖 AI Generator
-            </span>
-          )}
-          <span className="text-xs text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <Clock size={12} className="text-slate-400" />
-            <span>
-              Target:{' '}
-              <strong className="font-medium text-slate-700 dark:text-slate-300">
-                {targetSlotText}
-              </strong>
-            </span>
+          <span className="text-[11px] text-[color:var(--text-subtle)] font-medium">
+            {sourceLabel}
+          </span>
+          <span className="text-xs text-[color:var(--border)] hidden sm:inline">·</span>
+          <span className="text-xs text-[color:var(--text-muted)]">
+            Target:{' '}
+            <strong className="font-medium text-[color:var(--text)]">{targetSlotText}</strong>
           </span>
         </div>
 
         {/* Actions: Primary Decision Buttons (Reject + Approve) */}
         <div className="flex items-center gap-2 flex-wrap ml-auto">
-          {/* Primary Decision Buttons */}
           {normalizeStatus(post.status) === POST_STATUS.REJECTED ? (
             <button
               onClick={onApprove}
               disabled={!isOwner || isApproving}
-              className={`text-xs px-4 py-1.5 rounded-full font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
-                isOwner
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
-                  : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
-              }`}
+              className="text-xs px-4 py-1.5 rounded-[var(--radius-input)] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer bg-[color:var(--brand)] hover:bg-[color:var(--brand-hover)] text-white disabled:bg-[color:var(--chip)] disabled:text-[color:var(--text-subtle)] disabled:border-transparent disabled:cursor-not-allowed disabled:opacity-100"
               title={`Restore post and schedule for ${targetSlotText}`}
             >
               {isApproving ? (
@@ -72,11 +57,7 @@ export default function ApprovalDetailHeader({
                 <button
                   onClick={onOpenReject}
                   disabled={!isOwner}
-                  className={`text-xs px-3.5 py-1.5 rounded-full font-semibold flex items-center gap-1.5 transition-all shadow-2xs ${
-                    isOwner
-                      ? 'border border-rose-200 dark:border-rose-900/80 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer'
-                      : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
-                  }`}
+                  className="text-xs px-3.5 py-1.5 rounded-[var(--radius-input)] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[color:var(--border)] text-[color:var(--danger-text)] hover:bg-[color:var(--danger-tint)] disabled:bg-[color:var(--chip)] disabled:text-[color:var(--text-subtle)] disabled:border-transparent disabled:cursor-not-allowed disabled:opacity-100"
                   title={
                     !isOwner ? 'Only Account Owners can reject posts' : 'Reject post with feedback'
                   }
@@ -89,11 +70,7 @@ export default function ApprovalDetailHeader({
                   <button
                     onClick={onApprove}
                     disabled={!isOwner || isApproving}
-                    className={`text-xs px-4 py-1.5 rounded-full font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
-                      isOwner
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
-                        : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
-                    }`}
+                    className="text-xs px-4 py-1.5 rounded-[var(--radius-input)] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer bg-[color:var(--brand)] hover:bg-[color:var(--brand-hover)] text-white disabled:bg-[color:var(--chip)] disabled:text-[color:var(--text-subtle)] disabled:border-transparent disabled:cursor-not-allowed disabled:opacity-100"
                     title={`Approve post and schedule for ${targetSlotText}`}
                   >
                     {isApproving ? (
@@ -105,8 +82,8 @@ export default function ApprovalDetailHeader({
                   </button>
 
                   {!isOwner && (
-                    <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                      <div className="flex items-center gap-1 text-amber-400 font-semibold mb-0.5">
+                    <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-[color:var(--text)] text-white text-[11px] rounded-[var(--radius-input)] shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                      <div className="flex items-center gap-1 text-[color:var(--warning)] font-semibold mb-0.5">
                         <ShieldAlert size={12} />
                         <span>Owner Role Required</span>
                       </div>

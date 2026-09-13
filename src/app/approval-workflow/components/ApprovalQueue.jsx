@@ -1,17 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import StatusBadge from '@/components/ui/StatusBadge';
 import {
-  Clock,
   AlertTriangle,
   CheckCircle2,
   XCircle,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { formatSlot } from '@/app/dashboard/_components/DashboardPrimitives';
 
 const PAGE_SIZE = 10;
+
+function getSourceLabel(source) {
+  if (source === 'composer') return 'Post composer';
+  if (source === 'bulk_upload') return 'Bulk upload';
+  return 'AI generator';
+}
 
 export default function ApprovalQueue({
   posts = [],
@@ -50,25 +55,25 @@ export default function ApprovalQueue({
   const paginatedPosts = postList.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden flex flex-col h-full">
+    <div className="rounded-[var(--radius-card)] border border-[color:var(--border)] bg-[color:var(--card)] overflow-hidden flex flex-col h-full">
       {/* Queue Header with Toggle for Queue vs Rejected */}
-      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 gap-2 flex-wrap">
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
+      <div className="px-4 py-3 border-b border-[color:var(--border)] flex items-center justify-between bg-[color:var(--card)] gap-2 flex-wrap">
+        <div className="flex items-center bg-[color:var(--chip)] p-1 rounded-full">
           <button
             type="button"
             onClick={() => onToggleRejected && onToggleRejected(false)}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               !isRejected
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                ? 'bg-[color:var(--card)] text-[color:var(--text)]'
+                : 'text-[color:var(--text-muted)] hover:text-[color:var(--text)]'
             }`}
           >
             <span>Queue</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold ${
                 !isRejected
-                  ? 'bg-blue-50 dark:bg-blue-950/60 text-[#0a66c2]'
-                  : 'bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                  ? 'bg-[color:var(--chip)] text-[color:var(--text)]'
+                  : 'text-[color:var(--text-subtle)]'
               }`}
             >
               {unreviewedCount}
@@ -78,40 +83,34 @@ export default function ApprovalQueue({
           <button
             type="button"
             onClick={() => onToggleRejected && onToggleRejected(true)}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               isRejected
-                ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-2xs'
-                : 'text-slate-500 hover:text-rose-600 dark:hover:text-rose-400'
+                ? 'bg-[color:var(--card)] text-[color:var(--danger-text)]'
+                : 'text-[color:var(--text-muted)] hover:text-[color:var(--danger-text)]'
             }`}
           >
             <span>Rejected</span>
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] tabular-nums font-bold ${
                 isRejected
-                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
-                  : 'bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                  ? 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]'
+                  : 'text-[color:var(--text-subtle)]'
               }`}
             >
               {rejectedCount}
             </span>
           </button>
         </div>
-
-        {postList.length > 0 && (
-          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium tabular-nums">
-            Page {safePage} of {totalPages}
-          </span>
-        )}
       </div>
 
       {/* Post List or Empty State */}
       {postList.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[380px]">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ring-1 shadow-xs ${
+            className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
               isRejected
-                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 ring-rose-600/20'
-                : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 ring-emerald-600/20'
+                ? 'bg-[color:var(--danger-tint)] text-[color:var(--danger-text)]'
+                : 'bg-[color:var(--success-tint)] text-[color:var(--success-text)]'
             }`}
           >
             {isRejected ? (
@@ -120,17 +119,17 @@ export default function ApprovalQueue({
               <CheckCircle2 size={24} strokeWidth={2.5} />
             )}
           </div>
-          <p className="text-[14px] font-bold text-slate-900 dark:text-white">
+          <p className="text-[14px] font-bold text-[color:var(--text)]">
             {isRejected ? 'No rejected posts' : 'Publishing is running smoothly'}
           </p>
-          <p className="mt-1 max-w-[260px] text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="mt-1 max-w-[260px] text-xs text-[color:var(--text-muted)] leading-relaxed">
             {isRejected
               ? 'There are currently no rejected posts matching this filter.'
               : 'No posts currently match this filter. Content generation and scheduling are on track.'}
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto scrollbar-thin divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto scrollbar-thin divide-y divide-[color:var(--border)]">
           {paginatedPosts.map((post) => {
             const isSelected = post.id === selectedId;
             const isOverdue = post.status === 'pending' && post.dueDate < '2026-09-08';
@@ -139,58 +138,42 @@ export default function ApprovalQueue({
               : typeof post.comments === 'number'
                 ? post.comments
                 : 0;
+            const sourceText = getSourceLabel(post.source);
+            const formattedDueDate = formatSlot(post.dueDate) || post.dueDate;
 
             return (
               <button
                 key={post.id}
                 onClick={() => onSelect(post.id)}
-                className={`w-full text-left px-5 py-4 transition-all duration-150 cursor-pointer ${
+                className={`w-full text-left px-5 py-4 transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:outline-2 focus-visible:outline-[color:var(--accent)] focus-visible:outline-offset-[-2px] ${
                   isSelected
-                    ? 'bg-blue-50/50 dark:bg-blue-950/30 border-l-[3.5px] border-l-[#0a66c2]'
-                    : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 border-l-[3.5px] border-l-transparent'
+                    ? 'bg-[color:var(--accent-tint)] border-l-[3px] border-l-[color:var(--accent)]'
+                    : 'hover:bg-[color:var(--chip)] border-l-[3px] border-l-transparent'
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#0a66c2] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                    <span className="text-white text-xs font-bold">{post.authorInitials}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                      <StatusBadge status={post.status} size="sm" />
-                      {post.source === 'composer' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800 shrink-0">
-                          ✍️ Composer
-                        </span>
-                      )}
-                      {post.source === 'bulk_upload' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shrink-0">
-                          📁 Bulk Upload
-                        </span>
-                      )}
-                      {(!post.source || post.source === 'ai_generator') && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 border border-violet-200/80 dark:border-violet-800 shrink-0">
-                          🤖 AI Generator
-                        </span>
-                      )}
-                      {isOverdue && <AlertTriangle size={12} className="text-amber-500 shrink-0" />}
-                    </div>
-                    <p className="text-[13px] font-medium text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug mb-1.5">
-                      {post.title}
-                    </p>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-                      <span className="font-medium text-slate-700 dark:text-slate-300">
-                        {post.author}
+                <div className="min-w-0">
+                  <p className="text-[14px] font-semibold text-[color:var(--text)] line-clamp-2 leading-snug mb-1.5">
+                    {post.title}
+                  </p>
+                  <div className="flex items-center gap-2.5 text-xs text-[color:var(--text-muted)] flex-wrap">
+                    <span className="font-medium text-[color:var(--text)]">{post.author}</span>
+                    <span className="text-[color:var(--border)]">·</span>
+                    <span className="text-[11px] text-[color:var(--text-subtle)] font-medium">
+                      {sourceText}
+                    </span>
+                    <span className="text-[color:var(--border)]">·</span>
+                    <span>Due {formattedDueDate}</span>
+                    {isOverdue && (
+                      <span className="flex items-center gap-1 text-[color:var(--warning)] font-medium">
+                        <AlertTriangle size={12} />
+                        <span>Overdue</span>
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={11} className="text-slate-400" />
-                        Due {post.dueDate}
+                    )}
+                    {commentsCount > 0 && (
+                      <span className="text-[color:var(--text-muted)] font-medium">
+                        {commentsCount} comment{commentsCount > 1 ? 's' : ''}
                       </span>
-                      {commentsCount > 0 && (
-                        <span className="text-[#0a66c2] font-medium">
-                          {commentsCount} comment{commentsCount > 1 ? 's' : ''}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               </button>
@@ -201,20 +184,18 @@ export default function ApprovalQueue({
 
       {/* Pagination Controls Footer */}
       {postList.length > 0 && (
-        <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <div className="px-5 py-3 border-t border-[color:var(--border)] bg-[color:var(--card)] flex items-center justify-between text-xs text-[color:var(--text-muted)]">
           <span className="tabular-nums">
             Showing{' '}
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
+            <span className="font-semibold text-[color:var(--text)]">
               {(safePage - 1) * PAGE_SIZE + 1}
             </span>
             –
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
+            <span className="font-semibold text-[color:var(--text)]">
               {Math.min(safePage * PAGE_SIZE, postList.length)}
             </span>{' '}
             of{' '}
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {postList.length}
-            </span>
+            <span className="font-semibold text-[color:var(--text)]">{postList.length}</span>
           </span>
 
           <div className="flex items-center gap-1.5">
@@ -227,16 +208,12 @@ export default function ApprovalQueue({
                 const firstOnPage = postList[(prev - 1) * PAGE_SIZE];
                 if (firstOnPage) onSelect(firstOnPage.id);
               }}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors shadow-2xs cursor-pointer"
+              className="p-1.5 rounded-[var(--radius-icon-btn)] border border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--text-muted)] hover:bg-[color:var(--chip)] hover:text-[color:var(--text)] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
               title="Previous page"
               aria-label="Previous page"
             >
               <ChevronLeft size={14} />
             </button>
-
-            <span className="px-2 font-medium tabular-nums text-[11.5px]">
-              {safePage} / {totalPages}
-            </span>
 
             <button
               type="button"
@@ -247,7 +224,7 @@ export default function ApprovalQueue({
                 const firstOnPage = postList[(next - 1) * PAGE_SIZE];
                 if (firstOnPage) onSelect(firstOnPage.id);
               }}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors shadow-2xs cursor-pointer"
+              className="p-1.5 rounded-[var(--radius-icon-btn)] border border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--text-muted)] hover:bg-[color:var(--chip)] hover:text-[color:var(--text)] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
               title="Next page"
               aria-label="Next page"
             >

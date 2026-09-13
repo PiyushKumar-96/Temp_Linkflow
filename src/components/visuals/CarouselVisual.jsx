@@ -135,7 +135,7 @@ export default function CarouselVisual({
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* Visual Slide Frame (Square/Portrait 4:5 LinkedIn Format) */}
-      <div className="relative aspect-square max-h-[360px] mx-auto w-full max-w-[360px] rounded-xl overflow-hidden shadow-lg border border-border bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white flex flex-col justify-between p-6 select-none transition-all">
+      <div className="relative aspect-square max-h-[360px] mx-auto w-full max-w-[360px] rounded-xl overflow-hidden shadow-lg border border-border bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white flex flex-col justify-between py-6 px-11 select-none transition-all">
         {/* Slide Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -192,7 +192,7 @@ export default function CarouselVisual({
         {/* Navigation Overlays */}
         <button
           onClick={handlePrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-colors"
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-colors cursor-pointer"
           title="Previous slide"
         >
           <ChevronLeft size={16} />
@@ -200,7 +200,7 @@ export default function CarouselVisual({
 
         <button
           onClick={handleNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-colors cursor-pointer"
           title="Next slide"
         >
           <ChevronRight size={16} />
@@ -263,15 +263,6 @@ export default function CarouselVisual({
             </div>
           )}
         </div>
-
-        <button
-          onClick={handleDownloadPdf}
-          className="btn btn-outline text-[11px] py-1 px-2.5 flex items-center gap-1"
-          title="Download multi-page carousel deck for LinkedIn upload"
-        >
-          <Download size={12} />
-          Download PDF
-        </button>
       </div>
     </div>
   );
