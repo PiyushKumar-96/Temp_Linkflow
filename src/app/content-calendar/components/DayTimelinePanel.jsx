@@ -1,30 +1,23 @@
-import React from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, ArrowRight } from 'lucide-react';
-import StatusBadge from '@/components/ui/StatusBadge';
-import { AVATARS } from '@/temp-backend/data/media';
 import EmptyDayState from './EmptyDayState';
 import { formatSlot } from '@/app/dashboard/_components/DashboardPrimitives';
-import { normalizeStatus } from '@/lib/post-status';
-
-function getStatusBorderClass(status) {
-  const s = normalizeStatus(status);
-  if (s === 'published') return 'border-l-[color:var(--success)]';
-  if (s === 'scheduled') return 'border-l-[color:var(--info)]';
-  if (s === 'awaiting_review' || s === 'needs_revision') return 'border-l-[color:var(--warning)]';
-  if (s === 'failed' || s === 'rejected') return 'border-l-[color:var(--danger)]';
-  return 'border-l-[color:var(--border)]';
-}
+import { normalizeStatus, STATUS_META, POST_STATUS } from '@/lib/post-status';
 
 /**
  * Converts 24h or basic time '14:00' to formatted range '2:00 - 2:30 PM'
  */
 function formatTimeRange(timeStr) {
   if (!timeStr) return '10:00 - 10:30 AM';
-  const [hourStr, minStr = '00'] = timeStr.split(':');
+  const cleanTime = timeStr.replace(/\s*UTC$/i, '').trim();
+  const [hourStr, minStr = '00'] = cleanTime.split(':');
   let hour = parseInt(hourStr, 10);
   const minute = parseInt(minStr, 10);
 
+  if (isNaN(hour)) hour = 10;
   const endMinute = (minute + 30) % 60;
   const endHour = minute + 30 >= 60 ? (hour + 1) % 24 : hour;
 
@@ -44,130 +37,161 @@ function formatTimeRange(timeStr) {
   return `${start.str} ${start.ampm} - ${end.str} ${end.ampm}`;
 }
 
-// Author avatar mapping
-const AUTHOR_AVATARS = {
-  SR: AVATARS.sarah,
-  MC: AVATARS.marcus,
-  JP: AVATARS.jordan,
-  LT: AVATARS.lisa,
-};
+/**
+ * Bare status dot color & label class mapping:
+ * - Published / Scheduled / Approved: --success (#1D9E75)
+ * - Awaiting Review: --info (#378ADD)
+ * - Needs Revision / Planned / Manual: --warning / --warning-text
+ * - Failed / Rejected: --danger (#E24B4A)
+ */
+function getStatusDisplay(status) {
+  const norm = normalizeStatus(status);
+  const meta = STATUS_META[norm] || STATUS_META.planned;
+  const label = meta.label; // sentence case from post-status domain model
 
-function AvatarStack({ post }) {
-  const authorImg = AUTHOR_AVATARS[post.authorInitials] || AVATARS.sarah;
-  const avatarList = [{ src: authorImg, alt: post.author || 'Author' }];
-  if (post.category === 'Thought Leadership' || post.series === 'Weekly Metrics Digest') {
-    avatarList.push({ src: AVATARS.marcus, alt: 'Marcus' }, { src: AVATARS.jordan, alt: 'Jordan' });
+  if (norm === POST_STATUS.PUBLISHED || norm === POST_STATUS.SCHEDULED || norm === POST_STATUS.APPROVED) {
+    return {
+      dotColor: 'bg-[color:var(--success)]',
+      textColor: 'text-[color:var(--success)]',
+      label,
+    };
   }
-
-  return (
-    <div className="flex items-center -space-x-2 shrink-0">
-      {avatarList.map((av, idx) => (
-        <img
-          key={idx}
-          src={av.src}
-          alt={av.alt}
-          className="w-7 h-7 rounded-full object-cover border-2 border-[color:var(--card)] shadow-xs"
-          loading="lazy"
-        />
-      ))}
-    </div>
-  );
+  if (norm === POST_STATUS.AWAITING_REVIEW) {
+    return {
+      dotColor: 'bg-[color:var(--info)]',
+      textColor: 'text-[color:var(--info)]',
+      label,
+    };
+  }
+  if (norm === POST_STATUS.NEEDS_REVISION || norm === POST_STATUS.PLANNED || norm === POST_STATUS.MANUAL) {
+    return {
+      dotColor: 'bg-[color:var(--warning)]',
+      textColor: 'text-[color:var(--text-muted)]',
+      label,
+    };
+  }
+  if (norm === POST_STATUS.FAILED || norm === POST_STATUS.REJECTED) {
+    return {
+      dotColor: 'bg-[color:var(--danger)]',
+      textColor: 'text-[color:var(--danger)]',
+      label,
+    };
+  }
+  return {
+    dotColor: 'bg-[color:var(--text-subtle)]',
+    textColor: 'text-[color:var(--text-muted)]',
+    label,
+  };
 }
 
 export default function DayTimelinePanel({ selectedDate, posts = [], selectedPost, onSelectPost }) {
   const navigate = useNavigate();
 
-  // Filter and sort posts scheduled for this day
-  const dayPosts = posts
-    .filter((p) => p.date === selectedDate)
-    .sort((a, b) => (a.time || '10:00').localeCompare(b.time || '10:00'));
+  // Deduplicate and filter posts for selected day
+  const dayPosts = useMemo(() => {
+    const raw = posts.filter((p) => p.date === selectedDate);
+    const map = new Map();
+
+    raw.forEach((p) => {
+      const cleanTitle = (p.title || '').replace(/\s*\.\.\.$/, '').trim();
+      const cleanTime = (p.time || '10:00').replace(/\s*UTC$/i, '').trim();
+      // Deduplicate key based on title + time + date
+      const key = `${selectedDate}-${cleanTime}-${cleanTitle}`;
+      if (!map.has(key)) {
+        map.set(key, p);
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => (a.time || '10:00').localeCompare(b.time || '10:00'));
+  }, [posts, selectedDate]);
 
   const activePostId = selectedPost?.id || dayPosts[0]?.id;
   const formattedDayTitle = formatSlot(selectedDate) || selectedDate;
 
   return (
-    <div className="w-full flex flex-col">
-      {/* Panel Header */}
-      <div className="flex items-center justify-between pb-2 mb-2">
-        <h2 className="text-xs font-bold tracking-wide text-[color:var(--text-muted)]">
-          {formattedDayTitle}
-        </h2>
-        <span className="text-[11px] text-[color:var(--text-subtle)] font-medium">
-          {dayPosts.length} {dayPosts.length === 1 ? 'event' : 'events'}
-        </span>
+    <div className="w-full flex flex-col min-h-[220px] max-h-[660px] h-fit bg-[color:var(--track-warm)] p-4 rounded-xl border border-[color:var(--border)]">
+      {/* Panel Header & Quick Actions */}
+      <div className="pb-3 border-b border-[color:var(--border)] shrink-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-bold tracking-tight text-[color:var(--text)]">
+              {formattedDayTitle}
+            </h2>
+            <span className="text-xs text-[color:var(--text-muted)] font-normal tabular-nums">
+              ({dayPosts.length} {dayPosts.length === 1 ? 'post' : 'posts'})
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate(`/post-creation-composer?date=${selectedDate}`)}
+            className="text-xs font-semibold text-[color:var(--brand)] hover:text-[color:var(--brand-hover)] transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+          >
+            <Plus size={13} />
+            <span>Add post</span>
+          </button>
+        </div>
       </div>
 
-      {/* Thin horizontal divider rule */}
-      <div className="w-full h-px bg-[color:var(--border)] mb-5" />
-
-      {/* Event Timeline List */}
-      <div className="flex flex-col gap-3.5">
+      {/* Internal Scrollable Table / Hairline Row List */}
+      <div className="flex-1 overflow-y-auto divide-y divide-[color:var(--border)] pr-1">
         {dayPosts.map((post) => {
           const isActive = post.id === activePostId;
-          const statusBorder = getStatusBorderClass(post.status);
+          const statusDisp = getStatusDisplay(post.status);
+          const rawTitle = post.title || post.content || 'Untitled Post';
+          const cleanTitle = rawTitle.replace(/\s*\.\.\.$/, '').trim();
 
           return (
             <div
               key={post.id}
               onClick={() => onSelectPost(post)}
-              className={`group relative rounded-xl p-4 transition-all duration-150 cursor-pointer border-l-4 ${statusBorder} ${
+              className={`py-3 px-2 flex flex-col gap-1 transition-colors cursor-pointer ${
                 isActive
-                  ? 'bg-[color:var(--card)] border border-[color:var(--border)] shadow-sm'
-                  : 'bg-[color:var(--chip)] hover:bg-[color:var(--card)] border border-[color:var(--border)]'
+                  ? 'bg-[color:var(--accent-tint)]/70'
+                  : 'hover:bg-[color:var(--chip)]/50'
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  {/* Time Range */}
-                  <p className="text-xl font-bold tracking-tight text-[color:var(--text)] tabular-nums">
-                    {formatTimeRange(post.time)}
-                  </p>
+              {/* Top Row: Time Range + Status Dot & Plain Text Label */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[color:var(--text)] tabular-nums">
+                  {formatTimeRange(post.time)}
+                </span>
 
-                  {/* Title */}
-                  <p className="text-sm font-semibold text-[color:var(--text)] mt-1 line-clamp-1">
-                    {post.title}
-                  </p>
-
-                  {/* Subtitle / Series metadata */}
-                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span className="text-xs text-[color:var(--text-muted)] font-medium">
-                      {post.series || post.category || 'LinkedIn Distribution'}
-                    </span>
-                    <span className="text-[color:var(--border)]">·</span>
-                    <StatusBadge status={post.status} />
-                  </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className={`w-1.5 h-1.5 rounded-full ${statusDisp.dotColor}`} />
+                  <span className={`text-[11px] font-medium ${statusDisp.textColor}`}>
+                    {statusDisp.label}
+                  </span>
                 </div>
-
-                {/* Team Avatars */}
-                <AvatarStack post={post} />
               </div>
+
+              {/* Title Row */}
+              <p className="text-xs text-[color:var(--text)] leading-normal font-normal line-clamp-2">
+                {cleanTitle}
+              </p>
             </div>
           );
         })}
 
         {/* Empty State */}
-        {dayPosts.length === 0 && <EmptyDayState selectedDate={selectedDate} />}
+        {dayPosts.length === 0 && (
+          <div className="py-3">
+            <EmptyDayState />
+          </div>
+        )}
       </div>
 
-      {/* Footer Quick Action */}
-      {dayPosts.length > 0 && (
-        <div className="pt-4 mt-2 border-t border-[color:var(--border)] flex items-center justify-between">
-          <button
-            onClick={() => navigate(`/post-creation-composer?date=${selectedDate}`)}
-            className="text-xs font-semibold text-[color:var(--brand)] hover:text-[color:var(--brand-hover)] transition-colors flex items-center gap-1 cursor-pointer"
-          >
-            <Plus size={13} />
-            <span>Add another post for this day</span>
-          </button>
-          <button
-            onClick={() => selectedPost && navigate(`/approval-workflow?post=${selectedPost.id}`)}
-            className="text-xs text-[color:var(--text-subtle)] hover:text-[color:var(--text)] transition-colors flex items-center gap-1 cursor-pointer"
-          >
-            <span>Review queue</span>
-            <ArrowRight size={12} />
-          </button>
-        </div>
-      )}
+      {/* Panel Footer: Review Queue Navigation directly below list in all states */}
+      <div className="pt-3 border-t border-[color:var(--border)] shrink-0 flex items-center justify-end mt-auto">
+        <button
+          type="button"
+          onClick={() => navigate(selectedPost ? `/approval-workflow?post=${selectedPost.id}` : '/approval-workflow')}
+          className="text-xs text-[color:var(--text-subtle)] hover:text-[color:var(--text)] transition-colors flex items-center gap-1 cursor-pointer"
+        >
+          <span>Review queue</span>
+          <ArrowRight size={12} />
+        </button>
+      </div>
     </div>
   );
 }

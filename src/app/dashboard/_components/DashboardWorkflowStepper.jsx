@@ -20,7 +20,7 @@ const DEFAULT_STEPS = [
     title: 'Plan topic or draft post',
     meta: '4 drafts in progress',
     status: 'active',
-    route: '/topics',
+    route: '/planner',
   },
   {
     id: 'approve',

@@ -210,15 +210,15 @@ export default function ComposerPreview({
   carouselSlides,
   infographicData,
   isGenerating = false,
-  device = 'desktop',
+  device = 'mobile',
   onDeviceChange,
   target = 'personal',
   quality,
   hasBody = true,
 }) {
   const { user } = useAuth?.() || {};
-  const [internalDevice, setInternalDevice] = useState(device || 'desktop');
-  const activeDevice = onDeviceChange ? device || 'desktop' : internalDevice;
+  const [internalDevice, setInternalDevice] = useState(device || 'mobile');
+  const activeDevice = onDeviceChange ? device || 'mobile' : internalDevice;
   const handleDeviceChange = (v) => {
     setInternalDevice(v);
     onDeviceChange?.(v);

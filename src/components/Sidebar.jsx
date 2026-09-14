@@ -18,7 +18,7 @@ const GROUP_1 = [
     href: '/content-calendar',
     countKey: 'calendar',
   },
-  { id: 'nav-topics', label: 'Topics', href: '/topics' },
+  { id: 'nav-planner', label: 'Planner', href: '/planner' },
   { id: 'nav-library', label: 'Library', href: '/content-library' },
   { id: 'nav-ai', label: 'AI generator', href: '/ai-generator' },
 ];

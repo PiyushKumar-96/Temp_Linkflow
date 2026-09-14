@@ -17,9 +17,9 @@ export default function TopicsHeader({
     <div className="flex flex-col gap-3">
       {/* Page Title & Subtitle */}
       <div className="tpc-head">
-        <h1 className="tpc-title">Topics</h1>
+        <h1 className="tpc-title">Planner</h1>
         <p className="tpc-sub">
-          Plan thematic subjects to seed downstream AI drafting and scheduled posts.
+          Plan thematic subjects ahead of time to seed downstream AI drafting and scheduled posts.
         </p>
       </div>
 

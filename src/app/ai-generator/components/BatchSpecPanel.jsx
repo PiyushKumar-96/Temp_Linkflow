@@ -98,10 +98,10 @@ export default function BatchSpecPanel({
                   <span>No topics planned yet.</span>
                   <button
                     type="button"
-                    onClick={() => navigate('/topics')}
+                    onClick={() => navigate('/planner')}
                     className="aig-topic-empty-link flex items-center gap-1"
                   >
-                    <span>Plan in Topics</span>
+                    <span>Plan in Planner</span>
                     <ArrowUpRight size={13} />
                   </button>
                 </div>

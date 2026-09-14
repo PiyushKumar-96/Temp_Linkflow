@@ -84,7 +84,7 @@ export default function ComposerShell() {
   const [hashtags, setHashtags] = useState([]);
   const [pillarId, setPillarId] = useState('thought-leadership');
   const [target, setTarget] = useState('personal');
-  const [device, setDevice] = useState('desktop');
+  const [device, setDevice] = useState('mobile');
 
   const [visualFormat, setVisualFormat] = useState('none');
   const [imageUrl, setImageUrl] = useState('');

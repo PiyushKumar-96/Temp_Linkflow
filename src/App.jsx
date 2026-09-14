@@ -82,7 +82,8 @@ export default function App() {
             element={withBoundary(ContentLibraryPage, 'Content Library')}
           />
           <Route path="/team" element={withBoundary(TeamPage, 'Team')} />
-          <Route path="/topics" element={withBoundary(TopicsPage, 'Topics')} />
+          <Route path="/planner" element={withBoundary(TopicsPage, 'Planner')} />
+          <Route path="/topics" element={<Navigate to="/planner" replace />} />
         </Route>
 
         {/* 404 & Unreachable Route */}

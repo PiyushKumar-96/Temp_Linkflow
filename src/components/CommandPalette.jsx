@@ -40,7 +40,7 @@ const PALETTE_ITEMS = [
     category: 'Planning',
     icon: Calendar,
   },
-  { id: 'topics', label: 'Content Topics', href: '/topics', category: 'Planning', icon: Layers },
+  { id: 'planner', label: 'Content Planner', href: '/planner', category: 'Planning', icon: Layers },
   {
     id: 'ai',
     label: 'AI Post Generator',

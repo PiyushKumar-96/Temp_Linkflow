@@ -140,8 +140,10 @@ export default function CalendarShell() {
         );
       })
       .map((p) => {
-        const date = p.date || p.scheduledDate || p.dueDate || '2026-09-15';
-        const time = p.time || p.scheduledTime || '10:00';
+        const rawDate = p.date || p.scheduledDate || p.dueDate || (p.publishedAt ? p.publishedAt.slice(0, 10) : null);
+        const date = rawDate || '2026-09-15';
+        const rawTime = p.time || p.scheduledTime || (p.publishedAt ? p.publishedAt.slice(11, 16) : null);
+        const time = rawTime || '10:00';
         return {
           id: p.id,
           title: p.title || p.excerpt || (p.content || '').slice(0, 60),
@@ -186,32 +188,43 @@ export default function CalendarShell() {
   }, [allCalendarPosts, filterMember, filterSeries, filterStatus]);
 
   return (
-    <div className="flex flex-col gap-6 bg-[color:var(--card)] rounded-2xl sm:rounded-3xl p-6 lg:p-8 border border-[color:var(--border)]">
-      {/* Main Content Area */}
-      {view === 'month' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
-          {/* Left Column: Month Matrix (Spans 7 cols on lg, 7 cols on xl) */}
-          <div className="lg:col-span-7 xl:col-span-7 pr-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-[color:var(--border)] pb-8 lg:pb-0">
-            <MonthMatrix
-              currentDate={currentDate}
-              selectedDate={selectedDate}
-              onSelectDate={handleSelectDate}
-              onNavigate={handleNavigate}
-              posts={filteredPosts}
-            />
-          </div>
+    <div className="flex flex-col gap-6">
+      {/* Top Page Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-[36px] font-bold text-[color:var(--text)] tracking-tight leading-[1.05]">
+          Content calendar
+        </h1>
+        <p className="text-sm text-[color:var(--text-muted)] font-normal">
+          See approved posts on calendar
+        </p>
+      </div>
 
-          {/* Right Column: Selected Day Timeline (Spans 5 cols on lg, 5 cols on xl) */}
-          <div className="lg:col-span-5 xl:col-span-5">
-            <DayTimelinePanel
-              selectedDate={selectedDate}
-              posts={filteredPosts}
-              selectedPost={selectedPost}
-              onSelectPost={setSelectedPost}
-            />
+      {/* Main Content Card Container */}
+      <div className="flex flex-col gap-6 bg-[color:var(--card)] rounded-xl p-6 border border-[color:var(--border)]">
+        {view === 'month' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
+            {/* Left Column: Month Matrix */}
+            <div className="lg:col-span-8 xl:col-span-8 pr-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-[color:var(--border)] pb-6 lg:pb-0">
+              <MonthMatrix
+                currentDate={currentDate}
+                selectedDate={selectedDate}
+                onSelectDate={handleSelectDate}
+                onNavigate={handleNavigate}
+                posts={filteredPosts}
+              />
+            </div>
+
+            {/* Right Column: Selected Day Timeline */}
+            <div className="lg:col-span-4 xl:col-span-4">
+              <DayTimelinePanel
+                selectedDate={selectedDate}
+                posts={filteredPosts}
+                selectedPost={selectedPost}
+                onSelectPost={setSelectedPost}
+              />
+            </div>
           </div>
-        </div>
-      ) : (
+        ) : (
         <WeekView
           currentDate={currentDate}
           posts={filteredPosts}
@@ -224,6 +237,7 @@ export default function CalendarShell() {
       {selectedPost && (
         <PostDetailPopover post={selectedPost} onClose={() => setSelectedPost(null)} />
       )}
+      </div>
     </div>
   );
 }

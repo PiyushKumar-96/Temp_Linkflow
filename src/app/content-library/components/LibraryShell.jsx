@@ -17,7 +17,7 @@ function isApprovedStatus(status) {
 }
 
 export default function LibraryShell() {
-  const [view, setView] = useState('grid');
+  const [view, setView] = useState('list');
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
