@@ -17,7 +17,6 @@ const SettingsPage = lazy(() => import('./app/settings/page'));
 const AIGeneratorPage = lazy(() => import('./app/ai-generator/page'));
 const ContentCalendarPage = lazy(() => import('./app/content-calendar/page'));
 const ContentLibraryPage = lazy(() => import('./app/content-library/page'));
-const PostTemplatesPage = lazy(() => import('./app/post-templates/page'));
 const TeamPage = lazy(() => import('./app/team/page'));
 const TopicsPage = lazy(() => import('./app/topics/page'));
 
@@ -81,10 +80,6 @@ export default function App() {
           <Route
             path="/content-library"
             element={withBoundary(ContentLibraryPage, 'Content Library')}
-          />
-          <Route
-            path="/post-templates"
-            element={withBoundary(PostTemplatesPage, 'Post Templates')}
           />
           <Route path="/team" element={withBoundary(TeamPage, 'Team')} />
           <Route path="/topics" element={withBoundary(TopicsPage, 'Topics')} />

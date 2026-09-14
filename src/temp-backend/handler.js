@@ -19,7 +19,6 @@ import {
   getTeamMembers,
   inviteTeamMember,
   updateTeamMemberRole,
-  getTemplates,
   getContentLibrary,
   getMediaAssets,
 } from './index';
@@ -157,12 +156,6 @@ export async function handleMockRequest(endpoint, options = {}) {
     const memberId = roleMatch[1];
     const body = typeof options.body === 'string' ? JSON.parse(options.body) : options.body || {};
     return await updateTeamMemberRole(memberId, body.role);
-  }
-
-  // --- TEMPLATES ROUTES ---
-  if (cleanPath === '/templates') {
-    const templates = await getTemplates();
-    return { templates, total: templates.length };
   }
 
   // --- CONTENT LIBRARY ROUTES ---

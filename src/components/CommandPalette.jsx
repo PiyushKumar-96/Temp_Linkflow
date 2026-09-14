@@ -49,13 +49,6 @@ const PALETTE_ITEMS = [
     icon: Sparkles,
   },
   {
-    id: 'templates',
-    label: 'Post Templates',
-    href: '/post-templates',
-    category: 'Library',
-    icon: Bookmark,
-  },
-  {
     id: 'library',
     label: 'Content Library',
     href: '/content-library',

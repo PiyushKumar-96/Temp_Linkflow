@@ -21,7 +21,6 @@ const GROUP_1 = [
   { id: 'nav-topics', label: 'Topics', href: '/topics' },
   { id: 'nav-library', label: 'Library', href: '/content-library' },
   { id: 'nav-ai', label: 'AI generator', href: '/ai-generator' },
-  { id: 'nav-templates', label: 'Post templates', href: '/post-templates' },
 ];
 
 const GROUP_2 = [

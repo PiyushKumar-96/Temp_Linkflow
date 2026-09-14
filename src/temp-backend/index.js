@@ -14,7 +14,6 @@ import {
 } from './data/analytics';
 import { TOPICS } from './data/topics';
 import { TEAM_MEMBERS, WORKSPACE_ACCOUNTS } from './data/team';
-import { TEMPLATES } from './data/templates';
 import { LIBRARY_ITEMS } from './data/content-library';
 import { AVATARS, STOCK_IMAGES, STOCK_IMAGES_LIST, VISUAL_TEMPLATES, BRANDING } from './data/media';
 import { POST_STATUS } from '@/lib/post-status';
@@ -477,10 +476,6 @@ export async function getWorkspaceAccounts() {
   return WORKSPACE_ACCOUNTS;
 }
 
-export async function getTemplates() {
-  return TEMPLATES;
-}
-
 export async function getContentLibrary() {
   return LIBRARY_ITEMS;
 }
@@ -501,7 +496,6 @@ export {
   TOPICS,
   TEAM_MEMBERS,
   WORKSPACE_ACCOUNTS,
-  TEMPLATES,
   LIBRARY_ITEMS,
   AVATARS,
   STOCK_IMAGES,

@@ -175,19 +175,8 @@ export default function ComposerShell() {
         setImageUrl(existing || generated[0].url);
         setRevealMode('quick');
       }
-    } else if (location.state?.template) {
-      const tpl = location.state.template;
-      setContent(tpl.body || '');
-      if (tpl.category) {
-        const id = pillarIdFromPost({ category: tpl.category });
-        setPillarId(id);
-        setTarget(getPillar(id).target);
-      }
-      if (tpl.tone) setSelectedTone(tpl.tone);
-      if (tpl.hashtags) setHashtags(tpl.hashtags);
-      toast.success(`Loaded template: ${tpl.name}`);
     }
-  }, [editPostId, isEditMode, location.state]);
+  }, [editPostId, isEditMode]);
 
   const handleSelectDraft = (draft) => {
     if (!draft) return;
