@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { X, Edit3, CheckSquare } from 'lucide-react';
+import { X, Edit3, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ComposerPreview from '@/app/post-creation-composer/components/ComposerPreview';
 
 /**
  * LinkedIn Feed Preview Modal for AI Generator.
- * Reuses the authentic LinkedIn preview card from ComposerPreview.
+ * Uses strict design tokens and secondary styling.
  */
 export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQueue }) {
   useEffect(() => {
@@ -26,34 +26,36 @@ export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQu
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh] z-10">
+      <div className="relative w-full max-w-2xl bg-[color:var(--card)] border border-[color:var(--border)] rounded-[var(--radius-card)] shadow-xl overflow-hidden flex flex-col max-h-[92vh] z-10 text-[color:var(--text)]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[color:var(--border)] bg-[color:var(--card)]">
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+            <h3 className="text-sm font-semibold text-[color:var(--text)] truncate">
               Post preview
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+            <p className="text-xs text-[color:var(--text-muted)] truncate">
               {post.title || 'Draft post'}
             </p>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-[var(--radius-icon-btn)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--chip)] transition-colors cursor-pointer"
             title="Close preview"
+            aria-label="Close preview"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Scrollable Preview Body (Rendering ComposerPreview) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f3f2ef] dark:bg-slate-950/80 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[color:var(--page-bg)] scrollbar-thin">
           <ComposerPreview
             content={post.content || ''}
             cta={post.cta || ''}
@@ -66,11 +68,11 @@ export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQu
           />
         </div>
 
-        {/* Modal Footer Actions */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-wrap gap-2">
+        {/* Modal Footer Actions (Secondary styling only) */}
+        <div className="flex items-center justify-between px-5 py-3 border-t border-[color:var(--border)] bg-[color:var(--card)] flex-wrap gap-2">
           <Link
             to={`/post-creation-composer?id=${post.id}&mode=edit`}
-            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition-colors"
+            className="h-8 px-3 rounded-[var(--radius-input)] border border-[color:var(--border)] bg-[color:var(--card)] hover:border-[color:var(--track)] text-xs font-medium text-[color:var(--text)] flex items-center gap-1.5 transition-colors"
             onClick={onClose}
           >
             <Edit3 size={12} />
@@ -79,21 +81,23 @@ export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQu
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={onClose}
-              className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors"
+              className="h-8 px-3 rounded-[var(--radius-input)] border border-[color:var(--border)] bg-[color:var(--card)] hover:border-[color:var(--track)] text-xs font-medium text-[color:var(--text)] transition-colors cursor-pointer"
             >
               Close
             </button>
             {onSendToQueue && (
               <button
+                type="button"
                 onClick={() => {
                   onSendToQueue(post.id);
                   onClose();
                 }}
-                className="h-8 px-3.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                className="h-8 px-3.5 rounded-[var(--radius-input)] border border-[color:var(--border)] bg-[color:var(--chip)] hover:bg-[color:var(--track)] text-[color:var(--text)] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <CheckSquare size={12} />
-                <span>Send to approval queue</span>
+                <Send size={12} />
+                <span>Send to queue</span>
               </button>
             )}
           </div>
