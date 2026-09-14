@@ -9,12 +9,7 @@
  * Ambiguous attributes are left untouched for deliberate user click.
  */
 
-export const THEME_OPTIONS = [
-  'Thought Leadership',
-  'Case Studies',
-  'Engineering Culture',
-  'Industry Insights',
-];
+import { getStoredTopics } from '@/app/topics/_api/queries';
 
 export const FORMAT_OPTIONS = [
   { id: 'image', label: 'Image' },
@@ -25,11 +20,28 @@ export const FORMAT_OPTIONS = [
 
 export const MAX_GROUPS = 4;
 
+/**
+ * Get active planned topics for generation dropdown
+ * Returns all planned/active topics ordered chronologically
+ */
+export function getPlannedTopicOptions() {
+  const topics = getStoredTopics();
+  if (!topics || topics.length === 0) return [];
+  // Sort chronologically by start date
+  return [...topics].sort((a, b) => {
+    const startA = a.startDate || a.publicationDate || '';
+    const startB = b.startDate || b.publicationDate || '';
+    return startA.localeCompare(startB);
+  });
+}
+
 export function createDefaultGroup(id = 'g1', overrides = {}) {
+  const planned = getPlannedTopicOptions();
+  const defaultTopic = planned.length > 0 ? planned[0].title : '';
+
   return {
     id,
-    topic: '',
-    pillar: 'Thought Leadership',
+    topic: defaultTopic,
     format: 'image',
     count: 3,
     ...overrides,
@@ -49,24 +61,43 @@ function parseFormat(segment) {
 }
 
 /**
- * Parse pillar keyword from a segment
+ * Match topic from a prompt segment against planned topics
  */
-function parsePillar(segment) {
+export function matchPlannedTopic(segment) {
   const lower = segment.toLowerCase();
-  if (lower.includes('engineering') || lower.includes('culture') || lower.includes('developer') || lower.includes('devops') || lower.includes('architecture')) {
-    return 'Engineering Culture';
+  const planned = getPlannedTopicOptions();
+  if (planned.length === 0) return null;
+
+  // 1. Exact or substring title match
+  for (const t of planned) {
+    const titleLower = t.title.toLowerCase();
+    if (lower.includes(titleLower)) {
+      return t.title;
+    }
   }
-  if (lower.includes('case study') || lower.includes('case studies') || lower.includes('customer proof') || lower.includes('churn breakdown')) {
-    return 'Case Studies';
+
+  // 2. Keyword match against topic title words (e.g. "b2b marketing", "churn", "founder", "monolith")
+  for (const t of planned) {
+    const words = t.title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    const matchedWords = words.filter(w => lower.includes(w));
+    if (matchedWords.length >= 2 || (words.length === 1 && matchedWords.length === 1)) {
+      return t.title;
+    }
   }
-  if (lower.includes('industry') || lower.includes('market insights') || lower.includes('trends') || lower.includes('analysis')) {
-    return 'Industry Insights';
+
+  // 3. Single significant keyword match
+  for (const t of planned) {
+    const words = t.title.toLowerCase().split(/\s+/).filter(w => w.length > 4);
+    for (const w of words) {
+      if (lower.includes(w)) {
+        return t.title;
+      }
+    }
   }
-  if (lower.includes('thought leadership') || lower.includes('founder') || lower.includes('saas growth') || lower.includes('leadership')) {
-    return 'Thought Leadership';
-  }
+
   return null;
 }
+
 
 /**
  * Parse count from a segment
@@ -137,8 +168,9 @@ export function extractGroupsFromPrompt(promptText, currentGroups) {
 
     const parsedCount = parseCount(clause);
     const parsedFormat = parseFormat(clause);
-    const parsedPillar = parsePillar(clause);
-    const parsedTopic = parseTopic(clause);
+    const matchedTopic = matchPlannedTopic(clause);
+    const rawParsedTopic = parseTopic(clause);
+    const finalTopic = matchedTopic || rawParsedTopic;
 
     const groupChanges = [];
 
@@ -154,16 +186,12 @@ export function extractGroupsFromPrompt(promptText, currentGroups) {
       updated.format = parsedFormat;
     }
 
-    if (parsedPillar !== null && parsedPillar !== existing.pillar) {
-      groupChanges.push(`pillar: ${existing.pillar} → ${parsedPillar}`);
-      updated.pillar = parsedPillar;
+    if (finalTopic && finalTopic.length >= 3 && finalTopic !== existing.topic) {
+      const fromTopic = existing.topic ? `"${existing.topic.slice(0, 18)}..."` : 'empty';
+      groupChanges.push(`topic: ${fromTopic} → "${finalTopic}"`);
+      updated.topic = finalTopic;
     }
 
-    if (parsedTopic && parsedTopic.length >= 3 && parsedTopic !== existing.topic) {
-      const fromTopic = existing.topic ? `"${existing.topic.slice(0, 18)}..."` : 'empty';
-      groupChanges.push(`topic: ${fromTopic} → "${parsedTopic}"`);
-      updated.topic = parsedTopic;
-    }
 
     if (groupChanges.length > 0) {
       const prefix = targetClauses.length > 1 ? `Group ${index + 1}: ` : '';

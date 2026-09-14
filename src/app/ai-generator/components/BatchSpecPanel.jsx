@@ -1,8 +1,7 @@
-'use client';
-
 import React from 'react';
-import { Image as ImageIcon, Layers, BarChart2, FileText, Loader2, Sparkles, Plus, Trash2 } from 'lucide-react';
-import { THEME_OPTIONS, FORMAT_OPTIONS, MAX_GROUPS } from '../extractSpec';
+import { useNavigate } from 'react-router-dom';
+import { Image as ImageIcon, Layers, BarChart2, FileText, Loader2, Sparkles, Plus, Trash2, ArrowUpRight } from 'lucide-react';
+import { FORMAT_OPTIONS, MAX_GROUPS, getPlannedTopicOptions } from '../extractSpec';
 
 const COUNTS = [1, 2, 3, 4, 5];
 
@@ -18,6 +17,8 @@ export default function BatchSpecPanel({
   onGenerate,
   submittedEmpty,
 }) {
+  const navigate = useNavigate();
+  const plannedTopics = getPlannedTopicOptions();
   const isMultiGroup = groups.length > 1;
   const totalCount = groups.reduce((acc, g) => acc + (g.count || 0), 0);
 
@@ -72,11 +73,11 @@ export default function BatchSpecPanel({
               </div>
             )}
 
-            {/* 1. Topic */}
+            {/* 1. Topic (Populated from Planned Topics) */}
             <div className="aig-field" data-flash={Boolean(groupFlash.topic)}>
               <div className="aig-label-row">
                 <label
-                  htmlFor={`aig-topic-input-${group.id}`}
+                  htmlFor={`aig-topic-select-${group.id}`}
                   className="aig-label"
                 >
                   Topic
@@ -91,46 +92,39 @@ export default function BatchSpecPanel({
                   <span className="aig-label-opt">Required</span>
                 )}
               </div>
-              <input
-                id={`aig-topic-input-${group.id}`}
-                type="text"
-                value={group.topic}
-                onChange={(e) =>
-                  onChangeGroup(group.id, { topic: e.target.value })
-                }
-                placeholder="e.g. 5 Async communication rules for distributed pods"
-                className="aig-input"
-                data-missing={isTopicInvalid}
-              />
-            </div>
 
-            {/* 2. Content Pillar */}
-            <div className="aig-field" data-flash={Boolean(groupFlash.pillar)}>
-              <div className="aig-label-row">
-                <label
-                  htmlFor={`aig-pillar-select-${group.id}`}
-                  className="aig-label"
+              {plannedTopics.length === 0 ? (
+                <div className="aig-topic-empty-banner">
+                  <span>No topics planned yet.</span>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/topics')}
+                    className="aig-topic-empty-link flex items-center gap-1"
+                  >
+                    <span>Plan in Topics</span>
+                    <ArrowUpRight size={13} />
+                  </button>
+                </div>
+              ) : (
+                <select
+                  id={`aig-topic-select-${group.id}`}
+                  value={group.topic || plannedTopics[0]?.title}
+                  onChange={(e) =>
+                    onChangeGroup(group.id, { topic: e.target.value })
+                  }
+                  className="aig-select"
+                  aria-label={`Topic for group ${groupIdx + 1}`}
                 >
-                  Pillar
-                </label>
-              </div>
-              <select
-                id={`aig-pillar-select-${group.id}`}
-                value={group.pillar}
-                onChange={(e) =>
-                  onChangeGroup(group.id, { pillar: e.target.value })
-                }
-                className="aig-select"
-              >
-                {THEME_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+                  {plannedTopics.map((top) => (
+                    <option key={top.id} value={top.title}>
+                      {top.title}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
-            {/* 3. Visual Format */}
+            {/* 2. Visual Format */}
             <div className="aig-field" data-flash={Boolean(groupFlash.format)}>
               <div className="aig-label-row">
                 <label className="aig-label">Format</label>
@@ -138,6 +132,7 @@ export default function BatchSpecPanel({
               <div
                 className="aig-format-grid"
                 role="group"
+
                 aria-label={`Visual format for group ${groupIdx + 1}`}
               >
                 {FORMAT_OPTIONS.map((fmt) => {

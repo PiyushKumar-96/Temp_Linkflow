@@ -7,11 +7,10 @@ import {
   CalendarClock,
   Check,
   FolderOpen,
-  GitCommit,
-  History,
   Save,
   Send,
 } from 'lucide-react';
+
 import { formatSlot } from '../_model/composer-utils';
 
 function SlotChip({ date, time, onClick }) {
@@ -78,7 +77,6 @@ export default function ComposerToolbar({
   onViewDrafts,
   onSubmitReview,
   onSchedule,
-  onOpenHistory,
   hasContent,
   isEditMode = false,
   returnUrl = '/approval-workflow',
@@ -88,47 +86,36 @@ export default function ComposerToolbar({
   submitState = 'idle',
 }) {
   return (
-    <div className="flex items-center gap-2.5 flex-wrap">
-      {isEditMode && (
-        <>
-          <Link
-            to={returnUrl}
-            className="cmp-btn cmp-btn-outline is-lg"
-            title="Leave without saving and go back to review"
-          >
-            <ArrowLeft size={15} />
-            <span className="hidden sm:inline">Back to review</span>
-          </Link>
-          <button
-            type="button"
-            className="cmp-btn cmp-btn-outline is-lg"
-            onClick={onOpenHistory}
-            title="Compare earlier versions"
-          >
-            <History size={15} />
-            <span className="hidden sm:inline">History</span>
-          </button>
-        </>
-      )}
-
+    <div className="flex items-center gap-2.5 flex-wrap lg:flex-nowrap">
       <SlotChip date={scheduledDate} time={scheduledTime} onClick={onSchedule} />
 
-      <button
-        type="button"
-        className="cmp-btn cmp-btn-outline is-lg flex items-center gap-1.5"
-        onClick={onViewDrafts}
-        title="View all saved drafts"
-      >
-        <FolderOpen size={15} />
-        <span>Saved drafts</span>
-      </button>
+      {isEditMode ? (
+        <Link
+          to={returnUrl}
+          className="cmp-btn cmp-btn-outline is-lg"
+          title="Leave without saving and go back to review"
+        >
+          <ArrowLeft size={15} />
+          <span className="hidden sm:inline">Back to review</span>
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="cmp-btn cmp-btn-outline is-lg flex items-center gap-1.5"
+          onClick={onViewDrafts}
+          title="View all saved drafts"
+        >
+          <FolderOpen size={15} />
+          <span>Saved drafts</span>
+        </button>
+      )}
 
       <SaveButton
         state={saveState}
         onClick={onSaveDraft}
-        icon={isEditMode ? GitCommit : Save}
-        idleLabel={isEditMode ? 'Save version' : 'Save draft'}
-        savedLabel={isEditMode ? 'Version saved' : 'Draft saved'}
+        icon={Save}
+        idleLabel="Save draft"
+        savedLabel="Draft saved"
       />
 
       <SendButton
@@ -141,3 +128,4 @@ export default function ComposerToolbar({
     </div>
   );
 }
+

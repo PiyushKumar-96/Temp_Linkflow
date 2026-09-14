@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { GitCommit } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import ComposerEditor from './ComposerEditor';
 import ComposerPreview from './ComposerPreview';
@@ -12,8 +12,8 @@ import ComposerHeader from './ComposerHeader';
 import { WorkflowMini } from './ComposerUI';
 import ScheduleControl from '@/components/ScheduleControl';
 import PipelineStageStepper from '@/components/PipelineStageStepper';
-import VersionHistoryDialog from '@/components/VersionHistoryDialog';
 import SavedDraftsDialog from './SavedDraftsDialog';
+
 import { INITIAL_APPROVAL_POSTS } from '@/app/approval-workflow/_api/queries';
 import { getNextAvailableSlot } from '@/lib/scheduling';
 import { STOCK_IMAGES } from '@/temp-backend/data/media';
@@ -101,10 +101,10 @@ export default function ComposerShell() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
   const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saved'
   const [submitState, setSubmitState] = useState('idle'); // 'idle' | 'sending' | 'sent'
+
 
   const generationRun = useRef(0);
   const [draftId, setDraftId] = useState(null); // repeat saves in create mode update one post instead of creating copies
@@ -674,7 +674,9 @@ export default function ComposerShell() {
     if (!result) return;
     const slot = formatSlot(scheduledDate, scheduledTime);
     toast.success(
-      isEditMode ? `Version ${result.version} saved` : `Draft saved for ${slot.day}, ${slot.time}`
+      isEditMode
+        ? `Draft saved for ${activePost?.title || 'post'}`
+        : `Draft saved for ${slot.day}, ${slot.time}`
     );
     setSaveState('saved');
     setTimeout(() => setSaveState('idle'), 1800);
@@ -707,15 +709,14 @@ export default function ComposerShell() {
   return (
     <div className="cmp flex flex-col gap-4">
       {/* Top Header + Toolbar row sitting directly on background */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <ComposerHeader isEditMode={isEditMode} activePost={activePost} />
-        <div className="flex items-center justify-start lg:justify-end gap-3 shrink-0 pb-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <ComposerHeader isEditMode={isEditMode} />
+        <div className="flex items-center justify-start lg:justify-end shrink-0">
           <ComposerToolbar
             onSaveDraft={handleSaveDraft}
             onViewDrafts={() => setShowDraftsModal(true)}
             onSubmitReview={handleSubmitForReview}
             onSchedule={() => setShowScheduleDrawer(true)}
-            onOpenHistory={() => setShowHistoryModal(true)}
             hasContent={content.trim().length > 0}
             isEditMode={isEditMode}
             returnUrl="/approval-workflow"
@@ -729,16 +730,12 @@ export default function ComposerShell() {
 
       {isEditMode && activePost ? (
         <>
-          <div className="cmp-card flex items-start gap-3 px-5 py-4">
+          <div className="cmp-card flex items-center gap-3 px-5 py-3">
             <span className="cmp-badge tone-blue" aria-hidden="true">
-              <GitCommit size={17} />
+              <FileText size={17} />
             </span>
             <div className="min-w-0">
               <p className="text-[14px] font-semibold cmp-ink">Editing “{activePost.title}”</p>
-              <p className="text-[13px] cmp-muted mt-0.5">
-                Saving creates version {(activePost.revisions || 0) + 1}. Earlier versions stay in
-                History.
-              </p>
             </div>
           </div>
           <PipelineStageStepper
@@ -835,17 +832,6 @@ export default function ComposerShell() {
           onClose={() => setShowScheduleDrawer(false)}
         />
       )}
-
-      <VersionHistoryDialog
-        isOpen={showHistoryModal}
-        onClose={() => setShowHistoryModal(false)}
-        revisions={activePost?.revisionsList || []}
-        currentContent={content}
-        currentPostTitle={activePost?.title || 'Draft in Composer'}
-        onRestoreVersion={(v) => {
-          if (v.content) setContent(v.content);
-        }}
-      />
 
       <SavedDraftsDialog
         isOpen={showDraftsModal}

@@ -416,29 +416,28 @@
   -webkit-line-clamp: 2;
 }
 
-/* Text-only / Note band on flat pillar color */
+/* Text-only / Note band on flat source color */
 .lib .lib-band-text {
   display: flex;
   align-items: center;
   padding: 16px;
-  background: var(--track-warm);
+  background: var(--source-composer);
 }
 
-.lib .lib-band-text[data-pillar='thought'] {
-  background: var(--pillar-thought);
+.lib .lib-band-text[data-source='composer'] {
+  background: var(--source-composer);
 }
 
-.lib .lib-band-text[data-pillar='case'] {
-  background: var(--pillar-case);
+.lib .lib-band-text[data-source='ai_generator'],
+.lib .lib-band-text[data-source='ai'] {
+  background: var(--source-ai);
 }
 
-.lib .lib-band-text[data-pillar='engineering'] {
-  background: var(--pillar-engineering);
+.lib .lib-band-text[data-source='bulk_upload'],
+.lib .lib-band-text[data-source='bulk'] {
+  background: var(--source-bulk);
 }
 
-.lib .lib-band-text[data-pillar='industry'] {
-  background: var(--pillar-industry);
-}
 
 .lib .lib-band-hook {
   font-weight: 600;

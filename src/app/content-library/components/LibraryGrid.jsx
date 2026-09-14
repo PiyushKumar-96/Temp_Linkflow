@@ -7,14 +7,7 @@ import { toast } from 'sonner';
 import AppImage from '@/components/ui/AppImage';
 import { hookOf, hookLength } from './libraryFace';
 
-function getPillar(item) {
-  const text = `${item.category || ''} ${(item.tags || []).join(' ')} ${item.title || ''}`.toLowerCase();
-  if (text.includes('thought') || text.includes('leadership') || text.includes('culture')) return 'thought';
-  if (text.includes('case') || text.includes('study') || text.includes('metric') || text.includes('growth')) return 'case';
-  if (text.includes('engineer') || text.includes('tech') || text.includes('remote')) return 'engineering';
-  if (text.includes('industry') || text.includes('insight') || text.includes('marketing') || text.includes('product')) return 'industry';
-  return 'default';
-}
+
 
 function getFormatMarker(item) {
   if (item.type === 'carousel' || item.visualFormat === 'carousel') {
@@ -138,11 +131,11 @@ function MediaBandContent({ item }) {
     );
   }
 
-  const pillar = getPillar(item);
+  const source = item.source || 'composer';
   const hook = hookOf(item);
 
   return (
-    <div className="lib-band-text w-full h-full" data-pillar={pillar}>
+    <div className="lib-band-text w-full h-full" data-source={source}>
       <span className="lib-band-hook" data-len={hookLength(hook)}>
         {hook}
       </span>

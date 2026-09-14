@@ -143,9 +143,31 @@ export const MOCK_POST_LIBRARY = {
 };
 
 /**
- * Returns a distinct post template for a given pillar and index
+ * Returns a distinct post template for a given topic or index
  */
-export function getPostContent(pillar, index) {
-  const library = MOCK_POST_LIBRARY[pillar] || MOCK_POST_LIBRARY['Thought Leadership'];
-  return library[index % library.length];
+export function getPostContent(topicOrCategory, index) {
+  const allTemplates = Object.values(MOCK_POST_LIBRARY).flat();
+  if (topicOrCategory) {
+    // If exact match in MOCK_POST_LIBRARY
+    if (MOCK_POST_LIBRARY[topicOrCategory]) {
+      const list = MOCK_POST_LIBRARY[topicOrCategory];
+      return list[index % list.length];
+    }
+    // Search for keyword matching inside template titles and hookPrefixes
+    const lower = topicOrCategory.toLowerCase();
+    const matches = allTemplates.filter(
+      (t) =>
+        t.title.toLowerCase().includes(lower) ||
+        t.hookPrefix.toLowerCase().includes(lower) ||
+        lower.includes('b2b') ||
+        lower.includes('churn') ||
+        lower.includes('monolith') ||
+        lower.includes('founder')
+    );
+    if (matches.length > 0) {
+      return matches[index % matches.length];
+    }
+  }
+  return allTemplates[index % allTemplates.length];
 }
+

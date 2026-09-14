@@ -6,21 +6,22 @@ import AIGeneratedCard from './AIGeneratedCard';
 import { getPostContent } from '../postLibrary';
 import { POST_STATUS } from '@/lib/post-status';
 import { STOCK_IMAGES_LIST } from '@/temp-backend/data/media';
+import { matchPlannedTopic, getPlannedTopicOptions } from '../extractSpec';
 
 const MOCK_IMAGES = STOCK_IMAGES_LIST.map((img) => img.url);
 
 const STARTER_PROMPTS = [
-  'Draft 2 thought leadership posts on engineering velocity with image visuals',
-  'Give me 3 carousel outlines analyzing customer onboarding metrics',
-  'Write a contrarian case study post breaking down tech debt vs feature speed',
-  'Create 2 text-only industry insights on remote team alignment',
+  'Draft 2 posts on B2B marketing stack consolidation with image visuals',
+  'Give me 3 carousel outlines analyzing customer churn research',
+  'Write a post breaking down async engineering culture',
+  'Create 2 text-only posts on modular monolith architecture',
 ];
 
 const ON_TOPIC_KEYWORDS = [
   'post', 'posts', 'draft', 'drafts', 'write', 'generate', 'create', 'linkedin',
-  'carousel', 'image', 'infographic', 'text', 'thought leadership', 'case study',
-  'engineering', 'culture', 'industry', 'insights', 'marketing', 'content', 'growth',
-  'saas', 'velocity', 'metric', 'framework', 'leadership', 'team', 'product'
+  'carousel', 'image', 'infographic', 'text', 'b2b', 'marketing', 'churn',
+  'engineering', 'culture', 'industry', 'insights', 'stack', 'content', 'growth',
+  'saas', 'velocity', 'metric', 'framework', 'founder', 'team', 'product', 'monolith'
 ];
 
 function isTopicRelevant(text) {
@@ -38,7 +39,7 @@ function synthesizeChatResponse(userPrompt, turnIndex) {
   if (!isTopicRelevant(userPrompt)) {
     return {
       type: 'message',
-      text: 'This generator drafts LinkedIn posts, carousels, and visual insights. Describe a topic, pillar, or format to generate content.',
+      text: 'This generator drafts LinkedIn posts, carousels, and visual insights. Describe a planned topic or format to generate content.',
       posts: [],
     };
   }
@@ -47,7 +48,7 @@ function synthesizeChatResponse(userPrompt, turnIndex) {
   if (userPrompt.trim().split(/\s+/).length <= 2 && !lower.includes('post') && !lower.includes('draft')) {
     return {
       type: 'message',
-      text: `Which angle would you like to explore for "${userPrompt.trim()}" — a tactical engineering playbook, a contrarian case study, or vertical market metrics?`,
+      text: `Which angle would you like to explore for "${userPrompt.trim()}" — actionable tactics, metrics breakdown, or a high-level summary?`,
       posts: [],
     };
   }
@@ -58,16 +59,16 @@ function synthesizeChatResponse(userPrompt, turnIndex) {
   else if (lower.includes('infographic') || lower.includes('chart') || lower.includes('metric')) format = 'infographic';
   else if (lower.includes('text only') || lower.includes('text-only') || lower.includes('plain text')) format = 'none';
 
-  let pillar = 'Thought Leadership';
-  if (lower.includes('case study') || lower.includes('case studies')) pillar = 'Case Studies';
-  else if (lower.includes('engineering') || lower.includes('tech debt') || lower.includes('architecture')) pillar = 'Engineering Culture';
-  else if (lower.includes('industry') || lower.includes('trends') || lower.includes('market')) pillar = 'Industry Insights';
+  // Match topic against planned topics list
+  const planned = getPlannedTopicOptions();
+  const matchedTopic = matchPlannedTopic(userPrompt);
+  const topicTitle = matchedTopic || (planned.length > 0 ? planned[0].title : 'B2B marketing stack consolidation');
 
   const countMatch = lower.match(/\b([1-3])\s*(?:posts?|pieces?|drafts?)?\b/);
   const count = countMatch && countMatch[1] ? parseInt(countMatch[1], 10) : 2;
 
   const generatedPosts = Array.from({ length: count }).map((_, i) => {
-    const postData = getPostContent(pillar, turnIndex * 2 + i);
+    const postData = getPostContent(topicTitle, turnIndex * 2 + i);
     const postTitle = postData.title;
     const bodyContent = `${postData.hookPrefix}\n\n${postData.takeaways.join('\n')}\n\nWhat is your team experience with this? Drop your thoughts below.`;
 
@@ -94,9 +95,8 @@ function synthesizeChatResponse(userPrompt, turnIndex) {
       author: 'Sarah Reeves',
       authorInitials: 'SR',
       authorRole: 'Content Strategist',
-      category: pillar,
-      pillar,
-      topic: pillar,
+      category: topicTitle,
+      topic: topicTitle,
       visualFormat: format,
       imageUrl,
       carouselSlides,
@@ -109,10 +109,11 @@ function synthesizeChatResponse(userPrompt, turnIndex) {
 
   return {
     type: 'generation',
-    text: `Drafted ${count} ${format === 'none' ? 'text-only' : format} post${count > 1 ? 's' : ''} in ${pillar}:`,
+    text: `Drafted ${count} ${format === 'none' ? 'text-only' : format} post${count > 1 ? 's' : ''} on "${topicTitle}":`,
     posts: generatedPosts,
   };
 }
+
 
 export default function ChatModeView({
   chatTurns,

@@ -17,12 +17,12 @@ export default function AIGeneratedCard({
     visualFormat,
     scheduledDate,
     scheduledTime,
-    pillar,
     topic,
     imageUrl,
     carouselSlides,
     failureReason,
   } = post;
+
 
   // Format label & icon helper
   const formatIcon =
@@ -85,15 +85,6 @@ export default function AIGeneratedCard({
   }
 
   // 3. GENERATED State (Library card look)
-  const pillarKey =
-    pillar === 'Case Studies'
-      ? 'case'
-      : pillar === 'Engineering Culture'
-        ? 'engineering'
-        : pillar === 'Industry Insights'
-          ? 'industry'
-          : 'thought';
-
   // Extract short first sentence for text band preview to ensure it differs from title and body excerpt
   const hookSummary = content.split('\n')[0] || content;
 
@@ -111,11 +102,11 @@ export default function AIGeneratedCard({
             <div className="aig-band-carousel-title">{carouselSlides?.[1]?.headline || title}</div>
           </div>
         ) : visualFormat === 'infographic' ? (
-          <div className="aig-band-text" data-pillar={pillarKey}>
-            <div className="aig-band-hook">+62% Lift &bull; {pillar}</div>
+          <div className="aig-band-text">
+            <div className="aig-band-hook">+62% Lift &bull; {topic || 'Growth Metric'}</div>
           </div>
         ) : (
-          <div className="aig-band-text" data-pillar={pillarKey}>
+          <div className="aig-band-text">
             <div className="aig-band-hook">{hookSummary}</div>
           </div>
         )}
@@ -123,7 +114,7 @@ export default function AIGeneratedCard({
 
       {/* Body */}
       <div className="aig-card-body">
-        {/* Group Context Chips: Format & Pillar/Topic for clear legibility in flat list */}
+        {/* Group Context Chips: Format & Topic for clear legibility in flat list */}
         <div className="aig-card-tags">
           <span className="aig-tag-format">
             {formatIcon}
@@ -139,13 +130,14 @@ export default function AIGeneratedCard({
         <h4 className="aig-card-title">{title}</h4>
         <p className="aig-card-content">{content}</p>
         <div className="aig-card-meta">
-          <span>{pillar}</span>
+          <span>{topic || 'Planned topic'}</span>
           <span>&bull;</span>
           <span>
             {scheduledDate} {scheduledTime}
           </span>
         </div>
       </div>
+
 
       {/* Footer Actions (Secondary weights only) */}
       <div className="aig-card-footer">

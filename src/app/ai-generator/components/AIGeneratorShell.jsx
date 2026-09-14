@@ -28,7 +28,7 @@ const MOCK_IMAGES = STOCK_IMAGES_LIST.map((img) => img.url);
  * Generates a post synthesizing title from content, completely decoupling it from the topic string
  */
 function generatePostForGroup(group, postIndexInBatch, postIndexInGroup, slot) {
-  const postData = getPostContent(group.pillar, postIndexInBatch);
+  const postData = getPostContent(group.topic, postIndexInBatch);
 
   // Distinct title directly from content analysis (never prefixed with topic string)
   const postTitle = postData.title;
@@ -60,8 +60,7 @@ function generatePostForGroup(group, postIndexInBatch, postIndexInGroup, slot) {
     author: 'Sarah Reeves',
     authorInitials: 'SR',
     authorRole: 'Content Strategist',
-    category: group.pillar,
-    pillar: group.pillar,
+    category: group.topic,
     visualFormat: group.format,
     imageUrl,
     carouselSlides,
@@ -71,6 +70,7 @@ function generatePostForGroup(group, postIndexInBatch, postIndexInGroup, slot) {
     status: POST_STATUS.AWAITING_REVIEW,
   };
 }
+
 
 const STORAGE_MODE_KEY = 'linkedflow_aigen_mode';
 
@@ -167,12 +167,12 @@ export default function AIGeneratorShell() {
           state: 'generating',
           title: `Drafting post ${slotOffset + 1}…`,
           content: '',
-          pillar: group.pillar,
           topic: group.topic,
           visualFormat: group.format,
           scheduledDate: slot.date,
           scheduledTime: slot.time,
         });
+
         slotOffset++;
       }
     });

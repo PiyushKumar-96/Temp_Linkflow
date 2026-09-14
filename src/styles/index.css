@@ -130,11 +130,11 @@
   --status-manual-fg: #c2410c;
   --status-manual-border: #fed7aa;
 
-  /* Pillar colors for text-post bands */
-  --pillar-thought: #E3DCCB;      /* thought leadership */
-  --pillar-case: #DCE4E0;         /* case studies & proof */
-  --pillar-engineering: #DEDCEA;  /* engineering culture */
-  --pillar-industry: #DCE3EC;     /* industry insights */
+  /* Source colors for library text-post bands */
+  --source-composer: #E3DCCB;
+  --source-ai: #DCE4E0;
+  --source-bulk: #DEDCEA;
+
 
   /* Topic tile identity palette (assigned once per topic, cycles 1-4) */
   --topic-1: #E3DCCB;
