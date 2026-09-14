@@ -160,7 +160,7 @@ export default function MonthStepperHeader({
   return (
     <div className="tpc-month-stepper-head">
       <div className="tpc-month-title-wrap">
-        <h1 className="tpc-month-h1">{monthInfo.fullName}</h1>
+        <h2 className="tpc-month-h2">{monthInfo.fullName}</h2>
 
         {/* Unboxed Chevrons Navigation placed to the right, matched with content calendar */}
         <div className="tpc-month-nav-group">

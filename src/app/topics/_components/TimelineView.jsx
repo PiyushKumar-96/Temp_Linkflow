@@ -11,8 +11,7 @@ import MonthStepperHeader, {
 
 function getTitleLengthCategory(title) {
   const len = (title || '').length;
-  if (len <= 26) return 'short';
-  if (len <= 40) return 'medium';
+  if (len <= 28) return 'short';
   return 'long';
 }
 

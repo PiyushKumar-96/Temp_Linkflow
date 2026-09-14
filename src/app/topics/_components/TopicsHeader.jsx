@@ -14,7 +14,16 @@ export default function TopicsHeader({
   totalCount,
 }) {
   return (
-    <div className="tpc-top-bar">
+    <div className="flex flex-col gap-3">
+      {/* Page Title & Subtitle */}
+      <div className="tpc-head">
+        <h1 className="tpc-title">Topics</h1>
+        <p className="tpc-sub">
+          Plan thematic subjects to seed downstream AI drafting and scheduled posts.
+        </p>
+      </div>
+
+      <div className="tpc-top-bar">
       <div className="tpc-top-bar-left">
         {/* View Toggle (Month / List) */}
         <div
@@ -80,6 +89,7 @@ export default function TopicsHeader({
           Plan topic
         </button>
       </div>
+    </div>
     </div>
   );
 }

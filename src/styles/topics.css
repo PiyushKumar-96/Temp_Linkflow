@@ -35,6 +35,31 @@
   border-radius: 4px;
 }
 
+/* ---------- Page Header ---------- */
+
+.tpc .tpc-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.tpc .tpc-title {
+  font-size: 36px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--tpc-ink);
+  margin: 0;
+}
+
+.tpc .tpc-sub {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--tpc-muted);
+  margin: 0;
+}
+
 /* ---------- Top Bar / Navigation Controls ---------- */
 
 .tpc .tpc-top-bar {
@@ -192,10 +217,10 @@
   gap: 12px;
 }
 
-.tpc .tpc-month-h1 {
-  font-size: 26px;
+.tpc .tpc-month-h2 {
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: var(--tpc-ink);
   margin: 0;
   line-height: 1.1;
@@ -358,18 +383,13 @@
 }
 
 .tpc .tpc-tile-title[data-len='short'] {
-  font-size: 20px;
-  line-height: 1.2;
-}
-
-.tpc .tpc-tile-title[data-len='medium'] {
-  font-size: 16px;
-  line-height: 1.25;
+  font-size: 18px;
+  line-height: 1.22;
 }
 
 .tpc .tpc-tile-title[data-len='long'] {
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: 16px;
+  line-height: 1.25;
 }
 
 .tpc .tpc-tile-foot {
