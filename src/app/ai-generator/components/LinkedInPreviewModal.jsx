@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { X, Edit3, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ComposerPreview from '@/app/post-creation-composer/components/ComposerPreview';
+import '@/styles/composer.css';
 
 /**
  * LinkedIn Feed Preview Modal for AI Generator.
@@ -54,12 +55,12 @@ export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQu
           </button>
         </div>
 
-        {/* Scrollable Preview Body (Rendering ComposerPreview) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[color:var(--page-bg)] scrollbar-thin">
+        {/* Scrollable Preview Body (Rendering ComposerPreview scoped in .cmp) */}
+        <div className="cmp flex-1 overflow-y-auto p-4 sm:p-6 bg-[color:var(--page-bg)] scrollbar-thin">
           <ComposerPreview
-            content={post.content || ''}
-            cta={post.cta || ''}
-            hashtags={post.hashtags || []}
+            composedText={post.content || ''}
+            hasBody={Boolean((post.content || '').trim())}
+            device="mobile"
             imageUrl={post.imageUrl || null}
             visualFormat={post.visualFormat || (post.imageUrl ? 'image' : 'none')}
             carouselSlides={post.carouselSlides}
@@ -91,7 +92,7 @@ export default function LinkedInPreviewModal({ isOpen, onClose, post, onSendToQu
               <button
                 type="button"
                 onClick={() => {
-                  onSendToQueue(post.id);
+                  onSendToQueue(post.id, post);
                   onClose();
                 }}
                 className="h-8 px-3.5 rounded-[var(--radius-input)] border border-[color:var(--border)] bg-[color:var(--chip)] hover:bg-[color:var(--track)] text-[color:var(--text)] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"

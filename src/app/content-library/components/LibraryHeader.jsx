@@ -55,6 +55,18 @@ export default function LibraryHeader({
               <button
                 type="button"
                 role="tab"
+                aria-selected={statusFilter === 'all'}
+                onClick={() => onStatusFilterChange('all')}
+                className="lib-status-tab"
+              >
+                <span>All</span>
+                <span className="lib-status-tab-count">
+                  {(statusCounts?.published ?? 0) + (statusCounts?.scheduled ?? 0)}
+                </span>
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={statusFilter === 'published'}
                 onClick={() => onStatusFilterChange('published')}
                 className="lib-status-tab"

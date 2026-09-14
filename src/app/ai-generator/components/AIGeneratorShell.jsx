@@ -250,9 +250,19 @@ export default function AIGeneratorShell() {
 
   // Queue dispatch helper (Shared)
   const handleSendOneToQueue = (postId, optionalPostObject = null) => {
-    const target =
-      optionalPostObject ||
-      posts.find((p) => p.id === postId && p.state === 'generated');
+    let target = optionalPostObject;
+    if (!target) {
+      target = posts.find((p) => p.id === postId && p.state === 'generated');
+    }
+    if (!target) {
+      for (const turn of chatTurns) {
+        const found = turn.posts?.find((p) => p.id === postId);
+        if (found) {
+          target = found;
+          break;
+        }
+      }
+    }
     if (!target) return;
 
     try {
@@ -260,6 +270,29 @@ export default function AIGeneratorShell() {
         ...target,
         status: POST_STATUS.AWAITING_REVIEW,
         source: 'ai_generator',
+        submittedAt: target.submittedAt || new Date().toISOString().replace('T', ' ').slice(0, 16),
+        dueDate: target.dueDate || target.scheduledDate || '2026-09-18',
+        revisions: target.revisions || 1,
+        revisionsList: target.revisionsList || [
+          {
+            id: `rev-${Date.now()}`,
+            versionNumber: 1,
+            createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+            author: 'AI Generator',
+            authorType: 'ai',
+            summary: `Draft generated for topic "${target.topic || 'Planned topic'}"`,
+          },
+        ],
+        qualityAudit: target.qualityAudit || {
+          score: 92,
+          grade: 'A',
+          verdict: 'High Virality Potential',
+          hookScore: 92,
+          clarityScore: 94,
+          voiceScore: 90,
+          readabilityWpm: 210,
+          issues: [],
+        },
       };
 
       const stored = localStorage.getItem('linkedflow_approval_posts');

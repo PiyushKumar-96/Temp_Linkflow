@@ -4,6 +4,8 @@ import React, { useEffect } from 'react';
 import { X, Eye, Maximize2, Download, Sparkles, ExternalLink, Calendar } from 'lucide-react';
 import ComposerPreview from '@/app/post-creation-composer/components/ComposerPreview';
 
+import '@/styles/composer.css';
+
 /**
  * LinkedIn Feed Preview Modal for Bulk Upload posts.
  */
@@ -27,76 +29,47 @@ export function BulkPostPreviewModal({ isOpen, onClose, post, onViewImage }) {
         ? post.hashtags
         : [];
 
+  const hashtagsSuffix = parsedHashtags.length > 0 ? `\n\n${parsedHashtags.join(' ')}` : '';
+  const fullComposedText = `${post.content || ''}${hashtagsSuffix}`.trim();
+
+  // Map visual format
+  const rawFormat = post.visualFormat || (post.imageUrl ? 'image' : 'none');
+  const normalizedFormat =
+    rawFormat === 'pdf' ? 'pdf' : rawFormat === 'carousel' ? 'carousel' : rawFormat === 'image' ? 'image' : rawFormat === 'infographic' ? 'infographic' : 'none';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] z-10 animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/40">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[#0a66c2]/10 text-[#0a66c2] flex items-center justify-center shrink-0">
-              <Sparkles size={16} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-foreground truncate">
-                  LinkedIn Post Preview
-                </h3>
-                {post.scheduledDate && (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-500 px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    <Calendar size={10} />
-                    {post.scheduledDate} {post.scheduledTime ? `· ${post.scheduledTime}` : ''}
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-muted-foreground truncate">
-                {post.header || 'Bulk Upload Post Preview'}
-              </p>
-            </div>
-          </div>
+      <div className="relative w-full max-w-2xl bg-[color:var(--card)] border border-[color:var(--border)] rounded-[var(--radius-card)] shadow-xl overflow-hidden flex flex-col max-h-[92vh] z-10 text-[color:var(--text)]">
+        {/* Top-Right Modal Close Control */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3.5 right-3.5 z-20 p-1.5 rounded-[var(--radius-icon-btn)] text-[color:var(--text-muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--chip)] transition-colors cursor-pointer"
+          title="Close preview"
+          aria-label="Close preview"
+        >
+          <X size={16} />
+        </button>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
-            title="Close preview"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* LinkedIn Feed Preview */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f4f2ee] scrollbar-thin">
+        {/* LinkedIn Feed Preview (Scoped in .cmp container) */}
+        <div className="cmp flex-1 overflow-y-auto p-4 sm:p-6 bg-[color:var(--page-bg)] scrollbar-thin">
           <ComposerPreview
-            content={post.content || ''}
-            cta=""
-            hashtags={parsedHashtags}
+            composedText={fullComposedText}
+            hasBody={Boolean(fullComposedText)}
+            device="mobile"
             imageUrl={post.imageUrl || null}
-            visualFormat={post.visualFormat || (post.imageUrl ? 'image' : 'none')}
+            visualFormat={normalizedFormat}
             carouselSlides={post.carouselSlides}
             infographicData={post.infographicData}
             isGenerating={false}
           />
-        </div>
-
-        {/* Footer — only Done / Close button */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-card">
-          <span className="text-xs text-muted-foreground capitalize font-500">
-            {post.visualFormat === 'pdf' || post.visualFormat === 'carousel'
-              ? '📄 PDF Document Deck'
-              : post.imageUrl
-                ? '🖼️ Single Image Post'
-                : '📝 Post'}
-          </span>
-
-          <button onClick={onClose} className="btn-primary text-xs py-1.5 px-4 cursor-pointer">
-            Done
-          </button>
         </div>
       </div>
     </div>

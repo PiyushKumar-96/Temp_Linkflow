@@ -153,7 +153,7 @@ export default function AIGeneratedCard({
           </button>
           <button
             type="button"
-            onClick={() => onSendToQueue(post.id)}
+            onClick={() => onSendToQueue(post.id, post)}
             className="aig-btn-secondary"
             title="Send to approval queue"
           >

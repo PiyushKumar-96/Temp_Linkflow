@@ -228,7 +228,7 @@ export default function ChatModeView({
                           post={post}
                           onDismiss={(postId) => onDismissPostInTurn(turn.id, postId)}
                           onPreview={onPreviewPost}
-                          onSendToQueue={onSendToQueue}
+                          onSendToQueue={() => onSendToQueue(post.id, post)}
                           onRetry={(postId) => handleRetryCard(turn.id, postId)}
                         />
                       ))}

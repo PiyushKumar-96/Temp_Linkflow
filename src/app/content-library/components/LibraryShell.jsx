@@ -21,7 +21,7 @@ export default function LibraryShell() {
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('published');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkPosts, setBulkPosts] = useState(() => SAMPLE_POSTS);
   const [version, setVersion] = useState(0);
@@ -75,14 +75,12 @@ export default function LibraryShell() {
     }
 
     const combinedPosts = [...storedPosts];
-    const seen = new Set(combinedPosts.map((p) => p.id));
     approvalStored.forEach((p) => {
-      if (!seen.has(p.id)) {
+      const idx = combinedPosts.findIndex((item) => item.id === p.id);
+      if (idx !== -1) {
+        combinedPosts[idx] = { ...combinedPosts[idx], ...p };
+      } else {
         combinedPosts.push(p);
-        seen.add(p.id);
-      } else if (isApprovedStatus(p.status)) {
-        const idx = combinedPosts.findIndex((item) => item.id === p.id);
-        if (idx !== -1) combinedPosts[idx] = { ...combinedPosts[idx], ...p };
       }
     });
 
