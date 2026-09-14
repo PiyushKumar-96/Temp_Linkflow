@@ -135,6 +135,12 @@
   --pillar-case: #DCE4E0;         /* case studies & proof */
   --pillar-engineering: #DEDCEA;  /* engineering culture */
   --pillar-industry: #DCE3EC;     /* industry insights */
+
+  /* Topic tile identity palette (assigned once per topic, cycles 1-4) */
+  --topic-1: #E3DCCB;
+  --topic-2: #DCE4E0;
+  --topic-3: #DEDCEA;
+  --topic-4: #DCE3EC;
 }
 
 /* Post lifecycle status utility classes */

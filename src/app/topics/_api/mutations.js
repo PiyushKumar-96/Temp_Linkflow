@@ -107,31 +107,43 @@ export function useDeleteTopicMutation() {
   });
 }
 
-export function useBulkUpdateTopicsMutation() {
+export function useBulkRescheduleTopicsMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ ids, updates }) => {
-      await new Promise((r) => setTimeout(r, 200));
+    mutationFn: async ({ ids, days }) => {
+      await new Promise((r) => setTimeout(r, 150));
+      const shift = (dStr) => {
+        if (!dStr) return dStr;
+        const d = new Date(dStr);
+        d.setDate(d.getDate() + days);
+        return d.toISOString().split('T')[0];
+      };
       const topics = getStoredTopics();
       const updated = topics.map((t) => {
         if (ids.includes(t.id)) {
-          return { ...t, ...updates };
+          return {
+            ...t,
+            publicationDate: shift(t.publicationDate),
+            startDate: shift(t.startDate || t.publicationDate),
+            endDate: shift(t.endDate || t.startDate || t.publicationDate),
+          };
         }
         return t;
       });
       saveStoredTopics(updated);
-      return { ids, updates };
+      return { ids, days };
     },
-    onSuccess: ({ ids }) => {
+    onSuccess: ({ ids, days }) => {
       queryClient.invalidateQueries({ queryKey: ['topics'] });
-      toast.success(`Updated ${ids.length} topics`);
+      toast.success(`Shifted ${ids.length} topic${ids.length > 1 ? 's' : ''} by ${days > 0 ? `+${days}` : days} days`);
     },
     onError: (err) => {
-      toast.error(`Bulk update failed: ${err.message}`);
+      toast.error(`Bulk shift failed: ${err.message}`);
     },
   });
 }
+
 
 export function useStartTopicGenerationMutation() {
   const queryClient = useQueryClient();

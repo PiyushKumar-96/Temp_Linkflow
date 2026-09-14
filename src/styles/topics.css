@@ -1,0 +1,1075 @@
+/* ==========================================================================
+   topics.css — Topics Single Month Tiled Wall & Month-Scoped List
+   Everything is scoped under .tpc.
+   Uniform aspect-ratio tiles on neutral background,
+   proportional title step-down sizing, hairline borders, side panel editing,
+   and responsive list column prioritization.
+   ========================================================================== */
+
+.tpc {
+  --tpc-card: var(--card);
+  --tpc-line: var(--border);
+  --tpc-line-strong: var(--track);
+  --tpc-ink: var(--text);
+  --tpc-muted: var(--text-muted);
+  --tpc-subtle: var(--text-subtle);
+  --tpc-chip: var(--chip);
+  --tpc-warm: var(--track-warm);
+  --tpc-dark: var(--card-dark);
+  --tpc-focus: var(--brand);
+  --tpc-brand: var(--brand);
+  --tpc-brand-hover: var(--brand-hover);
+  --tpc-danger: var(--danger);
+  --tpc-danger-text: var(--danger-text);
+  --tpc-danger-tint: var(--danger-tint);
+
+  --tpc-gap: 20px;
+  --tpc-tile-radius: var(--radius-card);
+
+  color: var(--tpc-ink);
+}
+
+.tpc :focus-visible {
+  outline: 2px solid var(--tpc-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Top Bar / Navigation Controls ---------- */
+
+.tpc .tpc-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.tpc .tpc-top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Segmented Control (Month / List) */
+
+.tpc .tpc-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  background: var(--tpc-chip);
+  border: 1px solid var(--tpc-line);
+  border-radius: var(--radius-input);
+  gap: 2px;
+}
+
+.tpc .tpc-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tpc-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.tpc .tpc-view-btn:hover {
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-view-btn[aria-selected='true'] {
+  color: var(--tpc-ink);
+  background: var(--tpc-card);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(27, 27, 31, 0.08);
+}
+
+/* Search Box */
+
+.tpc .tpc-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 180px;
+  max-width: 260px;
+}
+
+.tpc .tpc-search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--tpc-muted);
+  pointer-events: none;
+}
+
+.tpc .tpc-search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px 0 30px;
+  font-size: 12px;
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+  border: 1px solid var(--tpc-line);
+  border-radius: var(--radius-input);
+  outline: none;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.tpc .tpc-search-input:focus {
+  border-color: var(--tpc-focus);
+  background: var(--tpc-card);
+}
+
+/* Select Filters */
+
+.tpc .tpc-select {
+  height: 32px;
+  padding: 0 26px 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tpc-ink);
+  background-color: var(--tpc-chip);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B70' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  border: 1px solid var(--tpc-line);
+  border-radius: var(--radius-input);
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.tpc .tpc-select:focus {
+  border-color: var(--tpc-focus);
+}
+
+/* Single primary brand button */
+
+.tpc .tpc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--tpc-brand);
+  border: 1px solid var(--tpc-brand);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.tpc .tpc-btn-primary:hover {
+  background: var(--tpc-brand-hover);
+  border-color: var(--tpc-brand-hover);
+}
+
+/* ---------- Month Stepper Header & Navigator (Matched with Content Calendar) ---------- */
+
+.tpc .tpc-month-stepper-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.tpc .tpc-month-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tpc .tpc-month-h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tpc-ink);
+  margin: 0;
+  line-height: 1.1;
+}
+
+/* Unboxed chevrons matched from MonthMatrix.jsx: no border, no fill, p-1.5 (6px), 16px icon */
+
+.tpc .tpc-month-nav-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tpc .tpc-month-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--tpc-muted);
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tpc .tpc-month-nav-btn:hover {
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-today-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tpc-muted);
+  background: transparent;
+  border: 1px solid var(--tpc-line);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+.tpc .tpc-today-jump-btn:hover {
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+  border-color: var(--tpc-line-strong);
+}
+
+/* Coverage Meta Line */
+
+.tpc .tpc-month-meta-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+@media (max-width: 768px) {
+  .tpc .tpc-month-meta-wrap {
+    align-items: flex-start;
+  }
+}
+
+.tpc .tpc-month-coverage-text {
+  font-size: 13.5px;
+  color: var(--tpc-muted);
+}
+
+.tpc .tpc-month-coverage-text strong {
+  color: var(--tpc-ink);
+  font-weight: 600;
+}
+
+/* ---------- Responsive Tiles Wall (Reflows based on available container width) ---------- */
+
+.tpc .tpc-tile-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* Uniform aspect-ratio tile card — topic color surface with hairline border */
+
+.tpc .tpc-topic-tile {
+  aspect-ratio: 1 / 1;
+  min-height: 220px;
+  border-radius: var(--tpc-tile-radius);
+  border: 1px solid var(--tpc-line);
+  background-color: var(--topic-1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+  user-select: none;
+}
+
+.tpc .tpc-topic-tile[data-color='topic-1'] {
+  background-color: var(--topic-1);
+}
+
+.tpc .tpc-topic-tile[data-color='topic-2'] {
+  background-color: var(--topic-2);
+}
+
+.tpc .tpc-topic-tile[data-color='topic-3'] {
+  background-color: var(--topic-3);
+}
+
+.tpc .tpc-topic-tile[data-color='topic-4'] {
+  background-color: var(--topic-4);
+}
+
+.tpc .tpc-topic-tile:hover {
+  border-color: var(--tpc-line-strong);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tpc .tpc-topic-tile[data-selected='true'] {
+  outline: 2px solid var(--tpc-focus);
+  outline-offset: 1px;
+}
+
+/* Tile Internal Layout */
+
+.tpc .tpc-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 14px;
+}
+
+.tpc .tpc-tile-body {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+/* Proportional Title Step-Down Font Sizing */
+
+.tpc .tpc-tile-title {
+  font-weight: 700;
+  color: var(--tpc-ink);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tpc .tpc-tile-title[data-len='short'] {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.tpc .tpc-tile-title[data-len='medium'] {
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.tpc .tpc-tile-title[data-len='long'] {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.tpc .tpc-tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--tpc-line);
+}
+
+.tpc .tpc-tile-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tpc-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpc .tpc-tile-edit-icon {
+  color: var(--tpc-muted);
+  transition: color 140ms ease;
+}
+
+.tpc .tpc-topic-tile:hover .tpc-tile-edit-icon {
+  color: var(--tpc-ink);
+}
+
+/* ---------- Outlined Empty Week Tiles ---------- */
+
+.tpc .tpc-empty-week-tile {
+  aspect-ratio: 1 / 1;
+  min-height: 220px;
+  border-radius: var(--tpc-tile-radius);
+  border: 1px dashed var(--tpc-line-strong);
+  background: transparent;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease;
+  user-select: none;
+}
+
+.tpc .tpc-empty-week-tile:hover {
+  border-color: var(--tpc-line-strong);
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-empty-week-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tpc .tpc-empty-week-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tpc-subtle);
+}
+
+.tpc .tpc-empty-week-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.tpc .tpc-empty-week-plus-icon {
+  color: var(--tpc-muted);
+  transition: color 140ms ease;
+}
+
+.tpc .tpc-empty-week-tile:hover .tpc-empty-week-plus-icon {
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-empty-week-action-text {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tpc-muted);
+  transition: color 140ms ease;
+}
+
+.tpc .tpc-empty-week-tile:hover .tpc-empty-week-action-text {
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-empty-week-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px dashed var(--tpc-line);
+}
+
+.tpc .tpc-empty-week-dates {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--tpc-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Planning Side Panel (Two-Pane Column Drawer) ---------- */
+
+.tpc .tpc-side-panel {
+  width: 380px;
+  max-height: calc(100vh - 120px);
+  position: sticky;
+  top: 80px;
+  background: var(--tpc-card);
+  border: 1px solid var(--tpc-line-strong);
+  border-radius: var(--tpc-tile-radius);
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 0 0 380px;
+}
+
+.tpc .tpc-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--tpc-line);
+  background: var(--tpc-chip);
+  flex-shrink: 0;
+}
+
+.tpc .tpc-panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tpc-ink);
+  margin: 0;
+}
+
+.tpc .tpc-panel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: transparent;
+  color: var(--tpc-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tpc .tpc-panel-close:hover {
+  color: var(--tpc-ink);
+  background: var(--tpc-card);
+}
+
+.tpc .tpc-panel-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.tpc .tpc-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tpc .tpc-form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tpc .tpc-form-hint {
+  font-size: 11px;
+  color: var(--tpc-subtle);
+}
+
+.tpc .tpc-form-input,
+.tpc .tpc-form-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+  border: 1px solid var(--tpc-line);
+  border-radius: var(--radius-input);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.tpc .tpc-form-input:focus,
+.tpc .tpc-form-textarea:focus {
+  border-color: var(--tpc-focus);
+  background: var(--tpc-card);
+}
+
+.tpc .tpc-form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.tpc .tpc-panel-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--tpc-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--tpc-chip);
+  flex-shrink: 0;
+}
+
+.tpc .tpc-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tpc-ink);
+  background: var(--tpc-card);
+  border: 1px solid var(--tpc-line-strong);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.tpc .tpc-btn-secondary:hover {
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tpc-danger-text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.tpc .tpc-btn-delete:hover {
+  background: var(--tpc-danger-tint);
+  border-radius: var(--radius-input);
+}
+
+/* Two-pane wrapper layout */
+
+.tpc .tpc-layout-with-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tpc-gap);
+}
+
+.tpc .tpc-layout-main {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+/* ---------- List View Table Styling (.tpc-scoped) ---------- */
+
+.tpc .tpc-bulk-bar {
+  padding: 8px 14px;
+  background: var(--tpc-chip);
+  border: 1px solid var(--tpc-line-strong);
+  border-radius: var(--radius-input);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tpc .tpc-bulk-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-bulk-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tpc .tpc-bulk-shift-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tpc .tpc-bulk-shift-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tpc-muted);
+  margin-right: 2px;
+}
+
+.tpc .tpc-bulk-shift-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--tpc-ink);
+  background: var(--tpc-card);
+  border: 1px solid var(--tpc-line-strong);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+  white-space: nowrap;
+}
+
+.tpc .tpc-bulk-shift-btn:hover {
+  background: var(--tpc-chip);
+  border-color: var(--tpc-ink);
+}
+
+.tpc .tpc-bulk-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--tpc-danger-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+  white-space: nowrap;
+}
+
+.tpc .tpc-bulk-delete-btn:hover {
+  background: var(--tpc-danger-tint);
+  border-color: var(--tpc-danger-tint);
+}
+
+.tpc .tpc-bulk-deselect-btn {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--tpc-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 140ms ease;
+}
+
+.tpc .tpc-bulk-deselect-btn:hover {
+  color: var(--tpc-ink);
+  text-decoration: underline;
+}
+
+.tpc .tpc-list-table-card {
+  background: var(--tpc-card);
+  border: 1px solid var(--tpc-line);
+  border-radius: var(--tpc-tile-radius);
+  overflow: hidden;
+  width: 100%;
+}
+
+.tpc .tpc-list-table {
+  width: 100%;
+  table-layout: auto;
+  text-align: left;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+.tpc .tpc-list-table thead tr {
+  border-bottom: 1px solid var(--tpc-line);
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-th {
+  padding: 10px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tpc-muted);
+  white-space: nowrap;
+}
+
+.tpc .tpc-th-check {
+  width: 36px;
+  padding: 10px 8px 10px 14px;
+  text-align: center;
+}
+
+.tpc .tpc-th-actions {
+  text-align: right;
+  padding-right: 14px;
+}
+
+.tpc .tpc-list-row {
+  border-bottom: 1px solid var(--tpc-line);
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.tpc .tpc-list-row:hover {
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-list-row[data-selected='true'] {
+  background: rgba(10, 102, 194, 0.04);
+}
+
+.tpc .tpc-td-check {
+  width: 36px;
+  padding: 12px 8px 12px 14px;
+  text-align: center;
+}
+
+/* Column Width Specifications & Priority Reflow Classes */
+
+.tpc .tpc-col-main {
+  width: auto;
+  min-width: 220px;
+}
+
+.tpc .tpc-td-main {
+  padding: 12px;
+}
+
+.tpc .tpc-list-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tpc .tpc-list-title {
+  font-weight: 600;
+  color: var(--tpc-ink);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tpc .tpc-list-brief {
+  font-size: 11.5px;
+  color: var(--tpc-muted);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tpc .tpc-col-profile {
+  white-space: nowrap;
+}
+
+.tpc .tpc-td-profile {
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.tpc .tpc-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--tpc-ink);
+  white-space: nowrap;
+}
+
+.tpc .tpc-col-audience {
+  white-space: nowrap;
+}
+
+.tpc .tpc-td-audience {
+  padding: 12px;
+  font-size: 11.5px;
+  color: var(--tpc-muted);
+}
+
+.tpc .tpc-audience-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.tpc .tpc-col-dates {
+  white-space: nowrap;
+}
+
+.tpc .tpc-td-dates {
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.tpc .tpc-dates-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tpc .tpc-cadence-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: var(--tpc-chip);
+  border: 1px solid var(--tpc-line);
+  color: var(--tpc-muted);
+  white-space: nowrap;
+}
+
+.tpc .tpc-date-range {
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tpc-ink);
+  white-space: nowrap;
+}
+
+.tpc .tpc-col-content {
+  white-space: nowrap;
+}
+
+.tpc .tpc-td-content {
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.tpc .tpc-content-cell {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.tpc .tpc-content-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tpc .tpc-content-status.has-content {
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-content-status.no-content {
+  color: var(--tpc-subtle);
+}
+
+.tpc .tpc-col-actions {
+  white-space: nowrap;
+}
+
+.tpc .tpc-td-actions {
+  padding: 12px 14px 12px 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tpc .tpc-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.tpc .tpc-row-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tpc-ink);
+  background: var(--tpc-card);
+  border: 1px solid var(--tpc-line-strong);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease;
+  white-space: nowrap;
+}
+
+.tpc .tpc-row-generate-btn:hover {
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+  border-color: var(--tpc-ink);
+}
+
+.tpc .tpc-row-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: var(--tpc-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.tpc .tpc-row-action-icon:hover {
+  color: var(--tpc-ink);
+  background: var(--tpc-chip);
+}
+
+.tpc .tpc-row-action-icon.hover-danger:hover {
+  color: var(--tpc-danger-text);
+  background: var(--tpc-danger-tint);
+}
+
+/* Empty State in List View */
+
+.tpc .tpc-empty-row {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--tpc-muted);
+}
+
+.tpc .tpc-list-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tpc .tpc-list-empty-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tpc-ink);
+}
+
+.tpc .tpc-list-empty-subtitle {
+  font-size: 12px;
+  color: var(--tpc-muted);
+}
+
+.tpc .tpc-list-empty-btn {
+  margin-top: 10px;
+  gap: 6px;
+}
+
+/* ---------- Responsive List Reflow when Panel is Open or on Narrow Viewports ---------- */
+/* Drop Order:
+   1. Audience (.tpc-col-audience): secondary descriptor
+   2. Target Profile (.tpc-col-profile): secondary metadata
+   Core columns (Topic title, Cadence/Dates, Content, Actions) remain permanently readable.
+*/
+
+.tpc .tpc-layout-with-panel:has(.tpc-side-panel) .tpc-col-audience {
+  display: none;
+}
+
+.tpc .tpc-layout-with-panel:has(.tpc-side-panel) .tpc-col-profile {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .tpc .tpc-col-audience {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .tpc .tpc-col-profile {
+    display: none;
+  }
+}

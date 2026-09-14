@@ -2,37 +2,35 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import '@/styles/topics.css';
 import {
   useTopicsQuery,
   useCreateTopicMutation,
   useUpdateTopicMutation,
   useDeleteTopicMutation,
-  useBulkUpdateTopicsMutation,
-  useBulkCreateTopicsMutation,
-  useStartTopicGenerationMutation,
+  useBulkRescheduleTopicsMutation,
 } from './_api';
 import TopicsHeader from './_components/TopicsHeader';
-import TopicsYearView from './_components/TopicsYearView';
+import TimelineView from './_components/TimelineView';
 import TopicsListView from './_components/TopicsListView';
-import TopicFormDialog from './_components/TopicFormDialog';
-import MonthBatchPlanDialog from './_components/MonthBatchPlanDialog';
-import BulkReassignSeriesModal from './_components/BulkReassignSeriesModal';
+import TopicPlanningPanel from './_components/TopicPlanningPanel';
+import { MONTH_DATA, computeMonthWeeks, parseDate } from './_components/MonthStepperHeader';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function TopicsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Sync state to searchParams
-  const activeView = searchParams.get('view') || 'year';
-  const selectedSeries = searchParams.get('series') || 'all';
+  const rawView = searchParams.get('view');
+  const activeView = rawView === 'list' ? 'list' : 'month';
   const selectedAccount = searchParams.get('account') || 'all';
-  const selectedStatus = searchParams.get('status') || 'all';
-  const selectedCadence = searchParams.get('cadence') || 'all';
   const search = searchParams.get('q') || '';
+  const monthParam = searchParams.get('month'); // e.g. "09" or "9"
+  const currentMonthIndex = monthParam !== null ? parseInt(monthParam, 10) - 1 : 8; // Default September (8)
 
   const updateParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
-    if (!value || value === 'all') {
+    if (!value || value === 'all' || (key === 'view' && value === 'month') || (key === 'month' && value === '09')) {
       next.delete(key);
     } else {
       next.set(key, value);
@@ -41,11 +39,12 @@ export default function TopicsPage() {
   };
 
   const setView = (view) => updateParam('view', view);
-  const setSeries = (series) => updateParam('series', series);
   const setAccount = (account) => updateParam('account', account);
-  const setStatus = (status) => updateParam('status', status);
-  const setCadence = (cadence) => updateParam('cadence', cadence);
   const setSearch = (q) => updateParam('q', q);
+  const setMonthIndex = (idx) => {
+    const mStr = String(idx + 1).padStart(2, '0');
+    updateParam('month', mStr);
+  };
 
   // Queries & Mutations
   const {
@@ -55,102 +54,118 @@ export default function TopicsPage() {
     error,
     refetch,
   } = useTopicsQuery({
-    series: selectedSeries,
     account: selectedAccount,
-    status: selectedStatus,
-    cadence: selectedCadence,
+    status: 'all',
+    cadence: 'all',
     search,
   });
 
   const createTopic = useCreateTopicMutation();
   const updateTopic = useUpdateTopicMutation();
   const deleteTopic = useDeleteTopicMutation();
-  const bulkUpdate = useBulkUpdateTopicsMutation();
-  const bulkCreate = useBulkCreateTopicsMutation();
-  const startGeneration = useStartTopicGenerationMutation();
+  const bulkRescheduleTopics = useBulkRescheduleTopicsMutation();
 
-  // Dialog states
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTopic, setEditingTopic] = useState(null);
-  const [initialDateForCreate, setInitialDateForCreate] = useState(null);
-  const [initialCadenceForCreate, setInitialCadenceForCreate] = useState('custom');
+  // Side Panel state
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [draftSpan, setDraftSpan] = useState(null);
 
-  const [batchPlanMonth, setBatchPlanMonth] = useState(null);
-  const [isReassignOpen, setIsReassignOpen] = useState(false);
-  const [reassignTopicIds, setReassignTopicIds] = useState([]);
+  // Open panel for new topic (header button click)
+  const handleOpenCreate = () => {
+    const monthInfo = MONTH_DATA[currentMonthIndex] || MONTH_DATA[8];
+    const year = 2026;
+    const allWeeks = computeMonthWeeks(year, monthInfo.index, monthInfo.days);
 
-  const handleOpenCreate = ({ monthDate = null, cadence = 'custom' } = {}) => {
-    setEditingTopic(null);
-    setInitialDateForCreate(monthDate);
-    setInitialCadenceForCreate(cadence);
-    setIsFormOpen(true);
+    const monthTopics = topics.filter((t) => {
+      const start = parseDate(t.startDate || t.publicationDate);
+      const end = parseDate(t.endDate || t.startDate || t.publicationDate);
+      if (!start) return false;
+      const startMonth = start.getUTCFullYear() === 2026 ? start.getUTCMonth() : -1;
+      const endMonth = end ? (end.getUTCFullYear() === 2026 ? end.getUTCMonth() : 11) : startMonth;
+      return monthInfo.index >= startMonth && monthInfo.index <= endMonth;
+    });
+
+    const openWeeks = allWeeks.filter((wk) => {
+      const wkStart = parseDate(wk.startDateStr);
+      const wkEnd = parseDate(wk.endDateStr);
+      const isOccupied = monthTopics.some((t) => {
+        const tStart = parseDate(t.startDate || t.publicationDate);
+        const tEnd = parseDate(t.endDate || t.startDate || t.publicationDate);
+        return tStart <= wkEnd && tEnd >= wkStart;
+      });
+      return !isOccupied;
+    });
+
+    const targetWeek = openWeeks.length > 0 ? openWeeks[0] : null;
+    setSelectedTopic(null);
+    setDraftSpan(
+      targetWeek
+        ? {
+            startDate: targetWeek.startDateStr,
+            endDate: targetWeek.endDateStr,
+          }
+        : null
+    );
+    setIsPanelOpen(true);
   };
 
-  const handleEditTopic = (topic) => {
-    setEditingTopic(topic);
-    setInitialDateForCreate(topic.startDate || topic.publicationDate);
-    setInitialCadenceForCreate(topic.cadence || 'custom');
-    setIsFormOpen(true);
+  // Plan week clicked from plan tile (open week or custom)
+  const handlePlanWeek = (wk) => {
+    setSelectedTopic(null);
+    setDraftSpan(
+      wk
+        ? {
+            startDate: wk.startDateStr,
+            endDate: wk.endDateStr,
+          }
+        : null
+    );
+    setIsPanelOpen(true);
   };
 
-  const handleFormSubmit = async (formData) => {
-    if (editingTopic) {
+  // Select topic to edit in panel
+  const handleSelectTopic = (topic) => {
+    setSelectedTopic(topic);
+    setDraftSpan(null);
+    setIsPanelOpen(true);
+  };
+
+  const handleSaveTopic = async (formData) => {
+    if (formData.id) {
       await updateTopic.mutateAsync({
-        id: editingTopic.id,
+        id: formData.id,
         updates: formData,
       });
     } else {
       await createTopic.mutateAsync(formData);
     }
-    setIsFormOpen(false);
-    setEditingTopic(null);
+    setIsPanelOpen(false);
+    setSelectedTopic(null);
+    setDraftSpan(null);
+  };
+
+  const handleDeleteTopic = async (id) => {
+    await deleteTopic.mutateAsync(id);
+    setIsPanelOpen(false);
+    setSelectedTopic(null);
   };
 
   const handleBulkReschedule = (ids, days) => {
-    const topicMap = new Map(topics.map((t) => [t.id, t]));
-    ids.forEach((id) => {
-      const current = topicMap.get(id);
-      if (current) {
-        const shift = (dStr) => {
-          if (!dStr) return dStr;
-          const d = new Date(dStr);
-          d.setDate(d.getDate() + days);
-          return d.toISOString().split('T')[0];
-        };
-        updateTopic.mutate({
-          id,
-          updates: {
-            publicationDate: shift(current.publicationDate),
-            startDate: shift(current.startDate || current.publicationDate),
-            endDate: shift(current.endDate || current.startDate || current.publicationDate),
-          },
-        });
-      }
-    });
+    bulkRescheduleTopics.mutate({ ids, days });
   };
 
-  const handleConfirmBatchPlan = async (generatedSlots) => {
-    await bulkCreate.mutateAsync(generatedSlots);
-    setBatchPlanMonth(null);
-  };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
-      {/* Header */}
+    <div className="tpc flex flex-col gap-4 max-w-7xl mx-auto pb-12">
+      {/* Minimal Top Bar Navigation */}
       <TopicsHeader
         activeView={activeView}
         onViewChange={setView}
         search={search}
         onSearchChange={setSearch}
-        selectedSeries={selectedSeries}
-        onSeriesChange={setSeries}
         selectedAccount={selectedAccount}
         onAccountChange={setAccount}
-        selectedStatus={selectedStatus}
-        onStatusChange={setStatus}
-        selectedCadence={selectedCadence}
-        onCadenceChange={setCadence}
-        onOpenCreate={() => handleOpenCreate({ cadence: 'custom' })}
+        onOpenCreate={handleOpenCreate}
         totalCount={topics.length}
       />
 
@@ -158,7 +173,7 @@ export default function TopicsPage() {
       {isLoading && (
         <div className="card p-8 flex flex-col items-center justify-center gap-3">
           <RefreshCw className="animate-spin text-primary" size={24} />
-          <p className="text-xs text-muted-foreground">Loading planned topics roadmap...</p>
+          <p className="text-xs text-muted-foreground">Loading topics wall...</p>
         </div>
       )}
 
@@ -180,67 +195,50 @@ export default function TopicsPage() {
         </div>
       )}
 
-      {/* Main View Display */}
+      {/* Main View Display with Two-Pane Side Panel */}
       {!isLoading && !isError && (
-        <>
-          {activeView === 'year' ? (
-            <TopicsYearView
-              topics={topics}
-              onEditTopic={handleEditTopic}
-              onAddTopic={handleOpenCreate}
-              onBatchPlanMonth={(month) => setBatchPlanMonth(month)}
-              onStartGeneration={(id) => startGeneration.mutate(id)}
-            />
-          ) : (
-            <TopicsListView
-              topics={topics}
-              onEditTopic={handleEditTopic}
-              onDeleteTopic={(id) => deleteTopic.mutate(id)}
-              onStartGeneration={(id) => startGeneration.mutate(id)}
-              onBulkReschedule={handleBulkReschedule}
-              onBulkReassignSeries={(ids) => {
-                setReassignTopicIds(ids);
-                setIsReassignOpen(true);
-              }}
-              onBulkDelete={(ids) => ids.forEach((id) => deleteTopic.mutate(id))}
-            />
-          )}
-        </>
+        <div className="tpc-layout-with-panel">
+          <div className="tpc-layout-main">
+            {activeView === 'month' ? (
+              <TimelineView
+                topics={topics}
+                currentMonthIndex={currentMonthIndex}
+                onMonthChange={setMonthIndex}
+                selectedTopicId={selectedTopic?.id}
+                onSelectTopic={handleSelectTopic}
+                onPlanWeek={handlePlanWeek}
+              />
+            ) : (
+              <TopicsListView
+                topics={topics}
+                currentMonthIndex={currentMonthIndex}
+                onMonthChange={setMonthIndex}
+                onPlanTopic={handleOpenCreate}
+                onEditTopic={handleSelectTopic}
+                onDeleteTopic={handleDeleteTopic}
+                onStartGeneration={() => {}}
+                onBulkReschedule={handleBulkReschedule}
+                onBulkDelete={(ids) => ids.forEach((id) => deleteTopic.mutate(id))}
+              />
+            )}
+          </div>
+
+          {/* Side Planning Panel */}
+          <TopicPlanningPanel
+            isOpen={isPanelOpen}
+            onClose={() => {
+              setIsPanelOpen(false);
+              setSelectedTopic(null);
+              setDraftSpan(null);
+            }}
+            topic={selectedTopic}
+            initialDraft={draftSpan}
+            onSave={handleSaveTopic}
+            onDelete={handleDeleteTopic}
+            isSubmitting={createTopic.isPending || updateTopic.isPending}
+          />
+        </div>
       )}
-
-      {/* Topic Create/Edit Modal */}
-      <TopicFormDialog
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingTopic(null);
-        }}
-        initialData={editingTopic}
-        initialDate={initialDateForCreate}
-        initialCadence={initialCadenceForCreate}
-        onSubmit={handleFormSubmit}
-        isSubmitting={createTopic.isPending || updateTopic.isPending}
-      />
-
-      {/* Month Batch Plan Modal */}
-      <MonthBatchPlanDialog
-        isOpen={Boolean(batchPlanMonth)}
-        onClose={() => setBatchPlanMonth(null)}
-        monthKey={batchPlanMonth?.key || '2026-01'}
-        monthName={batchPlanMonth?.name || ''}
-        onConfirm={handleConfirmBatchPlan}
-        isSubmitting={bulkCreate.isPending}
-      />
-
-      {/* Bulk Reassign Modal */}
-      <BulkReassignSeriesModal
-        isOpen={isReassignOpen}
-        onClose={() => setIsReassignOpen(false)}
-        topicIds={reassignTopicIds}
-        onConfirm={(ids, sId, sName) =>
-          bulkUpdate.mutate({ ids, updates: { seriesId: sId, seriesName: sName } })
-        }
-      />
     </div>
   );
 }

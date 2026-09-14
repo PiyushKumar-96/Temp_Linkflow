@@ -7,23 +7,43 @@ import { TOPICS } from '@/temp-backend/data/topics';
 
 export const INITIAL_TOPICS = TOPICS;
 
-const STORAGE_KEY = 'linkedflow_topics';
+const STORAGE_KEY = 'linkedflow_topics_v2';
 
 export function getStoredTopics() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const normalized = parsed.map((item) => ({
-        ...item,
-        cadence: item.cadence || 'custom',
-        startDate: item.startDate || item.publicationDate,
-        endDate: item.endDate || item.startDate || item.publicationDate,
-      }));
-      return z.array(TopicSchema).parse(normalized);
+      if (Array.isArray(parsed)) {
+        const normalized = parsed
+          .map((item) => {
+            const start = item.startDate || item.publicationDate || '2026-09-14';
+            const end = item.endDate || start;
+            const pub = item.publicationDate || start;
+            return {
+              id: item.id || `top-${Date.now()}`,
+              title: item.title || 'Untitled topic',
+              seriesId: item.seriesId || 'series-1',
+              seriesName: item.seriesName || 'Thought Leadership',
+              account: item.account || 'personal',
+              audience: item.audience || 'B2B SaaS Founders',
+              cadence: item.cadence || 'custom',
+              startDate: start,
+              endDate: end,
+              publicationDate: pub,
+              brief: item.brief || '',
+              status: item.status || 'planned',
+              downstreamPostId: item.downstreamPostId,
+              downstreamPostStatus: item.downstreamPostStatus,
+              createdAt: item.createdAt || new Date().toISOString(),
+            };
+          })
+          .filter((item) => TopicSchema.safeParse(item).success);
+        return normalized;
+      }
     }
-  } catch {
-    // Fallback to initial
+  } catch (err) {
+    console.error('Failed to parse stored topics:', err);
   }
   return INITIAL_TOPICS;
 }

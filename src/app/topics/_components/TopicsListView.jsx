@@ -1,42 +1,63 @@
-'use client';
-
 import React, { useState } from 'react';
-import StatusBadge from '@/components/ui/StatusBadge';
 import {
-  Calendar,
-  Sparkles,
   Building2,
   User,
   Pencil,
   Trash2,
-  CheckSquare,
-  Clock,
-  ArrowUpDown,
-  Layers,
+  Sparkles,
+  CheckCircle2,
+  CircleDashed,
+  Plus,
 } from 'lucide-react';
+import MonthStepperHeader, {
+  MONTH_DATA,
+  parseDate,
+  formatTopicDate,
+} from './MonthStepperHeader';
 
 export default function TopicsListView({
   topics = [],
+  currentMonthIndex = 8,
+  onMonthChange,
+  onPlanTopic,
   onEditTopic,
   onDeleteTopic,
   onStartGeneration,
   onBulkReschedule,
-  onBulkReassignSeries,
   onBulkDelete,
 }) {
   const [selectedIds, setSelectedIds] = useState([]);
+  const monthInfo = MONTH_DATA[currentMonthIndex] || MONTH_DATA[8];
 
-  const isAllSelected = topics.length > 0 && selectedIds.length === topics.length;
+  // Month-scoped topics filtering
+  const monthTopics = topics.filter((t) => {
+    const start = parseDate(t.startDate || t.publicationDate);
+    const end = parseDate(t.endDate || t.startDate || t.publicationDate);
+    if (!start) return false;
+    const startMonth = start.getUTCFullYear() === 2026 ? start.getUTCMonth() : -1;
+    const endMonth = end ? (end.getUTCFullYear() === 2026 ? end.getUTCMonth() : 11) : startMonth;
+    return monthInfo.index >= startMonth && monthInfo.index <= endMonth;
+  });
+
+  // Sort topics chronologically
+  const sortedTopics = [...monthTopics].sort((a, b) => {
+    const startA = a.startDate || a.publicationDate || '2026-01-01';
+    const startB = b.startDate || b.publicationDate || '2026-01-01';
+    return startA.localeCompare(startB);
+  });
+
+  const isAllSelected = sortedTopics.length > 0 && selectedIds.length === sortedTopics.length;
 
   const handleToggleAll = () => {
     if (isAllSelected) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(topics.map((t) => t.id));
+      setSelectedIds(sortedTopics.map((t) => t.id));
     }
   };
 
-  const handleToggleOne = (id) => {
+  const handleToggleOne = (e, id) => {
+    e.stopPropagation();
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
@@ -48,59 +69,79 @@ export default function TopicsListView({
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
+      {/* Month Stepper Header */}
+      <MonthStepperHeader
+        currentMonthIndex={currentMonthIndex}
+        onMonthChange={onMonthChange}
+        topics={topics}
+      />
+
       {/* Bulk Action Bar (when selected) */}
       {selectedIds.length > 0 && (
-        <div className="card p-3 bg-primary/5 border-primary/30 flex flex-wrap items-center justify-between gap-3 slide-up">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-primary">
-              {selectedIds.length} {selectedIds.length === 1 ? 'topic' : 'topics'} selected
-            </span>
-          </div>
+        <div className="tpc-bulk-bar">
+          <span className="tpc-bulk-count">
+            {selectedIds.length} {selectedIds.length === 1 ? 'topic' : 'topics'} selected
+          </span>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">
+          <div className="tpc-bulk-actions">
+            {/* Shift Date Actions */}
+            <div className="tpc-bulk-shift-group">
+              <span className="tpc-bulk-shift-label">Shift:</span>
               <button
-                onClick={() => handleBulkRescheduleDays(7)}
-                className="px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted rounded transition-colors"
-                title="Shift planned dates forward by 7 days"
+                type="button"
+                onClick={() => handleBulkRescheduleDays(-14)}
+                className="tpc-bulk-shift-btn"
+                title="Shift planned dates backward by 14 days"
               >
-                +7 Days
+                &minus;14d
               </button>
               <button
+                type="button"
+                onClick={() => handleBulkRescheduleDays(-7)}
+                className="tpc-bulk-shift-btn"
+                title="Shift planned dates backward by 7 days"
+              >
+                &minus;7d
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkRescheduleDays(7)}
+                className="tpc-bulk-shift-btn"
+                title="Shift planned dates forward by 7 days"
+              >
+                +7d
+              </button>
+              <button
+                type="button"
                 onClick={() => handleBulkRescheduleDays(14)}
-                className="px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted rounded transition-colors"
+                className="tpc-bulk-shift-btn"
                 title="Shift planned dates forward by 14 days"
               >
-                +14 Days
+                +14d
               </button>
             </div>
 
+            {/* Separated Destructive Delete Action (Subordinate & Quiet) */}
             <button
-              onClick={() => {
-                onBulkReassignSeries(selectedIds);
-                setSelectedIds([]);
-              }}
-              className="btn btn-outline text-xs py-1 px-3 flex items-center gap-1.5"
-            >
-              <Layers size={12} />
-              Reassign Series
-            </button>
-
-            <button
+              type="button"
               onClick={() => {
                 onBulkDelete(selectedIds);
                 setSelectedIds([]);
               }}
-              className="btn btn-outline text-xs py-1 px-3 text-destructive hover:bg-destructive/10 border-destructive/30 flex items-center gap-1.5"
+              className="tpc-bulk-delete-btn"
+              title="Delete selected topics"
             >
               <Trash2 size={12} />
-              Delete Selected
+              Delete selected
             </button>
 
+            {/* Deselect Action */}
             <button
+              type="button"
               onClick={() => setSelectedIds([])}
-              className="text-xs text-muted-foreground hover:underline ml-2"
+              className="tpc-bulk-deselect-btn"
+              title="Deselect all rows"
             >
               Deselect
             </button>
@@ -109,159 +150,172 @@ export default function TopicsListView({
       )}
 
       {/* Table Container */}
-      <div className="card overflow-hidden border border-border">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold">
-                <th className="p-3 w-10 text-center">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    onChange={handleToggleAll}
-                    className="rounded border-border"
-                  />
-                </th>
-                <th className="p-3">Topic & Strategic Angle</th>
-                <th className="p-3">Series</th>
-                <th className="p-3">Target Context</th>
-                <th className="p-3">Audience</th>
-                <th className="p-3">Cadence & Dates</th>
-                <th className="p-3">Downstream Status</th>
-                <th className="p-3 text-right">Actions</th>
+      <div className="tpc-list-table-card">
+        <table className="tpc-list-table">
+          <thead>
+            <tr>
+              <th className="tpc-th-check">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={handleToggleAll}
+                  aria-label="Select all topics"
+                  disabled={sortedTopics.length === 0}
+                />
+              </th>
+              <th className="tpc-th tpc-col-main">Topic and strategic angle</th>
+              <th className="tpc-th tpc-col-profile">Target profile</th>
+              <th className="tpc-th tpc-col-audience">Audience</th>
+              <th className="tpc-th tpc-col-dates">Cadence and dates</th>
+              <th className="tpc-th tpc-col-content">Content</th>
+              <th className="tpc-th tpc-th-actions tpc-col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedTopics.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="tpc-empty-row">
+                  <div className="tpc-list-empty-state">
+                    <p className="tpc-list-empty-title">No topics planned for {monthInfo.fullName}</p>
+                    <p className="tpc-list-empty-subtitle">
+                      All weeks in this month are currently open.
+                    </p>
+                    {onPlanTopic && (
+                      <button
+                        type="button"
+                        onClick={onPlanTopic}
+                        className="tpc-btn-secondary tpc-list-empty-btn"
+                      >
+                        <Plus size={13} />
+                        Plan topic for {monthInfo.name}
+                      </button>
+                    )}
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {topics.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
-                    No topics match the selected filters.
-                  </td>
-                </tr>
-              ) : (
-                topics.map((topic) => {
-                  const isSelected = selectedIds.includes(topic.id);
-                  return (
-                    <tr
-                      key={topic.id}
-                      className={`hover:bg-muted/30 transition-colors ${
-                        isSelected ? 'bg-primary/5' : ''
-                      }`}
-                    >
-                      {/* Checkbox */}
-                      <td className="p-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleToggleOne(topic.id)}
-                          className="rounded border-border"
-                        />
-                      </td>
+            ) : (
+              sortedTopics.map((topic) => {
+                const isSelected = selectedIds.includes(topic.id);
+                const formattedDate = formatTopicDate(topic.startDate, topic.endDate);
+                const hasContent = Boolean(topic.downstreamPostId || topic.status === 'published');
 
-                      {/* Topic Title & Brief */}
-                      <td className="p-3 max-w-sm">
-                        <p className="font-semibold text-foreground leading-snug">{topic.title}</p>
+                return (
+                  <tr
+                    key={topic.id}
+                    className="tpc-list-row"
+                    data-selected={isSelected ? 'true' : 'false'}
+                    onClick={() => onEditTopic(topic)}
+                    title={`Click to edit: ${topic.title}`}
+                  >
+                    {/* Checkbox */}
+                    <td className="tpc-td-check" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => handleToggleOne(e, topic.id)}
+                        aria-label={`Select topic ${topic.title}`}
+                      />
+                    </td>
+
+                    {/* Topic Title & Strategic Brief */}
+                    <td className="tpc-td-main tpc-col-main">
+                      <div className="tpc-list-title-wrap">
+                        <span className="tpc-list-title">{topic.title}</span>
                         {topic.brief && (
-                          <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
-                            {topic.brief}
-                          </p>
+                          <span className="tpc-list-brief">{topic.brief}</span>
                         )}
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Series */}
-                      <td className="p-3 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-full bg-muted font-medium text-foreground">
-                          {topic.seriesName}
-                        </span>
-                      </td>
+                    {/* Target Profile */}
+                    <td className="tpc-td-profile tpc-col-profile">
+                      <div className="tpc-profile-cell">
+                        {topic.account === 'company' ? (
+                          <>
+                            <Building2 size={13} className="text-muted-foreground" />
+                            <span>Company page</span>
+                          </>
+                        ) : (
+                          <>
+                            <User size={13} className="text-muted-foreground" />
+                            <span>Personal profile</span>
+                          </>
+                        )}
+                      </div>
+                    </td>
 
-                      {/* Target Context */}
-                      <td className="p-3 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          {topic.account === 'company' ? (
-                            <>
-                              <Building2 size={12} className="text-primary" />
-                              <span className="font-medium text-foreground">Company</span>
-                            </>
-                          ) : (
-                            <>
-                              <User size={12} className="text-accent" />
-                              <span className="font-medium text-foreground">Personal</span>
-                            </>
-                          )}
-                        </div>
-                      </td>
+                    {/* Audience */}
+                    <td className="tpc-td-audience tpc-col-audience">
+                      <span className="tpc-audience-text">{topic.audience || '—'}</span>
+                    </td>
 
-                      {/* Audience */}
-                      <td className="p-3 text-muted-foreground max-w-[150px] truncate">
-                        {topic.audience || '—'}
-                      </td>
+                    {/* Cadence and Dates */}
+                    <td className="tpc-td-dates tpc-col-dates">
+                      <div className="tpc-dates-cell">
+                        <span className="tpc-cadence-badge">{topic.cadence || 'custom'}</span>
+                        <span className="tpc-date-range">{formattedDate}</span>
+                      </div>
+                    </td>
 
-                      {/* Cadence & Dates */}
-                      <td className="p-3 whitespace-nowrap text-foreground font-medium">
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-medium capitalize">
-                              {topic.cadence || 'custom'}
-                            </span>
-                            <span className="tabular-nums text-xs font-semibold">
-                              {topic.startDate || topic.publicationDate}
-                            </span>
-                          </div>
-                          {topic.endDate && topic.endDate !== topic.startDate && (
-                            <span className="text-[10px] text-muted-foreground tabular-nums">
-                              → {topic.endDate}
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                    {/* Topic-level Content State */}
+                    <td className="tpc-td-content tpc-col-content">
+                      <div className="tpc-content-cell">
+                        {hasContent ? (
+                          <span className="tpc-content-status has-content" title="Draft generated / published">
+                            <CheckCircle2 size={13} />
+                            <span>Draft ready</span>
+                          </span>
+                        ) : (
+                          <span className="tpc-content-status no-content" title="No draft generated yet">
+                            <CircleDashed size={13} />
+                            <span>No draft</span>
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
-                      {/* Status */}
-                      <td className="p-3 whitespace-nowrap">
-                        <StatusBadge
-                          status={topic.downstreamPostStatus || topic.status}
-                          size="sm"
-                        />
-                      </td>
-
-                      {/* Actions */}
-                      <td className="p-3 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {topic.status === 'planned' && (
-                            <button
-                              onClick={() => onStartGeneration(topic.id)}
-                              className="btn btn-outline text-[11px] py-1 px-2 flex items-center gap-1 hover:bg-primary/10 hover:text-primary"
-                              title="Start AI drafting pipeline"
-                            >
-                              <Sparkles size={11} />
-                              Generate
-                            </button>
-                          )}
-
+                    {/* Actions */}
+                    <td className="tpc-td-actions tpc-col-actions" onClick={(e) => e.stopPropagation()}>
+                      <div className="tpc-actions-cell">
+                        {!hasContent && (
                           <button
-                            onClick={() => onEditTopic(topic)}
-                            className="p-1 rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                            title="Edit topic"
+                            type="button"
+                            onClick={() => onStartGeneration(topic.id)}
+                            className="tpc-row-generate-btn"
+                            title="Start AI drafting pipeline"
                           >
-                            <Pencil size={13} />
+                            <Sparkles size={11} />
+                            Generate
                           </button>
+                        )}
 
-                          <button
-                            onClick={() => onDeleteTopic(topic.id)}
-                            className="p-1 rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                            title="Delete topic"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                        <button
+                          type="button"
+                          onClick={() => onEditTopic(topic)}
+                          className="tpc-row-action-icon"
+                          title="Edit topic"
+                          aria-label="Edit topic"
+                        >
+                          <Pencil size={13} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onDeleteTopic(topic.id)}
+                          className="tpc-row-action-icon hover-danger"
+                          title="Delete topic"
+                          aria-label="Delete topic"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
