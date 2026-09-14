@@ -106,7 +106,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-[1440px] mx-auto pb-16 text-[color:var(--text)]">
+    <div className="flex flex-col gap-4 w-full max-w-none pb-16 text-[color:var(--text)]">
       {/* Top Cockpit Header */}
       <DashboardCockpitHeader />
 

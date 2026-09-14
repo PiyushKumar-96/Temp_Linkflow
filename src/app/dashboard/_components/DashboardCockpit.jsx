@@ -39,7 +39,7 @@ export default function DashboardCockpit({
 
   return (
     <div className="min-h-screen bg-[#F3F6FA] dark:bg-background">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <div className="flex w-full max-w-none flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <DashboardCockpitHeader />
 
         {/* Row 1 — today at a glance */}

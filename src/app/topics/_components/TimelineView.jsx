@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { Pencil, Plus } from 'lucide-react';
 import MonthStepperHeader, {
   MONTH_DATA,
@@ -25,6 +25,24 @@ export default function TimelineView({
 }) {
   const monthInfo = MONTH_DATA[currentMonthIndex] || MONTH_DATA[8];
   const year = 2026;
+
+  const gridRef = useRef(null);
+  const [cols, setCols] = useState(4);
+
+  useLayoutEffect(() => {
+    const el = gridRef.current;
+    if (!el) return undefined;
+    const update = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w < 600) setCols(2);
+      else if (w < 900) setCols(3);
+      else setCols(4);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const weeks = computeMonthWeeks(year, monthInfo.index, monthInfo.days);
 
@@ -76,14 +94,16 @@ export default function TimelineView({
       />
 
       {/* Wall of Tiles (Responsive Grid: Auto-fill 220px) */}
-      <div className="tpc-tile-wall">
+      <div ref={gridRef} className="tpc-tile-wall">
         {/* Render all planned topic tiles */}
         {sortedTopics.map((topic, index) => {
           const isSelected = selectedTopicId === topic.id;
           const formattedDate = formatTopicDate(topic.startDate, topic.endDate);
           const lenCategory = getTitleLengthCategory(topic.title);
-          // Rotation formula: (index + Math.floor(index / 4)) % 4 + 1
-          const colorNumber = ((index + Math.floor(index / 4)) % 4) + 1;
+          // Rotation formula derived from live column count (cols): zero horizontal/vertical/diagonal matches
+          const r = Math.floor(index / cols);
+          const c = index % cols;
+          const colorNumber = ((r * 2 + c) % 4) + 1;
           const dynamicColor = `topic-${colorNumber}`;
 
           return (

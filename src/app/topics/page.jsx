@@ -156,7 +156,7 @@ export default function TopicsPage() {
 
 
   return (
-    <div className="tpc flex flex-col gap-4 max-w-7xl mx-auto pb-12">
+    <div className="tpc flex flex-col gap-4 w-full max-w-none pb-12">
       {/* Minimal Top Bar Navigation */}
       <TopicsHeader
         activeView={activeView}

@@ -64,7 +64,7 @@ export default function Topbar({ onToggleSidebar }) {
 
   return (
     <header className="w-full px-6 lg:px-8 xl:px-10 pt-5 pb-3 sm:pt-6 sm:pb-4">
-      <div className="max-w-screen-2xl w-full mx-auto flex items-center justify-between min-h-[36px]">
+      <div className="w-full max-w-none flex items-center justify-between min-h-[36px]">
         {/* Mobile menu trigger */}
         <div className="flex items-center">
           <button

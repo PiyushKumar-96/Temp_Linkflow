@@ -33,7 +33,7 @@ const PALETTES = {
     treeFar: '#332E42',
     treeNear: '#1D1A28',
     orbX: 430,
-    orbY: 196,
+    orbY: 143,
     orbScale: 0.94,
   },
   morning: {
@@ -47,7 +47,7 @@ const PALETTES = {
     treeFar: '#3A4252',
     treeNear: '#232936',
     orbX: 476,
-    orbY: 148,
+    orbY: 135,
     orbScale: 1,
   },
   day: {
@@ -61,7 +61,7 @@ const PALETTES = {
     treeFar: '#3C4A5C',
     treeNear: '#243040',
     orbX: 536,
-    orbY: 108,
+    orbY: 120,
     orbScale: 1,
   },
   dusk: {
@@ -75,7 +75,7 @@ const PALETTES = {
     treeFar: '#2A2030',
     treeNear: '#16121C',
     orbX: 592,
-    orbY: 214,
+    orbY: 150,
     orbScale: 1.12,
   },
   night: {
@@ -89,13 +89,13 @@ const PALETTES = {
     treeFar: '#151A26',
     treeNear: '#0A0D14',
     orbX: 498,
-    orbY: 118,
+    orbY: 127,
     orbScale: 0.58,
   },
 };
 
 const W = 680;
-const H = 400;
+const H = 260;
 
 function mulberry32(seed) {
   let a = seed;
@@ -137,11 +137,11 @@ function buildTreeline(seed, baseY, minH, maxH, minStep, maxStep) {
   return `${d} L${x.toFixed(1)} ${H} Z`;
 }
 
-const RIDGE_FAR = buildRidge(9137, 292, 34, 9);
-const RIDGE_MID = buildRidge(4471, 326, 26, 11);
-const RIDGE_NEAR = buildRidge(2803, 358, 18, 13);
-const TREE_FAR = buildTreeline(6619, 372, 12, 26, 13, 21);
-const TREE_NEAR = buildTreeline(1223, 398, 18, 40, 9, 16);
+const RIDGE_FAR = buildRidge(9137, 189.8, 34, 9);
+const RIDGE_MID = buildRidge(4471, 211.9, 26, 11);
+const RIDGE_NEAR = buildRidge(2803, 232.7, 18, 13);
+const TREE_FAR = buildTreeline(6619, 241.8, 12, 26, 13, 21);
+const TREE_NEAR = buildTreeline(1223, 258.7, 18, 40, 9, 16);
 
 export function getPhase(date = new Date()) {
   const h = date.getHours();
