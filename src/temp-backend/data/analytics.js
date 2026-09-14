@@ -302,12 +302,10 @@ export const ENGAGEMENT_TRENDS_BY_RANGE = {
 };
 
 export const POST_TYPE_BREAKDOWN = [
-  { type: 'Thought Lead.', engRate: 6.2, posts: 8 },
-  { type: 'Case Study', engRate: 5.8, posts: 5 },
-  { type: 'Product Update', engRate: 3.4, posts: 11 },
-  { type: 'Hiring', engRate: 4.1, posts: 6 },
-  { type: 'Event', engRate: 7.1, posts: 3 },
-  { type: 'Engagement', engRate: 5.0, posts: 9 },
+  { type: 'Text', engRate: 4.8, posts: 12 },
+  { type: 'Image', engRate: 5.2, posts: 14 },
+  { type: 'Carousel', engRate: 6.5, posts: 9 },
+  { type: 'Infographic', engRate: 7.4, posts: 7 },
 ];
 
 export const BEST_TIME_HEATMAP = {

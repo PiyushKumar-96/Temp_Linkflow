@@ -2,6 +2,7 @@
 @import './motion.css';
 @import './composer.css';
 @import './library.css';
+@import './analytics.css';
 
 /**
  * LinkedFlow Design Tokens — Source of Truth (Pass 6.5)

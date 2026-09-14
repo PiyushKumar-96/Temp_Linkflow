@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BarChart3, Download, RefreshCw, Calendar, Check, X } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { exportAnalyticsData } from '@/temp-backend';
 import { toast } from 'sonner';
 
-const ranges = [
+const RANGES = [
   { id: 'range-7d', label: '7 days' },
   { id: 'range-30d', label: '30 days' },
   { id: 'range-90d', label: '90 days' },
@@ -15,8 +15,6 @@ const ranges = [
 export default function AnalyticsHeader({
   activeRange = 'range-30d',
   onRangeChange,
-  onRefresh,
-  isRefreshing = false,
   lastUpdated = '4 min ago',
 }) {
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -49,7 +47,7 @@ export default function AnalyticsHeader({
   const handleExport = () => {
     try {
       exportAnalyticsData(activeRange);
-      const rangeLabel = ranges.find((r) => r.id === activeRange)?.label || activeRange;
+      const rangeLabel = RANGES.find((r) => r.id === activeRange)?.label || activeRange;
       toast.success(`Exported LinkedIn analytics (${rangeLabel}) to CSV`);
     } catch {
       toast.error('Failed to export analytics report');
@@ -57,33 +55,27 @@ export default function AnalyticsHeader({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <BarChart3 size={20} className="text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          LinkedIn performance for <span className="font-semibold text-foreground">Acme Corp</span>{' '}
-          · Last updated {lastUpdated}
+    <div className="anl-head">
+      <div className="anl-title-block">
+        <h1 className="anl-title">Analytics</h1>
+        <p className="anl-sub">
+          LinkedIn performance for Acme Corp ·{' '}
+          <span className="anl-sub-time">Last updated {lastUpdated}</span>
         </p>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        {/* Range selector */}
-        <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-          {ranges.map((r) => {
+      <div className="anl-head-controls">
+        <div className="anl-range-group" role="tablist" aria-label="Time range">
+          {RANGES.map((r) => {
             const isActive = activeRange === r.id;
             return (
               <button
                 key={r.id}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => handleRangeClick(r.id)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 ${
-                  isActive
-                    ? 'bg-card text-foreground shadow-sm font-semibold'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
-                }`}
+                className={`anl-range-btn ${isActive ? 'anl-range-btn--active' : ''}`}
               >
                 {r.label}
               </button>
@@ -91,79 +83,56 @@ export default function AnalyticsHeader({
           })}
         </div>
 
-        {/* Export Button */}
         <button
           type="button"
           onClick={handleExport}
-          className="btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm"
+          className="anl-btn-export"
           title="Export CSV report"
         >
-          <Download size={15} />
-          <span className="hidden sm:inline">Export</span>
-        </button>
-
-        {/* Refresh Button */}
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          className="p-2 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground transition-colors disabled:opacity-50"
-          title="Refresh metrics from backend"
-        >
-          <RefreshCw size={15} className={isRefreshing ? 'animate-spin text-primary' : ''} />
+          <Download size={14} />
+          <span>Export CSV</span>
         </button>
       </div>
 
-      {/* Custom Date Range Popover/Modal */}
       {showCustomModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl shadow-xl w-full max-w-sm p-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
-              <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-                <Calendar size={16} className="text-primary" />
-                Select Custom Date Range
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowCustomModal(false)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-md"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleApplyCustom} className="space-y-4 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-card border border-border rounded-xl p-6 shadow-xl max-w-sm w-full animate-in fade-in zoom-in-95 duration-150">
+            <h3 className="text-base font-semibold text-foreground mb-1">Select date range</h3>
+            <p className="text-xs text-muted-foreground mb-4">Choose custom start and end dates</p>
+            <form onSubmit={handleApplyCustom} className="space-y-4">
               <div>
-                <label className="block font-medium text-foreground mb-1">Start Date</label>
+                <label className="block text-xs font-medium text-foreground mb-1">Start date</label>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-input border border-border text-foreground text-xs focus:ring-1 focus:ring-primary"
+                  className="w-full h-9 px-3 text-sm bg-card border border-border rounded-md text-foreground"
+                  required
                 />
               </div>
-
               <div>
-                <label className="block font-medium text-foreground mb-1">End Date</label>
+                <label className="block text-xs font-medium text-foreground mb-1">End date</label>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-input border border-border text-foreground text-xs focus:ring-1 focus:ring-primary"
+                  className="w-full h-9 px-3 text-sm bg-card border border-border rounded-md text-foreground"
+                  required
                 />
               </div>
-
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCustomModal(false)}
-                  className="px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground font-medium"
+                  className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-md bg-card"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary flex items-center gap-1.5 px-3 py-1.5">
-                  <Check size={14} />
-                  Apply Range
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md"
+                >
+                  Apply range
                 </button>
               </div>
             </form>

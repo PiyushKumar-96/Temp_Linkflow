@@ -1,0 +1,587 @@
+/* ==========================================================================
+   analytics.css — Analytics page styles scoped with .anl- prefix
+   Follows linkedflow design system and tokens.
+   ========================================================================== */
+
+.anl {
+  --anl-card: var(--card);
+  --anl-line: var(--border);
+  --anl-line-strong: var(--track);
+  --anl-ink: var(--text);
+  --anl-muted: var(--text-muted);
+  --anl-subtle: var(--text-subtle);
+  --anl-chip: var(--chip);
+  --anl-warm: var(--track-warm);
+  --anl-dark: var(--card-dark);
+  --anl-focus: var(--brand);
+  --anl-brand: var(--brand);
+  --anl-brand-tint: var(--brand-tint);
+
+  color: var(--anl-ink);
+}
+
+.anl-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+/* ---------- Header ---------- */
+
+.anl-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.anl-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.anl-title {
+  font-size: 36px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--anl-ink);
+  margin: 0;
+}
+
+.anl-sub {
+  font-size: 15px;
+  color: var(--anl-muted);
+  margin: 0;
+}
+
+.anl-sub-time {
+  color: var(--anl-subtle);
+}
+
+.anl-head-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.anl-range-group {
+  display: flex;
+  align-items: center;
+  background: var(--anl-chip);
+  border: 1px solid var(--anl-line);
+  border-radius: var(--radius-input);
+  padding: 2px;
+  gap: 2px;
+}
+
+.anl-range-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--anl-muted);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.anl-range-btn:hover {
+  color: var(--anl-ink);
+}
+
+.anl-range-btn.anl-range-btn--active {
+  background: var(--anl-card);
+  color: var(--anl-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.anl-btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--anl-card);
+  color: var(--anl-ink);
+  border: 1px solid var(--anl-line);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.anl-btn-export:hover {
+  background: var(--anl-warm);
+  border-color: var(--anl-line-strong);
+}
+
+/* ---------- Findings Section ---------- */
+
+.anl-findings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.anl-findings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.anl-findings-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--anl-muted);
+  margin: 0;
+}
+
+.anl-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .anl-findings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.anl-finding-card {
+  background: var(--anl-warm);
+  border: 1px solid var(--anl-line);
+  border-radius: var(--radius-card);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.anl-finding-tint-1 {
+  background-color: var(--topic-1);
+}
+
+.anl-finding-tint-2 {
+  background-color: var(--topic-2);
+}
+
+.anl-finding-tint-3 {
+  background-color: var(--topic-3);
+}
+
+.anl-finding-tint-4 {
+  background-color: var(--topic-4);
+}
+
+.anl-finding-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.anl-finding-statement {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--anl-ink);
+  margin: 0;
+}
+
+.anl-finding-explanation {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--anl-muted);
+  margin: 0;
+}
+
+.anl-finding-footer {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--anl-line);
+  padding-top: 10px;
+  font-size: 12px;
+}
+
+.anl-finding-metric {
+  color: var(--anl-muted);
+  font-weight: 500;
+}
+
+/* ---------- Evidence Charts Grid ---------- */
+
+.anl-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.anl-col-2 {
+  grid-column: span 2 / span 2;
+}
+
+.anl-col-1 {
+  grid-column: span 1 / span 1;
+}
+
+@media (max-width: 1024px) {
+  .anl-col-2,
+  .anl-col-1 {
+    grid-column: span 3 / span 3;
+  }
+}
+
+.anl-card {
+  background: var(--anl-card);
+  border: 1px solid var(--anl-line);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.anl-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.anl-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--anl-ink);
+  margin: 0;
+}
+
+.anl-card-subtitle {
+  font-size: 12px;
+  color: var(--anl-muted);
+  margin: 2px 0 0 0;
+}
+
+/* ---------- Trend Controls ---------- */
+
+.anl-trend-toggles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anl-metric-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 9999px;
+  border: 1px solid var(--anl-line);
+  background: var(--anl-card);
+  color: var(--anl-ink);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.anl-metric-toggle--off {
+  background: var(--anl-chip);
+  border-color: transparent;
+  color: var(--anl-subtle);
+  opacity: 0.7;
+}
+
+/* ---------- Heatmap ---------- */
+
+.anl-heatmap-container {
+  overflow-x: auto;
+}
+
+.anl-heatmap-wrap {
+  min-width: 280px;
+}
+
+.anl-heatmap-time-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding-left: 36px;
+}
+
+.anl-heatmap-time-label {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--anl-muted);
+  min-width: 24px;
+}
+
+.anl-heatmap-day-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.anl-heatmap-day-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--anl-muted);
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.anl-heatmap-cell {
+  flex: 1;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 3px;
+  cursor: default;
+  transition: opacity 140ms ease;
+}
+
+.anl-heatmap-cell-0 {
+  background-color: var(--anl-chip);
+}
+
+.anl-heatmap-cell-1 {
+  background-color: rgba(10, 102, 194, 0.2);
+}
+
+.anl-heatmap-cell-2 {
+  background-color: rgba(10, 102, 194, 0.45);
+}
+
+.anl-heatmap-cell-3 {
+  background-color: rgba(10, 102, 194, 0.75);
+}
+
+.anl-heatmap-cell-4 {
+  background-color: rgba(10, 102, 194, 1);
+}
+
+.anl-heatmap-cell-peak {
+  background-color: var(--accent);
+}
+
+.anl-heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--anl-line);
+  font-size: 12px;
+  color: var(--anl-muted);
+}
+
+.anl-heatmap-legend-scale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.anl-heatmap-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ---------- Top Posts Table ---------- */
+
+.anl-table-wrap {
+  overflow-x: auto;
+  margin: 0 -20px -20px -20px;
+}
+
+.anl-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.anl-th {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--anl-muted);
+  border-bottom: 1px solid var(--anl-line);
+  background: var(--anl-warm);
+}
+
+.anl-th-post {
+  width: 52%;
+}
+
+.anl-th-right {
+  text-align: right;
+  width: 12%;
+}
+
+.anl-th-right .anl-th-sort {
+  justify-content: flex-end;
+}
+
+.anl-th-sort {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--anl-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.anl-th-sort:hover {
+  color: var(--anl-ink);
+}
+
+.anl-th-sort--active {
+  color: var(--anl-ink);
+  font-weight: 700;
+}
+
+.anl-td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--anl-line);
+  font-size: 13px;
+  color: var(--anl-ink);
+  vertical-align: middle;
+}
+
+.anl-td-right {
+  text-align: right;
+}
+
+.anl-tr {
+  transition: background-color 140ms ease;
+}
+
+.anl-tr:hover {
+  background: var(--anl-warm);
+}
+
+.anl-tr:last-child .anl-td {
+  border-bottom: none;
+}
+
+.anl-post-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 240px;
+  overflow: visible;
+}
+
+.anl-post-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--anl-chip);
+  color: var(--anl-ink);
+  border: 1px solid var(--anl-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.anl-post-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--anl-ink);
+  margin: 0 0 4px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.anl-post-meta {
+  font-size: 11px;
+  color: var(--anl-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anl-post-format-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--anl-chip);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--anl-muted);
+  text-transform: lowercase;
+}
+
+.anl-num-cell {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Status thresholds */
+.anl-status-neutral {
+  color: var(--anl-muted);
+}
+
+.anl-status-success {
+  color: var(--success-text);
+  font-weight: 600;
+}
+
+.anl-status-danger {
+  color: var(--danger-text);
+  font-weight: 600;
+}
+
+/* Tooltip */
+.anl-chart-tooltip {
+  background: var(--anl-card);
+  border: 1px solid var(--anl-line);
+  border-radius: var(--radius-input);
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+}
+
+.anl-chart-tooltip-title {
+  font-weight: 600;
+  color: var(--anl-ink);
+  margin-bottom: 4px;
+}
+
+.anl-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--anl-muted);
+}
+
+.anl-chart-tooltip-val {
+  font-weight: 600;
+  color: var(--anl-ink);
+  font-variant-numeric: tabular-nums;
+}

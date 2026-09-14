@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { getBestTimeHeatmap } from '@/temp-backend';
 
-function getColor(score) {
-  if (score >= 9) return 'bg-primary opacity-100';
-  if (score >= 7) return 'bg-primary opacity-80';
-  if (score >= 5) return 'bg-primary opacity-50';
-  if (score >= 3) return 'bg-primary opacity-25';
-  return 'bg-muted opacity-60';
+function getIntensityClass(score) {
+  if (score >= 9) return 'anl-heatmap-cell-4';
+  if (score >= 7) return 'anl-heatmap-cell-3';
+  if (score >= 5) return 'anl-heatmap-cell-2';
+  if (score >= 3) return 'anl-heatmap-cell-1';
+  return 'anl-heatmap-cell-0';
 }
 
 export default function BestTimeHeatmap() {
@@ -37,59 +37,72 @@ export default function BestTimeHeatmap() {
   const { days, times, matrix } = heatmap;
 
   return (
-    <div className="card p-5 h-full">
-      <div className="mb-4">
-        <h3 className="text-base font-semibold text-foreground">Best Time to Post</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Avg engagement score by day & time</p>
+    <div className="anl-card">
+      <div className="anl-card-header">
+        <div>
+          <h3 className="anl-card-title">Best time to post</h3>
+          <p className="anl-card-subtitle">Engagement density by day and time</p>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="min-w-[280px]">
-          {/* Time headers */}
-          <div className="flex gap-1 mb-1 pl-8">
+      <div className="anl-heatmap-container">
+        <div className="anl-heatmap-wrap">
+          {/* Time row */}
+          <div className="anl-heatmap-time-row">
             {times.map((t) => (
-              <div
-                key={`time-${t}`}
-                className="flex-1 text-center text-xs text-muted-foreground font-medium"
-                style={{ minWidth: 28 }}
-              >
+              <div key={`time-${t}`} className="anl-heatmap-time-label">
                 {t}
               </div>
             ))}
           </div>
 
-          {/* Grid */}
+          {/* Days and cells */}
           {matrix.length > 0 &&
-            days.map((day, di) => (
-              <div key={`day-${day}`} className="flex items-center gap-1 mb-1">
-                <span className="text-xs text-muted-foreground font-medium w-7 shrink-0">
-                  {day}
-                </span>
-                {times.map((_, ti) => {
-                  const score = matrix[di]?.[ti] ?? 1;
-                  return (
-                    <div
-                      key={`cell-${day}-${ti}`}
-                      title={`${day} ${times[ti]}: Score ${score}/10`}
-                      className={`flex-1 rounded-sm cursor-pointer transition-all hover:scale-110 ${getColor(score)}`}
-                      style={{ height: 22, minWidth: 22 }}
-                    />
-                  );
-                })}
-              </div>
-            ))}
+            (() => {
+              // Find single densest cell coordinates (first max value)
+              let maxScore = -1;
+              let peakDay = -1;
+              let peakTime = -1;
+              days.forEach((_, di) => {
+                times.forEach((_, ti) => {
+                  const score = matrix[di]?.[ti] ?? 0;
+                  if (score > maxScore) {
+                    maxScore = score;
+                    peakDay = di;
+                    peakTime = ti;
+                  }
+                });
+              });
 
-          {/* Legend */}
-          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border text-xs text-muted-foreground">
-            <span>Low engagement</span>
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-xs bg-muted opacity-60 inline-block" />
-              <span className="w-3 h-3 rounded-xs bg-primary opacity-25 inline-block" />
-              <span className="w-3 h-3 rounded-xs bg-primary opacity-50 inline-block" />
-              <span className="w-3 h-3 rounded-xs bg-primary opacity-80 inline-block" />
-              <span className="w-3 h-3 rounded-xs bg-primary opacity-100 inline-block" />
+              return days.map((day, di) => (
+                <div key={`day-${day}`} className="anl-heatmap-day-row">
+                  <span className="anl-heatmap-day-label">{day}</span>
+                  {times.map((t, ti) => {
+                    const score = matrix[di]?.[ti] ?? 1;
+                    const isPeak = di === peakDay && ti === peakTime;
+                    return (
+                      <div
+                        key={`cell-${day}-${ti}`}
+                        title={`${day} ${t}: Activity score ${score}/10 ${isPeak ? '(Peak slot)' : ''}`}
+                        className={`anl-heatmap-cell ${isPeak ? 'anl-heatmap-cell-peak' : getIntensityClass(score)}`}
+                      />
+                    );
+                  })}
+                </div>
+              ));
+            })()}
+
+          {/* Legend with single-hue ramp */}
+          <div className="anl-heatmap-legend">
+            <span>Low activity</span>
+            <div className="anl-heatmap-legend-scale">
+              <span className="anl-heatmap-legend-swatch anl-heatmap-cell-0" />
+              <span className="anl-heatmap-legend-swatch anl-heatmap-cell-1" />
+              <span className="anl-heatmap-legend-swatch anl-heatmap-cell-2" />
+              <span className="anl-heatmap-legend-swatch anl-heatmap-cell-3" />
+              <span className="anl-heatmap-legend-swatch anl-heatmap-cell-4" />
             </div>
-            <span>High</span>
+            <span>High activity</span>
           </div>
         </div>
       </div>
