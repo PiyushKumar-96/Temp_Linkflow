@@ -52,13 +52,18 @@
   --text-muted: #6B6B70;
   --text-subtle: #9A9A9F;
 
-  /* Rail text */
-  --rail-label: #9C9890;
-  --rail-label-hover: #E8E5DE;
-  --rail-label-active: #1A1917;
-  --rail-count-muted: #6B6760;
-  --rail-count-attention: #E8B84B;
-  --rail-count-active: #8A6D1A;
+  /* Rail text & surface (Light Rail Refined) */
+  --rail-surface: #EFECE8;
+  --rail-divider: #DEDAD2;
+  --rail-label: #5A5751;
+  --rail-label-hover: #1B1917;
+  --rail-label-active: #1B1917;
+  --rail-active-bg: #E4E0D8;
+  --rail-count-muted: #6E6B65;
+  --rail-count-attention: #7A4B00;
+  --rail-count-attention-bg: #FDF3E3;
+  --rail-count-active: #1B1917;
+  --cal-selected-bg: #FDE047;
 
   /* Radius scale */
   --radius-rail: 28px;

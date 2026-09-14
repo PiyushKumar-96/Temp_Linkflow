@@ -51,13 +51,13 @@ const NavRow = React.memo(function NavRow({
       to={item.href}
       onClick={onNavigate}
       aria-current={isActive ? 'page' : undefined}
-      className="group relative flex h-[38px] w-full items-center rounded-[14px] px-5 text-[13.5px] font-normal select-none focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_70%,transparent)]"
+      className="group relative flex h-[42px] w-full items-center rounded-[10px] px-3.5 text-[14.5px] font-normal select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] focus-visible:ring-offset-1"
     >
       <span
-        className={`relative z-10 truncate transition-[color,transform] duration-300 ease-out ${
+        className={`relative z-10 truncate transition-[color,transform] duration-200 ease-out ${
           isActive
-            ? 'text-[color:var(--rail-label-active)]'
-            : 'text-[color:var(--rail-label)] group-hover:translate-x-[3px] group-hover:text-[color:var(--rail-label-hover)]'
+            ? 'text-[color:var(--rail-label-active)] font-semibold'
+            : 'text-[color:var(--rail-label)] group-hover:translate-x-[2px] group-hover:text-[color:var(--rail-label-hover)]'
         }`}
       >
         {item.label}
@@ -65,11 +65,11 @@ const NavRow = React.memo(function NavRow({
 
       {count > 0 && (
         <span
-          className={`relative z-10 ml-auto text-[12px] font-normal tabular-nums transition-colors duration-300 ${
-            isActive
-              ? 'text-[color:var(--rail-count-active)]'
-              : countType === 'attention'
-                ? 'text-[color:var(--rail-count-attention)]'
+          className={`relative z-10 ml-auto text-[12px] font-semibold tabular-nums px-2 py-0.5 rounded-full transition-colors duration-200 ${
+            countType === 'attention'
+              ? 'bg-[color:var(--rail-count-attention-bg)] text-[color:var(--rail-count-attention)]'
+              : isActive
+                ? 'text-[color:var(--rail-count-active)]'
                 : 'text-[color:var(--rail-count-muted)]'
           }`}
           aria-label={
@@ -207,46 +207,47 @@ export default function Sidebar({ mobileOpen = false, onCloseMobile, onOpenComma
       )}
 
       <aside
-        className={`fixed bottom-0 left-0 top-0 z-50 m-[14px] flex h-[calc(100vh-28px)] w-[196px] flex-col overflow-visible rounded-[28px] border-0 bg-[color:var(--rail)] pb-3 pt-5 shadow-none transition-transform duration-200 ease-out min-[900px]:transform-none ${
+        className={`fixed bottom-0 left-0 top-0 z-50 flex h-screen w-[220px] flex-col overflow-hidden rounded-none border-r border-[color:var(--border,#E4E2DC)] bg-[color:var(--rail-surface,#EFECE8)] pb-3 shadow-none transition-transform duration-200 ease-out min-[900px]:transform-none ${
           mobileOpen ? 'translate-x-0' : '-translate-x-[230px]'
         }`}
       >
-        <div className="flex shrink-0 items-center px-5 pb-4 pt-1">
+        <div className="flex shrink-0 items-center px-6 pt-7 pb-6">
           <Link
             to="/dashboard"
             onClick={onCloseMobile}
-            className="flex items-center rounded text-[16px] font-semibold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            className="flex items-center rounded text-[19px] font-bold tracking-tight text-[color:var(--text,#1B1917)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)]"
           >
             <span>LinkedFlow</span>
           </Link>
         </div>
 
-        <nav ref={navRef} className="relative flex min-h-0 flex-1 flex-col overflow-visible py-1">
+        <nav ref={navRef} className="relative flex min-h-0 flex-1 flex-col overflow-hidden py-1 px-3">
           {pillY !== null && (
             <motion.span
-              className="pointer-events-none absolute left-[8px] right-[8px] top-0 z-0 h-[38px] min-[900px]:right-[-18px]"
+              className="pointer-events-none absolute left-[12px] right-[12px] top-0 z-0 h-[42px] rounded-[10px] overflow-hidden flex items-center"
               style={{
-                backgroundColor: 'var(--page-bg, #F1F0EC)',
-                borderRadius: 14,
+                backgroundColor: 'var(--rail-active-bg, #E4E0D8)',
               }}
               initial={false}
               animate={{ y: pillY }}
               transition={canAnimate ? PILL_SPRING : { duration: 0 }}
               aria-hidden="true"
-            />
+            >
+              <span className="w-[3.5px] h-[20px] bg-[color:var(--brand)] rounded-r-full shrink-0" />
+            </motion.span>
           )}
 
-          <div className="flex flex-col">{GROUP_1.map(renderRow)}</div>
+          <div className="flex flex-col gap-0.5">{GROUP_1.map(renderRow)}</div>
 
           <div
-            className="mx-4 my-2 border-t border-[color:var(--rail-divider)]"
+            className="mx-3 my-3 border-t border-[color:var(--rail-divider)]"
             style={{ borderTopWidth: '0.5px' }}
             role="separator"
           />
 
-          <div className="flex flex-col">{GROUP_2.map(renderRow)}</div>
+          <div className="flex flex-col gap-0.5">{GROUP_2.map(renderRow)}</div>
 
-          <div className="mt-auto flex flex-col pb-2">{FOOTER_NAV.map(renderRow)}</div>
+          <div className="mt-auto flex flex-col gap-0.5 pb-2">{FOOTER_NAV.map(renderRow)}</div>
         </nav>
 
         <SidebarUserFooter

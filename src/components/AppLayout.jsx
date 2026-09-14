@@ -18,7 +18,7 @@ export default function AppLayout({ children }) {
         onOpenCommandPalette={() => setCommandPaletteOpen(true)}
       />
 
-      <div className="min-h-screen flex flex-col min-[900px]:pl-[244px] transition-[padding] duration-200">
+      <div className="min-h-screen flex flex-col min-[900px]:pl-[220px] transition-[padding] duration-200">
         <Topbar onToggleSidebar={() => setMobileOpen((o) => !o)} />
         <main className="flex-1 px-6 lg:px-8 xl:px-10 pb-10 w-full max-w-none">
           {children || <Outlet />}

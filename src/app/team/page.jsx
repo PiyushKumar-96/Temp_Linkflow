@@ -6,25 +6,42 @@ import { useTeamMembers } from './_api/queries';
 import { useInviteMember, useUpdateMemberRole } from './_api/mutations';
 import TeamHeader from './_components/TeamHeader';
 import MemberList from './_components/MemberList';
+import PermissionEditPanel from './_components/PermissionEditPanel';
 import InviteMemberModal from './_components/InviteMemberModal';
 import { AlertCircle, RotateCcw, Users } from 'lucide-react';
 
 export default function TeamPage() {
   const { isOwner } = useAuth();
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
 
   const { data: members = [], isLoading, isError, error, refetch } = useTeamMembers();
   const safeMembers = Array.isArray(members) ? members : [];
   const inviteMutation = useInviteMember();
   const updateRoleMutation = useUpdateMemberRole();
 
-  const handleRoleChange = (memberId, newRole) => {
-    updateRoleMutation.mutate({ id: memberId, role: newRole });
+  const handleSavePermissions = (memberId, newRole, newPermissions) => {
+    updateRoleMutation.mutate({
+      id: memberId,
+      role: newRole,
+      permissions: newPermissions,
+    });
+  };
+
+  const handleRemoveMember = (memberId) => {
+    // In production backend, this calls deleteMember endpoint
+    console.log('Remove member:', memberId);
+  };
+
+  const handleResendInvite = (memberId) => {
+    console.log('Resend invite:', memberId);
   };
 
   const handleInvite = async (memberData) => {
     await inviteMutation.mutateAsync(memberData);
   };
+
+  const isPanelOpen = !!editingMember;
 
   if (isLoading) {
     return (
@@ -85,6 +102,7 @@ export default function TeamPage() {
           memberCount={0}
           onOpenInvite={() => setInviteModalOpen(true)}
           isOwner={isOwner}
+          isPanelOpen={false}
         />
         <div className="card p-12 text-center">
           <Users size={36} className="text-muted-foreground mx-auto mb-3" />
@@ -110,14 +128,31 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 w-full max-w-none">
       <TeamHeader
         memberCount={safeMembers.length}
         onOpenInvite={() => setInviteModalOpen(true)}
         isOwner={isOwner}
+        isPanelOpen={isPanelOpen}
       />
 
-      <MemberList members={safeMembers} isOwner={isOwner} onRoleChange={handleRoleChange} />
+      <div className="flex items-start gap-6 w-full min-w-0">
+        <MemberList
+          members={safeMembers}
+          isOwner={isOwner}
+          onRoleChange={(memberId, newRole) => handleSavePermissions(memberId, newRole, null)}
+          onRemoveMember={handleRemoveMember}
+          onResendInvite={handleResendInvite}
+          onOpenEditPermissions={(member) => setEditingMember(member)}
+        />
+
+        <PermissionEditPanel
+          isOpen={isPanelOpen}
+          onClose={() => setEditingMember(null)}
+          member={editingMember}
+          onSavePermissions={handleSavePermissions}
+        />
+      </div>
 
       <InviteMemberModal
         isOpen={inviteModalOpen}

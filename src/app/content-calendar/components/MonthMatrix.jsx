@@ -173,7 +173,7 @@ export default function MonthMatrix({
               const cellStyle = !cell.isCurrentMonth
                 ? 'border border-[color:var(--border)] text-[color:var(--text-subtle)] opacity-40 bg-transparent'
                 : isSelected
-                  ? 'bg-[color:var(--rail-count-attention)] text-[color:var(--text)] border-2 border-[color:var(--text)] shadow-md font-bold'
+                  ? 'bg-[color:var(--cal-selected-bg,#FDE047)] text-[color:var(--text)] border-2 border-[color:var(--text)] shadow-md font-bold'
                   : hasPosts
                     ? 'bg-[color:var(--card)] border-[1.5px] border-[color:var(--text)] text-[color:var(--text)] hover:bg-[color:var(--chip)]'
                     : 'bg-[color:var(--card)] border-[1.5px] border-[color:var(--border)] text-[color:var(--text)] hover:bg-[color:var(--chip)]';
